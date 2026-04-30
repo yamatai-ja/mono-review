@@ -14,7 +14,7 @@
     "preview:cf-workers": "npm run build && wrangler dev"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.8",
+    "@astrojs/check": "0.9.9",
     "@astrojs/mdx": "5.0.4",
     "@astrojs/react": "5.0.4",
     "@astrojs/sitemap": "3.7.2",
