@@ -1,42 +1,63 @@
----
-import Comment from "@components/comment/index.astro";
-import { PageHeader } from "@components/features/page-header";
-import Markdown from "@components/misc/Markdown.astro";
+﻿---
+import Base from "@/layouts/Base.astro";
+import { markdownify } from "@/lib/utils/textConverter";
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
 import { getEntry, render } from "astro:content";
 
-import I18nKey from "../i18n/i18nKey";
-import { i18n } from "../i18n/translation";
-import MainGridLayout from "../layouts/MainGridLayout.astro";
-
-const aboutPost = await getEntry("spec", "about");
-
-if (!aboutPost) {
-	throw new Error("About page content not found");
-}
-
-const { Content } = await render(aboutPost);
-const title = i18n(I18nKey.about);
+const entry = (await getEntry("about", "-index")) as CollectionEntry<"about">;
+const { Content } = await render(entry);
+const { title, meta_title, image, what_i_do } = entry.data;
 ---
 
-<MainGridLayout title={title}>
-	<!-- 引入右侧边栏布局管理器 -->
-	<script>
-		import("../scripts/right-sidebar-layout.js");
-	</script>
-	<div
-		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
-	>
-		<div class="card-base z-10 px-9 py-6 relative w-full">
-			<PageHeader title={title} />
+<Base title={title} meta_title={meta_title} image={image}>
+  <section class="section">
+    <div class="container">
+      <div class="row md:gx-4">
+        <div class="sm:col-5 md:col-4">
+          {
+            image && (
+              <div class="img-cover mb-8">
+                <Image
+                  src={image}
+                  width={295}
+                  height={395}
+                  alt={title}
+                  class="rounded-lg w-full"
+                />
+              </div>
+            )
+          }
+        </div>
+        <div class="sm:col-7 md:col-8">
+          <h1 set:html={markdownify(title)} class="h3 mb-8" />
 
-			<!-- 从MD文件读取的内容 -->
-			<Markdown class="mt-2">
-				<Content />
-			</Markdown>
-		</div>
-	</div>
+          <div class="content">
+            <Content />
+          </div>
+          <a href={import.meta.env.BASE_URL + "contact"} class="btn btn-primary text-white py-2"
+            >Get In Touch</a
+          >
+        </div>
+      </div>
+    </div>
+  </section>
 
-	<div class="mt-4">
-		<Comment path="/about/" />
-	</div>
-</MainGridLayout>
+  <section class="section pt-0">
+    <div class="container">
+      <h3 class="page-heading mb-20">{what_i_do.title}</h3>
+      <div class="row justify-center gy-4 text-center">
+        {
+          what_i_do.items.map((item: any) => (
+            <div class="lg:col-4 md:col-6">
+              <i class="{{.icon}} fa-3x text-primary mb-4" />
+              <h4 class="text-dark font-weight-700 mb-3">{item.title}</h4>
+              <p>{item.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
