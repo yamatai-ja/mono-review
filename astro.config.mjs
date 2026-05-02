@@ -106,6 +106,9 @@ export default defineConfig(({ mode }) => {
       define: {
         "import.meta.env.MICROCMS_API_ORIGIN": micro("MICROCMS_API_ORIGIN"),
       },
+      ssr: {
+        noExternal: ["react-icons"],
+      },
     },
     fonts: fontsConfig,
     integrations: [
