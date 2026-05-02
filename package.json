@@ -1,6 +1,6 @@
 {
-  "name": "bookworm-light-astro",
-  "version": "4.0.4",
+  "name": "mono-review-prod",
+  "version": "4.0.5",
   "license": "MIT",
   "type": "module",
   "scripts": {
