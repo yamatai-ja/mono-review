@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import AutoImport from "astro-auto-import";
 import gtm from "astro-gtm-lite";
 import { defineConfig, fontProviders, sharpImageService } from "astro/config";
+import { loadEnv } from "vite";
 import config from "./src/config/config.json";
 import theme from "./src/config/theme.json";
 
@@ -45,44 +46,60 @@ const fontsConfig = Object.entries(theme.fonts.font_family)
   });
 
 // https://astro.build/config
-export default defineConfig({
-  site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
-  base: config.site.base_path ? config.site.base_path : "/",
-  trailingSlash: config.site.trailing_slash ? "always" : "never",
-  image: {
-    service: sharpImageService(),
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.microcms-assets.io",
-        pathname: "/**",
-      },
-    ],
-  },
-  vite: { plugins: [tailwindcss()] },
-  fonts: fontsConfig,
-  integrations: [
-    react(),
-    sitemap(),
-    AutoImport({
-      imports: [
-        "@/shortcodes/Button",
-        "@/shortcodes/Accordion",
-        "@/shortcodes/Notice",
-        "@/shortcodes/Video",
-        "@/shortcodes/Youtube",
-        "@/shortcodes/Tabs",
-        "@/shortcodes/Tab",
+export default defineConfig(({ mode }) => {
+  const fromFile = loadEnv(mode, process.cwd(), "");
+  const micro = (key) =>
+    JSON.stringify(process.env[key] ?? fromFile[key] ?? "");
+
+  return {
+    site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
+    base: config.site.base_path ? config.site.base_path : "/",
+    trailingSlash: config.site.trailing_slash ? "always" : "never",
+    image: {
+      service: sharpImageService(),
+      remotePatterns: [
+        {
+          protocol: "https",
+          hostname: "images.microcms-assets.io",
+          pathname: "/**",
+        },
       ],
-    }),
-    mdx(),
-    gtm({
-      enable: config.google_tag_manager.enable,
-      id: config.google_tag_manager.gtm_id,
-      devMode: true,
-    }),
-  ],
-  markdown: {
-    shikiConfig: { theme: "one-dark-pro", wrap: true },
-  },
+    },
+    vite: {
+      plugins: [tailwindcss()],
+      define: {
+        "import.meta.env.MICROCMS_SERVICE_DOMAIN": micro("MICROCMS_SERVICE_DOMAIN"),
+        "import.meta.env.MICROCMS_API_KEY": micro("MICROCMS_API_KEY"),
+        "import.meta.env.MICROCMS_API_ORIGIN": micro("MICROCMS_API_ORIGIN"),
+        "import.meta.env.MICROCMS_POSTS_ENDPOINT": micro(
+          "MICROCMS_POSTS_ENDPOINT",
+        ),
+      },
+    },
+    fonts: fontsConfig,
+    integrations: [
+      react(),
+      sitemap(),
+      AutoImport({
+        imports: [
+          "@/shortcodes/Button",
+          "@/shortcodes/Accordion",
+          "@/shortcodes/Notice",
+          "@/shortcodes/Video",
+          "@/shortcodes/Youtube",
+          "@/shortcodes/Tabs",
+          "@/shortcodes/Tab",
+        ],
+      }),
+      mdx(),
+      gtm({
+        enable: config.google_tag_manager.enable,
+        id: config.google_tag_manager.gtm_id,
+        devMode: true,
+      }),
+    ],
+    markdown: {
+      shikiConfig: { theme: "one-dark-pro", wrap: true },
+    },
+  };
 });
