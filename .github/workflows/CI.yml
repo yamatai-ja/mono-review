@@ -26,18 +26,13 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install --legacy-peer-deps
 
       - name: Run Astro Check
-        run: pnpm astro check
+        run: npm run check
         env:
           ENABLE_CONTENT_SYNC: false
 
@@ -52,18 +47,13 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install --legacy-peer-deps
 
       - name: Run Build
-        run: pnpm build
+        run: npm run build
         env:
           ENABLE_CONTENT_SYNC: false
           BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
