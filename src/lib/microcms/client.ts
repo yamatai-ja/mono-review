@@ -148,13 +148,28 @@ export function createMicroCMSClient(
   };
 }
 
+function processEnvFallback(): Partial<
+  Pick<
+    NodeJS.ProcessEnv,
+    | "MICROCMS_SERVICE_DOMAIN"
+    | "MICROCMS_API_KEY"
+    | "MICROCMS_API_ORIGIN"
+  >
+> {
+  if (typeof globalThis.process === "undefined" || !globalThis.process?.env)
+    return {};
+  return globalThis.process.env;
+}
+
+/** `import.meta.env` に載らない CI 環境変数は `process.env` から読む。 */
 export function microCMSConfigFromEnv(env: {
   MICROCMS_SERVICE_DOMAIN?: string;
   MICROCMS_API_KEY?: string;
   MICROCMS_API_ORIGIN?: string;
 }): MicroCMSClientConfig {
-  const serviceDomain = env.MICROCMS_SERVICE_DOMAIN;
-  const apiKey = env.MICROCMS_API_KEY;
+  const pe = processEnvFallback();
+  const serviceDomain = env.MICROCMS_SERVICE_DOMAIN ?? pe.MICROCMS_SERVICE_DOMAIN;
+  const apiKey = env.MICROCMS_API_KEY ?? pe.MICROCMS_API_KEY;
   if (!serviceDomain || !apiKey) {
     throw new Error(
       "MICROCMS_SERVICE_DOMAIN と MICROCMS_API_KEY を環境変数に設定してください。",
@@ -163,6 +178,6 @@ export function microCMSConfigFromEnv(env: {
   return {
     serviceDomain,
     apiKey,
-    origin: env.MICROCMS_API_ORIGIN,
+    origin: env.MICROCMS_API_ORIGIN ?? pe.MICROCMS_API_ORIGIN,
   };
 }
