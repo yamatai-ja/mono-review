@@ -1,19 +1,46 @@
-import React from 'react';
-import { BsArrowRightCircle as _BsArrowRightCircle } from "react-icons/bs";
-import { BiCalendarEdit as _BiCalendarEdit, BiCategoryAlt as _BiCategoryAlt } from "react-icons/bi";
-import {  as _, IoLogoFacebook as _IoLogoFacebook, IoLogoLinkedin as _IoLogoLinkedin, IoLogoPinterest as _IoLogoPinterest, IoLogoTwitter as _IoLogoTwitter, IoSearch as _IoSearch } from "react-icons/io5";
-import { FaAddressCard as _FaAddressCard, FaEnvelope as _FaEnvelope, FaHashtag as _FaHashtag, FaPhoneAlt as _FaPhoneAlt } from "react-icons/fa";
+import React from "react";
+import { BsArrowRightCircle } from "react-icons/bs";
+import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
+import {
+  IoLogoFacebook,
+  IoLogoLinkedin,
+  IoLogoPinterest,
+  IoLogoTwitter,
+  IoSearch,
+} from "react-icons/io5";
+import {
+  FaAddressCard,
+  FaEnvelope,
+  FaHashtag,
+  FaPhoneAlt,
+} from "react-icons/fa";
 
-export const BsArrowRightCircle = (props: any) => <_BsArrowRightCircle {...props} />;
-export const BiCalendarEdit = (props: any) => <_BiCalendarEdit {...props} />;
-export const BiCategoryAlt = (props: any) => <_BiCategoryAlt {...props} />;
-export const  = (props: any) => <_ {...props} />;
-export const IoLogoFacebook = (props: any) => <_IoLogoFacebook {...props} />;
-export const IoLogoLinkedin = (props: any) => <_IoLogoLinkedin {...props} />;
-export const IoLogoPinterest = (props: any) => <_IoLogoPinterest {...props} />;
-export const IoLogoTwitter = (props: any) => <_IoLogoTwitter {...props} />;
-export const IoSearch = (props: any) => <_IoSearch {...props} />;
-export const FaAddressCard = (props: any) => <_FaAddressCard {...props} />;
-export const FaEnvelope = (props: any) => <_FaEnvelope {...props} />;
-export const FaHashtag = (props: any) => <_FaHashtag {...props} />;
-export const FaPhoneAlt = (props: any) => <_FaPhoneAlt {...props} />;
+// Re-export as proper React function components so Astro 6 can render them as React components.
+export const BsArrowRightCircleIcon = (props: any) => <BsArrowRightCircle {...props} />;
+export const BiCalendarEditIcon = (props: any) => <BiCalendarEdit {...props} />;
+export const BiCategoryAltIcon = (props: any) => <BiCategoryAlt {...props} />;
+export const IoLogoFacebookIcon = (props: any) => <IoLogoFacebook {...props} />;
+export const IoLogoLinkedinIcon = (props: any) => <IoLogoLinkedin {...props} />;
+export const IoLogoPinterestIcon = (props: any) => <IoLogoPinterest {...props} />;
+export const IoLogoTwitterIcon = (props: any) => <IoLogoTwitter {...props} />;
+export const IoSearchIcon = (props: any) => <IoSearch {...props} />;
+export const FaAddressCardIcon = (props: any) => <FaAddressCard {...props} />;
+export const FaEnvelopeIcon = (props: any) => <FaEnvelope {...props} />;
+export const FaHashtagIcon = (props: any) => <FaHashtag {...props} />;
+export const FaPhoneAltIcon = (props: any) => <FaPhoneAlt {...props} />;
+
+// Also export under original names for compatibility
+export {
+  BsArrowRightCircle,
+  BiCalendarEdit,
+  BiCategoryAlt,
+  IoLogoFacebook,
+  IoLogoLinkedin,
+  IoLogoPinterest,
+  IoLogoTwitter,
+  IoSearch,
+  FaAddressCard,
+  FaEnvelope,
+  FaHashtag,
+  FaPhoneAlt,
+};
