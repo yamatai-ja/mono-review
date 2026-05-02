@@ -6,6 +6,7 @@ import Pagination from "@/layouts/components/Pagination.astro";
 import {
   createMicroCMSClient,
   microCMSConfigFromEnv,
+  microCMSPostsEndpoint,
 } from "@/lib/microcms";
 import {
   type MicroCMSBlogPostFields,
@@ -13,7 +14,7 @@ import {
   sortBlogListCardsByDate,
 } from "@/lib/utils/blogListCard";
 
-const endpoint = import.meta.env.MICROCMS_POSTS_ENDPOINT || "posts";
+const endpoint = microCMSPostsEndpoint(import.meta.env);
 
 const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
 const all = await client.getAllContents<MicroCMSBlogPostFields>(endpoint, {

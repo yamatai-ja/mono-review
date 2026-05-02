@@ -148,17 +148,33 @@ export function createMicroCMSClient(
   };
 }
 
+/** microCMS の API でのコンテンツ名（未設定時は `blogs`） */
+export const MICROCMS_POSTS_ENDPOINT_DEFAULT = "blogs";
+
 function processEnvFallback(): Partial<
   Pick<
     NodeJS.ProcessEnv,
     | "MICROCMS_SERVICE_DOMAIN"
     | "MICROCMS_API_KEY"
     | "MICROCMS_API_ORIGIN"
+    | "MICROCMS_POSTS_ENDPOINT"
   >
 > {
   if (typeof globalThis.process === "undefined" || !globalThis.process?.env)
     return {};
   return globalThis.process.env;
+}
+
+/** posts コンテンツの API キー（`MICROCMS_POSTS_ENDPOINT`）。CI では `process.env` 側だけに載る場合あり。 */
+export function microCMSPostsEndpoint(env: {
+  MICROCMS_POSTS_ENDPOINT?: string;
+}): string {
+  const pe = processEnvFallback();
+  return (
+    env.MICROCMS_POSTS_ENDPOINT?.trim() ||
+    pe.MICROCMS_POSTS_ENDPOINT?.trim() ||
+    MICROCMS_POSTS_ENDPOINT_DEFAULT
+  );
 }
 
 /** `import.meta.env` に載らない CI 環境変数は `process.env` から読む。 */

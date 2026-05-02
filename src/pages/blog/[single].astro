@@ -4,14 +4,16 @@ import PostSingle from "@/partials/PostSingle.astro";
 import {
   createMicroCMSClient,
   microCMSConfigFromEnv,
+  microCMSPostsEndpoint,
 } from "@/lib/microcms";
 import type { MicroCMSContent } from "@/lib/microcms/types";
 import type { MicroCMSBlogPostFields } from "@/lib/utils/blogListCard";
 import { plainify } from "@/lib/utils/textConverter";
 
-const endpoint = import.meta.env.MICROCMS_POSTS_ENDPOINT || "posts";
+const endpoint = microCMSPostsEndpoint(import.meta.env);
 
 export async function getStaticPaths() {
+  const endpoint = microCMSPostsEndpoint(import.meta.env);
   const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
   const allPosts = await client.getAllContents<MicroCMSBlogPostFields>(
     endpoint,
