@@ -105,9 +105,7 @@ export default defineConfig(({ mode }) => {
         "import.meta.env.MICROCMS_SERVICE_DOMAIN": micro("MICROCMS_SERVICE_DOMAIN"),
         "import.meta.env.MICROCMS_API_KEY": micro("MICROCMS_API_KEY"),
         "import.meta.env.MICROCMS_API_ORIGIN": micro("MICROCMS_API_ORIGIN"),
-        "import.meta.env.MICROCMS_POSTS_ENDPOINT": micro(
-          "MICROCMS_POSTS_ENDPOINT",
-        ),
+        "import.meta.env.MICROCMS_POSTS_ENDPOINT": JSON.stringify("blogs"),
       },
     },
     fonts: fontsConfig,
