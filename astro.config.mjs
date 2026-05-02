@@ -102,8 +102,8 @@ export default defineConfig(({ mode }) => {
     vite: {
       plugins: [tailwindcss()],
       define: {
-        "import.meta.env.MICROCMS_SERVICE_DOMAIN": micro("MICROCMS_SERVICE_DOMAIN"),
-        "import.meta.env.MICROCMS_API_KEY": micro("MICROCMS_API_KEY"),
+        "import.meta.env.MICROCMS_SERVICE_DOMAIN": JSON.stringify("9dpfhv920t"),
+        "import.meta.env.MICROCMS_API_KEY": JSON.stringify("R0QVtPegFalIVWnBlrpV8VPWkYHqfqNFcp4o"),
         "import.meta.env.MICROCMS_API_ORIGIN": micro("MICROCMS_API_ORIGIN"),
         "import.meta.env.MICROCMS_POSTS_ENDPOINT": JSON.stringify("blogs"),
       },
