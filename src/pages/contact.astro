@@ -4,7 +4,7 @@ import Base from "@/layouts/Base.astro";
 import { markdownify } from "@/lib/utils/textConverter";
 import type { CollectionEntry } from "astro:content";
 import { getEntry } from "astro:content";
-import { FaAddressCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { FaAddressCard, FaEnvelope, FaPhoneAlt } from "@/layouts/helpers/ReactIconsWrapper";
 
 const entry = (await getEntry(
   "contact",
