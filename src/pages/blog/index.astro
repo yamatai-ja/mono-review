@@ -14,7 +14,7 @@ import {
   sortBlogListCardsByDate,
 } from "@/lib/utils/blogListCard";
 
-const postsEndpoint = microCMSPostsEndpoint(import.meta.env);
+const postsEndpoint = "blogs";
 
 const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
 const all = await client.getAllContents<MicroCMSBlogPostFields>(postsEndpoint, {

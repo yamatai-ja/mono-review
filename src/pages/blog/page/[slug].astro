@@ -18,7 +18,7 @@ import {
 export async function getStaticPaths() {
   const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
   const all = await client.getAllContents<MicroCMSBlogPostFields>(
-    microCMSPostsEndpoint(import.meta.env),
+    "blogs",
     {
       orders: "-publishedAt",
     },
