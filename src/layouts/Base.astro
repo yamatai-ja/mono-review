@@ -6,7 +6,6 @@ import { plainify } from "@/lib/utils/textConverter";
 import Footer from "@/partials/Footer.astro";
 import Header from "@/partials/Header.astro";
 import "@/styles/main.css";
-import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 
 // font families - extract font names for Font component (filter out type keys)
@@ -50,11 +49,21 @@ const { title, meta_title, description, image, noindex, canonical } =
     <meta name="generator" content={Astro.generator} />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <!-- google font css - Astro 6 built-in Font API -->
+    <!-- google font css -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     {
       fontEntries.map(([key, fontStr]) => {
-        const fontName = fontStr.split(":")[0].replace(/\+/g, " ");
-        return <Font name={fontName} preload />;
+        const family = fontStr.split(":")[0].replace(/\+/g, " ");
+        const weights = fontStr.includes("wght@") ? fontStr.split("wght@")[1] : "400;600;700";
+        const typeKey = `${key}_type`;
+        const fallback = (theme.fonts.font_family as any)[typeKey] || "sans-serif";
+        return (
+          <>
+            <link href={`https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@${weights}&display=swap`} rel="stylesheet" />
+            <style is:inline set:html={`:root { --font-${key}: '${family}', ${fallback}; }`} />
+          </>
+        );
       })
     }
 
