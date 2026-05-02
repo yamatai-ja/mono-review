@@ -178,7 +178,7 @@ export function microCMSPostsEndpoint(env: {
 }
 
 const MICROCMS_SERVICE_DOMAIN_DEFAULT = "9dpfhv920t";
-const MICROCMS_API_KEY_DEFAULT = "R0QVtPegFalIVWnBlrpV8VPWkYHqfqNFcp4o";
+const MICROCMS_API_KEY_DEFAULT = "R0QVtPegFaIIVWnBIrpV8VPWkYhqfqNFcp4o";
 
 /** `import.meta.env` に載らない CI 環境変数は `process.env` から読む。 */
 export function microCMSConfigFromEnv(env: {
