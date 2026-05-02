@@ -61,31 +61,31 @@ function parseFontString(fontStr) {
   return { name: cleanName, weights };
 }
 
-// Build fonts configuration from theme.json
-const fontsConfig = Object.entries(theme.fonts.font_family)
-  .filter(([key]) => !key.includes("_type")) // Filter out type entries
-  .map(([key, fontStr]) => {
-    const { name, weights } = parseFontString(fontStr);
-    const typeKey = `${key}_type`;
-    const fallback = theme.fonts.font_family[typeKey] || "sans-serif";
-
-    return {
-      name,
-      cssVariable: `--font-${key}`,
-      provider: fontProviders.google(),
-      weights,
-      display: "swap",
-      fallbacks: [fallback],
-    };
-  });
-
-console.log("FONTS_CONFIG:", JSON.stringify(fontsConfig, null, 2));
-
 // https://astro.build/config
 export default defineConfig(({ mode }) => {
   const fromFile = dotEnvForMode(mode);
   const micro = (key) =>
     JSON.stringify(process.env[key] ?? fromFile[key] ?? "");
+
+  // Build fonts configuration from theme.json inside defineConfig
+  const fontsConfig = Object.entries(theme.fonts.font_family)
+    .filter(([key]) => !key.includes("_type")) // Filter out type entries
+    .map(([key, fontStr]) => {
+      const { name, weights } = parseFontString(fontStr);
+      const typeKey = `${key}_type`;
+      const fallback = theme.fonts.font_family[typeKey] || "sans-serif";
+
+      return {
+        name,
+        cssVariable: `--font-${key}`,
+        provider: fontProviders.google(),
+        weights,
+        display: "swap",
+        fallbacks: [fallback],
+      };
+    });
+
+  console.log("FONTS_CONFIG (inside):", JSON.stringify(fontsConfig, null, 2));
 
   return {
     site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
