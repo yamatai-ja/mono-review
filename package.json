@@ -3,7 +3,7 @@
   "version": "4.0.2",
   "license": "MIT",
   "type": "module",
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
