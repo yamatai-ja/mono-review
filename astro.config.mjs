@@ -79,6 +79,8 @@ const fontsConfig = Object.entries(theme.fonts.font_family)
     };
   });
 
+console.log("FONTS_CONFIG:", JSON.stringify(fontsConfig, null, 2));
+
 // https://astro.build/config
 export default defineConfig(({ mode }) => {
   const fromFile = dotEnvForMode(mode);
