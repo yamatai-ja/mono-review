@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -5,9 +7,41 @@ import tailwindcss from "@tailwindcss/vite";
 import AutoImport from "astro-auto-import";
 import gtm from "astro-gtm-lite";
 import { defineConfig, fontProviders, sharpImageService } from "astro/config";
-import { loadEnv } from "vite";
 import config from "./src/config/config.json";
 import theme from "./src/config/theme.json";
+
+function parseEnvFile(filePath) {
+  if (!existsSync(filePath)) return {};
+  const out = {};
+  const text = readFileSync(filePath, "utf8");
+  for (const line of text.split("\n")) {
+    const t = line.trim();
+    if (!t || t.startsWith("#")) continue;
+    const eq = t.indexOf("=");
+    if (eq <= 0) continue;
+    const k = t.slice(0, eq).trim();
+    if (!k) continue;
+    let v = t.slice(eq + 1).trim();
+    if (
+      (v.startsWith('"') && v.endsWith('"')) ||
+      (v.startsWith("'") && v.endsWith("'"))
+    ) {
+      v = v.slice(1, -1);
+    }
+    out[k] = v;
+  }
+  return out;
+}
+
+function dotEnvForMode(mode) {
+  const root = process.cwd();
+  return {
+    ...parseEnvFile(resolve(root, ".env")),
+    ...parseEnvFile(resolve(root, ".env.local")),
+    ...parseEnvFile(resolve(root, `.env.${mode}`)),
+    ...parseEnvFile(resolve(root, `.env.${mode}.local`)),
+  };
+}
 
 // Helper to parse font string format: "FontName:wght@400;500;600;700"
 function parseFontString(fontStr) {
@@ -47,7 +81,7 @@ const fontsConfig = Object.entries(theme.fonts.font_family)
 
 // https://astro.build/config
 export default defineConfig(({ mode }) => {
-  const fromFile = loadEnv(mode, process.cwd(), "");
+  const fromFile = dotEnvForMode(mode);
   const micro = (key) =>
     JSON.stringify(process.env[key] ?? fromFile[key] ?? "");
 
