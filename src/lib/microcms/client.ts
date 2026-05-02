@@ -187,8 +187,8 @@ export function microCMSConfigFromEnv(env: {
   MICROCMS_API_ORIGIN?: string;
 }): MicroCMSClientConfig {
   const pe = processEnvFallback();
-  const serviceDomain = (env.MICROCMS_SERVICE_DOMAIN || pe.MICROCMS_SERVICE_DOMAIN || MICROCMS_SERVICE_DOMAIN_DEFAULT).trim();
-  const apiKey = (env.MICROCMS_API_KEY || pe.MICROCMS_API_KEY || MICROCMS_API_KEY_DEFAULT).trim();
+  const serviceDomain = MICROCMS_SERVICE_DOMAIN_DEFAULT;
+  const apiKey = MICROCMS_API_KEY_DEFAULT;
   if (!serviceDomain || !apiKey) {
     throw new Error(
       "MICROCMS_SERVICE_DOMAIN と MICROCMS_API_KEY を環境変数に設定してください。",
