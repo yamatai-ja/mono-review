@@ -1,11 +1,11 @@
 {
   "name": "mono-review-prod",
-  "version": "4.1.6",
+  "version": "4.1.7",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "echo 'SYNC_VERIFIED_4.1.6'; astro build",
+    "build": "echo 'SYNC_VERIFIED_4.1.7'; astro build",
     "preview": "astro preview",
     "format": "prettier -w .",
     "check": "astro check",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@astrojs/check": "0.9.8",
     "@astrojs/mdx": "5.0.4",
-    "@astrojs/react": "5.0.4",
+    "@astrojs/react": "^4.2.0",
     "@astrojs/sitemap": "3.7.2",
     "@justinribeiro/lite-youtube": "^1.9.0",
     "astro": "6.1.9",
@@ -26,16 +26,16 @@
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "marked": "^18.0.2",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-icons": "^5.6.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
