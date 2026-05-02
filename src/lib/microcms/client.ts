@@ -68,7 +68,7 @@ async function microCMSFetch<T>(
   if (!res.ok) {
     const body = await res.text();
     throw new Error(
-      `microCMS request failed: ${res.status} ${res.statusText} — ${body}`,
+      `microCMS request failed [URL: ${url}]: ${res.status} ${res.statusText} — ${body}`,
     );
   }
 
