@@ -56,6 +56,8 @@ async function microCMSFetch<T>(
   const base = resolveApiBase(config);
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
+  console.log(`[microCMS] Fetching: ${url}`);
+
   const res = await fetch(url, {
     headers: {
       "X-MICROCMS-API-KEY": config.apiKey,
