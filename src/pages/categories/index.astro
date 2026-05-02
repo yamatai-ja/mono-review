@@ -5,7 +5,6 @@ import { humanize } from "@/lib/utils/textConverter";
 
 const categories = await getTaxonomy("posts", "categories");
 
-import { BiCategoryAlt } from "@/layouts/helpers/ReactIconsWrapper";
 ---
 
 <Base title={"Categories"}>
@@ -20,8 +19,7 @@ import { BiCategoryAlt } from "@/layouts/helpers/ReactIconsWrapper";
                 href={`${import.meta.env.BASE_URL}categories/${category}`}
                 class="rounded-lg bg-light px-4 py-2 text-dark transition hover:bg-primary hover:text-white flex items-center group"
               >
-                <BiCategoryAlt className="mr-1 text-primary group-hover:text-white transition h-6 w-6 scale-75" />
-                {humanize(category || "")}
+                <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-1" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>{humanize(category || "")}
               </a>
             </li>
           ))
