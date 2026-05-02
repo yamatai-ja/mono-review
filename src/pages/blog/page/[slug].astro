@@ -16,11 +16,13 @@ import {
 } from "@/lib/utils/blogListCard";
 
 export async function getStaticPaths() {
-  const endpoint = microCMSPostsEndpoint(import.meta.env);
   const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
-  const all = await client.getAllContents<MicroCMSBlogPostFields>(endpoint, {
-    orders: "-publishedAt",
-  });
+  const all = await client.getAllContents<MicroCMSBlogPostFields>(
+    microCMSPostsEndpoint(import.meta.env),
+    {
+      orders: "-publishedAt",
+    },
+  );
   const sorted = sortBlogListCardsByDate(
     all.map(microCMSContentToBlogListCard),
   );
