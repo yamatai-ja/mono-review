@@ -3,7 +3,10 @@ import Posts from "@/components/Posts.astro";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { getTaxonomy } from "@/lib/taxonomyParser.astro";
-import { sortByDate } from "@/lib/utils/sortFunctions";
+import {
+  collectionEntryToBlogListCard,
+  sortBlogListCardsByDate,
+} from "@/lib/utils/blogListCard";
 import taxonomyFilter from "@/lib/utils/taxonomyFilter";
 import { humanize } from "@/lib/utils/textConverter";
 
@@ -21,7 +24,9 @@ const { tag } = Astro.params;
 
 const posts = await getSinglePage("posts");
 const filterByTags = taxonomyFilter(posts, "tags", tag);
-const sortedPosts = sortByDate(filterByTags);
+const sortedPosts = sortBlogListCardsByDate(
+  filterByTags.map(collectionEntryToBlogListCard),
+);
 
 const title = humanize(tag || "");
 ---

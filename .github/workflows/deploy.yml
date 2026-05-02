@@ -28,6 +28,12 @@ jobs:
 
       - name: Build Astro
         run: npm run build
+        env:
+          # microCMS（静的生成時に blog/* が Content API を呼び出す）
+          MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
+          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          # 任意。未設定の場合はコード側で既定値 `posts` を使用
+          MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

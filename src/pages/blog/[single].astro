@@ -1,30 +1,58 @@
 ---
 import Base from "@/layouts/Base.astro";
-import { getSinglePage } from "@/lib/contentParser.astro";
 import PostSingle from "@/partials/PostSingle.astro";
+import {
+  createMicroCMSClient,
+  microCMSConfigFromEnv,
+} from "@/lib/microcms";
+import type { MicroCMSContent } from "@/lib/microcms/types";
+import type { MicroCMSBlogPostFields } from "@/lib/utils/blogListCard";
+import { plainify } from "@/lib/utils/textConverter";
+
+const endpoint = import.meta.env.MICROCMS_POSTS_ENDPOINT || "posts";
 
 export async function getStaticPaths() {
-  const BLOG_FOLDER = "posts";
-  const posts = await getSinglePage(BLOG_FOLDER);
-
-  const paths = posts.map((post) => ({
-    params: {
-      single: post.id,
-    },
-    props: { post },
+  const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
+  const allPosts = await client.getAllContents<MicroCMSBlogPostFields>(
+    endpoint,
+    { orders: "-publishedAt" },
+  );
+  return allPosts.map((post) => ({
+    params: { single: post.id },
+    props: { allPosts },
   }));
-  return paths;
 }
 
-const { post } = Astro.props;
-const { title, meta_title, image, description } = post.data;
+type Props = {
+  allPosts: MicroCMSContent<MicroCMSBlogPostFields>[];
+};
+
+const { allPosts } = Astro.props as Props;
+const { single } = Astro.params;
+
+const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
+const article = await client.getDetail<MicroCMSBlogPostFields>(
+  endpoint,
+  single!,
+);
+
+const title = article.title;
+const meta_title = article.meta_title ?? title;
+const description =
+  article.description != null && article.description !== ""
+    ? plainify(article.description)
+    : undefined;
+const imageUrl =
+  typeof article.image === "string"
+    ? article.image
+    : article.image?.url;
 ---
 
 <Base
   title={title}
   meta_title={meta_title}
   description={description}
-  image={image}
+  image={imageUrl}
 >
-  <PostSingle post={post} />
+  <PostSingle article={article} allPosts={allPosts} />
 </Base>

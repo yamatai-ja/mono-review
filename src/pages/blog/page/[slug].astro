@@ -1,0 +1,75 @@
+---
+import Posts from "@/components/Posts.astro";
+import config from "@/config/config.json";
+import Base from "@/layouts/Base.astro";
+import Pagination from "@/layouts/components/Pagination.astro";
+import {
+  createMicroCMSClient,
+  microCMSConfigFromEnv,
+} from "@/lib/microcms";
+import {
+  type BlogListCard,
+  type MicroCMSBlogPostFields,
+  microCMSContentToBlogListCard,
+  sortBlogListCardsByDate,
+} from "@/lib/utils/blogListCard";
+
+const endpoint = import.meta.env.MICROCMS_POSTS_ENDPOINT || "posts";
+
+export async function getStaticPaths() {
+  const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
+  const all = await client.getAllContents<MicroCMSBlogPostFields>(endpoint, {
+    orders: "-publishedAt",
+  });
+  const sorted = sortBlogListCardsByDate(
+    all.map(microCMSContentToBlogListCard),
+  );
+  const totalPages = Math.ceil(
+    sorted.length / config.settings.pagination,
+  );
+
+  const paths: {
+    params: { slug: string };
+    props: {
+      currentPosts: BlogListCard[];
+      totalPages: number;
+      currentPage: number;
+    };
+  }[] = [];
+
+  for (let pageNum = 2; pageNum <= totalPages; pageNum++) {
+    const indexOfLastPost = pageNum * config.settings.pagination;
+    const indexOfFirstPost = indexOfLastPost - config.settings.pagination;
+    paths.push({
+      params: { slug: String(pageNum) },
+      props: {
+        currentPosts: sorted.slice(indexOfFirstPost, indexOfLastPost),
+        totalPages,
+        currentPage: pageNum,
+      },
+    });
+  }
+  return paths;
+}
+
+type Props = {
+  currentPosts: BlogListCard[];
+  totalPages: number;
+  currentPage: number;
+};
+
+const { currentPosts, totalPages, currentPage } = Astro.props as Props;
+---
+
+<Base>
+  <section class="section">
+    <div class="container">
+      <Posts className="mb-16" posts={currentPosts} />
+      <Pagination
+        section="blog"
+        totalPages={totalPages}
+        currentPage={currentPage}
+      />
+    </div>
+  </section>
+</Base>

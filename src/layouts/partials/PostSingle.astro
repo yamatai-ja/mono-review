@@ -1,45 +1,90 @@
 ﻿---
 import Share from "@/components/Share.astro";
 import SimilarPosts from "@/components/SimilarPosts.astro";
+import config from "@/config/config.json";
 import { getSinglePage } from "@/lib/contentParser.astro";
+import type { MicroCMSContent } from "@/lib/microcms/types";
+import {
+  microCMSContentToBlogListCard,
+  microCMSBodyHtml,
+  pickCategories,
+  pickTags,
+  resolvePostImageSrc,
+  type MicroCMSBlogPostFields,
+} from "@/lib/utils/blogListCard";
 import dateFormat from "@/lib/utils/dateFormat";
-import similerItems from "@/lib/utils/similarItems";
-import { humanize, markdownify, slugify } from "@/lib/utils/textConverter";
+import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
-import { render } from "astro:content";
 import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
 
+type Props = {
+  article: MicroCMSContent<MicroCMSBlogPostFields>;
+  allPosts: MicroCMSContent<MicroCMSBlogPostFields>[];
+};
+
 const allAuthors = await getSinglePage("authors");
-const posts = await getSinglePage("posts");
-const { post } = Astro.props;
-const similarPosts = similerItems(post, posts, post.slug);
-const { Content } = await render(post);
-const { title, description, authors, categories, image, date, tags } =
-  post.data;
+const { article, allPosts } = Astro.props;
+
+const bodyHtml = microCMSBodyHtml(article);
+const { title, description, authors, categories, image } = article;
+const tagList = pickTags(article.tags);
+const categoryList = pickCategories(categories);
+const heroSrc = resolvePostImageSrc(
+  typeof image === "string" ? image : image?.url,
+);
+
+const shareSlug = `${config.site.base_path.replace(/^\/|\/$/g, "")}/blog/${article.id}`;
+
+const catSet = new Set(categoryList);
+const tagSet = new Set(tagList);
+const similarCards =
+  catSet.size === 0 && tagSet.size === 0
+    ? []
+    : allPosts
+        .filter((p) => {
+          if (p.id === article.id) return false;
+          const pc = pickCategories(p.categories);
+          const pt = pickTags(p.tags);
+          return (
+            pc.some((c: string) => catSet.has(c)) ||
+              pt.some((t: string) => tagSet.has(t))
+          );
+        })
+        .map(microCMSContentToBlogListCard)
+        .slice(0, 10);
+
+const displaySimilar = similarCards.slice(0, 3);
+
+const metaDescription = description
+  ? plainify(description)
+  : plainify(bodyHtml.slice(0, 500));
 ---
 
 <section class="section">
   <div class="container">
     <article class="row justify-center">
       <div class="md:col-10 text-center">
-        <h1 set:html={markdownify(title)} class="h2" />
+        <h1 class="h2">{title}</h1>
         <ul class="mt-4 flex flex-wrap items-center justify-center text-text">
           <li class="mx-3">
             {
               allAuthors
                 .filter((author) =>
-                  authors
-                    .map((author: string) => slugify(author))
+                  (authors ?? [])
+                    .map((a: string) => slugify(a))
                     .includes(slugify(author.data.title))
                 )
                 .map((author) => (
                   <a
-                    href={`${import.meta.env.BASE_URL}authors/${slugify(author.id)}`}
+                    href={`${import.meta.env.BASE_URL}authors/${slugify(author.data.title)}`}
                     class="flex items-center hover:text-primary font-medium"
                   >
                     {author.data.image && (
                       <Image
-                        src={author.data.image}
+                        src={
+                          resolvePostImageSrc(author.data.image) ??
+                          author.data.image
+                        }
                         alt={author.data.title}
                         height={50}
                         width={50}
@@ -53,21 +98,21 @@ const { title, description, authors, categories, image, date, tags } =
           </li>
           <li class="mx-3 flex items-center flex-wrap font-medium">
             <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
-            {dateFormat(date)}
+            {dateFormat(article.publishedAt)}
           </li>
           <li class="mx-3 flex items-center flex-wrap">
             <BiCategoryAlt className="mr-1 h-[18px] w-[18px] text-gray-600" />
 
             <ul>
               {
-                categories.map((category: string, i: number) => (
+                categoryList.map((category: string, i: number) => (
                   <li class="inline-block">
                     <a
                       href={`${import.meta.env.BASE_URL}categories/${slugify(category)}`}
                       class="mr-2 hover:text-primary font-medium"
                     >
                       {humanize(category)}
-                      {i !== post.data.categories.length - 1 && ","}
+                      {i !== categoryList.length - 1 && ","}
                     </a>
                   </li>
                 ))
@@ -79,9 +124,9 @@ const { title, description, authors, categories, image, date, tags } =
 
       <div class="col-12 mt-8 mb-2">
         {
-          image && (
+          heroSrc && (
             <Image
-              src={image}
+              src={heroSrc}
               height={500}
               width={1000}
               alt={title}
@@ -93,12 +138,12 @@ const { title, description, authors, categories, image, date, tags } =
 
       <div class="md:col-10">
         <div class="content mb-16 text-left">
-          <Content />
+          <div set:html={bodyHtml} />
         </div>
         <div class="flex flex-wrap items-center justify-between">
           <ul class="mr-4 mb-4 space-x-3">
             {
-              tags.map((tag: string) => (
+              tagList.map((tag: string) => (
                 <li class="inline-block">
                   <a
                     href={`${import.meta.env.BASE_URL}tags/${slugify(tag)}`}
@@ -113,8 +158,8 @@ const { title, description, authors, categories, image, date, tags } =
           <Share
             className="social-share mb-4"
             title={title}
-            description={description}
-            slug={post.id}
+            description={metaDescription}
+            slug={shareSlug}
           />
         </div>
       </div>
@@ -122,15 +167,13 @@ const { title, description, authors, categories, image, date, tags } =
   </div>
 </section>
 
-<!-- similar posts -->
 {
-  similarPosts.length > 0 && (
+  displaySimilar.length > 0 && (
     <section class="section pt-0">
       <div class="container">
         <h2 class="mb-8 text-center h3">Similar Posts</h2>
-        <SimilarPosts posts={similarPosts.slice(0, 3)} />
+        <SimilarPosts posts={displaySimilar} />
       </div>
     </section>
   )
 }
-

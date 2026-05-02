@@ -42,8 +42,10 @@ jobs:
       - name: Run Astro Check
         run: pnpm astro check
         env:
-          # 测试构建时禁用内容同步,使用本地内容
           ENABLE_CONTENT_SYNC: false
+          MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
+          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}
 
   build:
     strategy:
@@ -74,3 +76,6 @@ jobs:
         run: pnpm astro build
         env:
           ENABLE_CONTENT_SYNC: false
+          MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
+          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}
