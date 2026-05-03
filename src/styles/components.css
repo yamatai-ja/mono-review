@@ -191,3 +191,27 @@
 footer p a {
   @apply transition-all duration-200 hover:text-white;
 }
+
+/* Custom Notice Boxes for Blog Posts */
+.notice-box {
+  @apply relative my-8 p-6 rounded-lg border-2 bg-white text-dark;
+}
+.notice-box::before {
+  @apply absolute -top-4 left-4 bg-white px-2 text-sm font-bold;
+  content: "";
+}
+.notice-box p:last-child {
+  @apply mb-0;
+}
+
+.notice-box.box-info { border-color: #1b83e2; }
+.notice-box.box-info::before { content: "💡 ポイント"; color: #1b83e2; }
+
+.notice-box.box-warning { border-color: #db2c23; }
+.notice-box.box-warning::before { content: "⚠️ 注意"; color: #db2c23; }
+
+.notice-box.box-success { border-color: #40d294; }
+.notice-box.box-success::before { content: "✅ チェック"; color: #40d294; }
+
+.notice-box.box-tip { border-color: #e3a72c; }
+.notice-box.box-tip::before { content: "🌟 ヒント"; color: #e3a72c; }
