@@ -42,6 +42,7 @@ jobs:
           ENABLE_CONTENT_SYNC: false
           MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          MICROCMS_API_ORIGIN: ${{ secrets.MICROCMS_API_ORIGIN }}
           MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}
 
   build:
@@ -71,4 +72,5 @@ jobs:
           ENABLE_CONTENT_SYNC: false
           MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          MICROCMS_API_ORIGIN: ${{ secrets.MICROCMS_API_ORIGIN }}
           MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}

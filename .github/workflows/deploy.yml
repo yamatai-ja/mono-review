@@ -34,7 +34,7 @@ jobs:
           # microCMS（静的生成時に blog/* が Content API を呼び出す）
           MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
-          # 任意。未設定の場合はコード側で既定値 `blogs` を使用
+          MICROCMS_API_ORIGIN: ${{ secrets.MICROCMS_API_ORIGIN }}
           MICROCMS_POSTS_ENDPOINT: ${{ secrets.MICROCMS_POSTS_ENDPOINT }}
 
       - name: Upload artifact
