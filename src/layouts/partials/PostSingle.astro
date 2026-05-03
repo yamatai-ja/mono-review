@@ -261,8 +261,8 @@ const blogPostingSchema = {
                       image={p.image?.url || p.product_image?.url}
                       amazonUrl={p.amazon_url || p.amazon_link}
                       rakutenUrl={p.rakuten_url || p.rakuten_link}
-                      yahooUrl={p.yahoo_url || p.yahoo_link}
-                      price={p.price}
+                      yahooUrl={p.yahoo_link}
+                      price={p.price || p.yahoo_url}
                     />
                   ))}
                 </div>
