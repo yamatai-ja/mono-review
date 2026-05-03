@@ -75,10 +75,10 @@ const currentPosts = sortPostsByDate.filter((post) => {
                       {post.data.categories.map((category, i: number) => (
                         <li class="inline-block">
                           <a
-                            href={`/categories/${slugify(category)}`}
+                            href={`/categories/${slugify(typeof category === "string" ? category : category.id)}`}
                             class="mr-2 hover:text-primary font-medium"
                           >
-                            {humanize(category)}
+                            {typeof category === "string" ? humanize(category) : category.name}
                             {i !== post.data.categories.length - 1 && ","}
                           </a>
                         </li>

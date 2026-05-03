@@ -15,10 +15,10 @@ import {
 import dateFormat from "@/lib/utils/dateFormat";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
-import ProductCard from "@/components/ProductCard.astro";
+import ProductCard from "../../components/ProductCard.astro";
 import Sidebar from "./Sidebar.astro";
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
-import ReviewScore from "@/components/ReviewScore.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ReviewScore from "../../components/ReviewScore.astro";
 
 type Props = {
   article: MicroCMSContent<MicroCMSBlogPostFields>;
