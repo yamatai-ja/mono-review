@@ -93,6 +93,37 @@ const { title, meta_title, description, image, noindex, canonical } =
       )}
     />
 
+    <!-- google search console -->
+    {
+      config.analytics.google_search_console_id && (
+        <meta
+          name="google-site-verification"
+          content={config.analytics.google_search_console_id}
+        />
+      )
+    }
+
+    <!-- google analytics (gtag.js) -->
+    {
+      config.analytics.google_analytics_id && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${config.analytics.google_analytics_id}`}
+          />
+          <script
+            is:inline
+            set:html={`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${config.analytics.google_analytics_id}');
+            `}
+          />
+        </>
+      )
+    }
+
     <ClientRouter />
 
     <!-- author from config.json -->
