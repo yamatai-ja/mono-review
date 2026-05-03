@@ -1,4 +1,4 @@
-﻿---
+---
 import Share from "@/components/Share.astro";
 import SimilarPosts from "@/components/SimilarPosts.astro";
 import config from "@/config/config.json";
@@ -24,7 +24,16 @@ type Props = {
 const allAuthors = await getSinglePage("authors");
 const { article, allPosts } = Astro.props;
 
-const bodyHtml = microCMSBodyHtml(article);
+const rawBodyHtml = microCMSBodyHtml(article);
+
+// 目次の抽出と本文へのID付与
+const headings: { text: string; id: string; level: number }[] = [];
+const bodyHtml = rawBodyHtml.replace(/<h([23])(.*?)>(.*?)<\/h\1>/g, (match, level, attrs, text) => {
+  const id = slugify(plainify(text));
+  headings.push({ text: plainify(text), id, level: parseInt(level) });
+  return `<h${level}${attrs} id="${id}">${text}</h${level}>`;
+});
+
 const { title, description, authors, categories, image } = article;
 const tagList = pickTags(article.tags);
 const categoryList = pickCategories(categories);
@@ -132,7 +141,22 @@ const metaDescription = description
         }
       </div>
 
-      <div class="md:col-10">
+      <div class="lg:col-3 order-2 lg:order-1 mt-8">
+        {headings.length > 0 && (
+          <div class="toc sticky top-24 p-4 bg-light rounded-lg border border-border">
+            <h4 class="h5 mb-4 border-b pb-2">目次</h4>
+            <ul class="space-y-2 text-sm">
+              {headings.map((h) => (
+                <li class={h.level === 3 ? "ml-4" : "font-medium"}>
+                  <a href={`#${h.id}`} class="hover:text-primary transition">{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <div class="lg:col-9 order-1 lg:order-2">
         <div class="content mb-16 text-left">
           <div set:html={bodyHtml} />
         </div>
@@ -162,6 +186,36 @@ const metaDescription = description
     </article>
   </div>
 </section>
+
+<style is:global>
+  /* 比較表のスタイル */
+  .content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+  }
+  .content th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    text-align: center;
+  }
+  .content td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    vertical-align: middle;
+  }
+
+  /* 目次のレスポンシブ調整 */
+  @media (max-width: 991px) {
+    .toc {
+      position: static;
+      margin-bottom: 2rem;
+    }
+  }
+</style>
 
 {
   displaySimilar.length > 0 && (

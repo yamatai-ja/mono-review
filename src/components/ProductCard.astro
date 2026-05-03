@@ -1,0 +1,53 @@
+---
+interface Props {
+  title: string;
+  image?: string;
+  amazonUrl?: string;
+  rakutenUrl?: string;
+  yahooUrl?: string;
+  price?: string;
+}
+
+const { title, image, amazonUrl, rakutenUrl, yahooUrl, price } = Astro.props;
+---
+
+<div class="product-card border rounded-lg p-4 my-6 shadow-sm bg-white flex flex-col md:flex-row gap-6">
+  {image && (
+    <div class="product-image flex-shrink-0 w-full md:w-48 flex items-center justify-center">
+      <img src={image} alt={title} class="max-h-48 object-contain" />
+    </div>
+  )}
+  <div class="product-info flex-grow">
+    <h4 class="text-xl font-bold mb-2 text-dark">{title}</h4>
+    {price && <p class="text-primary font-bold text-lg mb-4">{price}</p>}
+    
+    <div class="product-links flex flex-wrap gap-2">
+      {amazonUrl && (
+        <a href={amazonUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#FF9900] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+          Amazonで見る
+        </a>
+      )}
+      {rakutenUrl && (
+        <a href={rakutenUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#BF0000] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+          楽天で見る
+        </a>
+      )}
+      {yahooUrl && (
+        <a href={yahooUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#FF0033] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+          Yahooで見る
+        </a>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    border: 1px solid #e5e7eb;
+  }
+  .btn {
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none !important;
+  }
+</style>
