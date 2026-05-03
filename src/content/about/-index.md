@@ -1,23 +1,34 @@
 ---
-title: "I’m John Doe, A content writer based in LDN, Currently at Bookworm"
-meta_title: "About"
+title: "「mono図録」へようこそ。管理人の T.Y です。"
+meta_title: "このサイトについて"
 image: "/images/author.png"
 draft: false
 
 what_i_do:
   title: "What I Do"
   items:
-  - title: "Content Writing"
-    description: "Purus eget ipsum elementum venenatis, quis rutrum mi semper nonpurus eget ipsum elementum venenatis."
+  - title: "Gadget & Tech"
+    description: "キーボードやマウスなどの入力デバイスから、PC周辺機器まで。一人のユーザーとして、日々の作業を快適にする「真に使い勝手の良い道具」を厳選して紹介します。"
   
-  - title: "Photography"
-    description: "Aenean maximus urna magna elementum, quis rutrum mi semper non purus eget ipsum venenatis."
+  - title: "Sports & Hobby"
+    description: "卓球の用具選びやグラウンド・ゴルフの記録、さらにはFlightradar24を活用した航空機の追跡など、熱量の高い趣味の世界を深掘りします。"
   
-  - title: "Web Research"
-    description: "Aenean maximus urna magna elementum venenatis, quis semper non purus eget ipsum venenatis."
+  - title: "AI & Content Creation"
+    description: "GeminiやGPTなどのAIをパートナーとした、次世代のブログ執筆プロセスを実践しています。楽しみながら質の高い情報を発信するための手法とその知見を共有します。"
 
 ---
 
-A content writer with over 12 years experience working across brand identity, publishing and digital products. Maecenas sit amet purus eget ipsum elementum venenatis. Aenean maximus urna magna elementum venenatis quis non purus.
+私は、GeminiやGPT、NotebookLMといった最新のAIツールをブログ執筆や日常のワークフローに取り入れ、効率的かつ多角的な視点でのコンテンツ制作を行っています。
+複雑な情報を整理し、自分自身の興味関心を「図録」として形に残していくプロセスを日々楽しんでいます。
 
-Purus eget ipsum elementum venenatis. Aenean maximus urna magna elementum venenatis, quis rutrum mi semper non purus eget ipsum elementum venenatis, aenean maximus urna magna elementum.
+このブログ「Mono's Log」では、一人の「モノ好き」としての視点と、徹底した「検証の記録」を公開しています。
+
+### ブロガー視点の分析
+NVIDIA RTX 3060 12GBを搭載したデスクトップPC環境や、iPhone SEを活用したデジタルライフなど、こだわりを持って選んだ道具たちの使い勝手を言語化します。
+
+### 徹底した道具選び
+卓球の用具選びやグラウンド・ゴルフの記録など、納得のいくまで調べ、実際に検証した一次情報を大切にしています。
+
+### 日常生活と備え
+日用品や防災に役立つアイテムから、今話題の人気商品まで幅広く紹介します。
+家族が快適に過ごせる環境づくりなど、日々の暮らしに根ざした視点も大切にしています。
