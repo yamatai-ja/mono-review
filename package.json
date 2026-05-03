@@ -4,8 +4,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "echo 'SYNC_VERIFIED_4.2.5'; astro build",
+    "dev": "python scripts/sync_from_microcms.py && astro dev",
+    "build": "python scripts/sync_from_microcms.py && echo 'SYNC_VERIFIED_4.2.5'; astro build",
     "preview": "astro preview",
     "format": "prettier -w .",
     "check": "astro check",

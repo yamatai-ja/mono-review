@@ -11,20 +11,25 @@ export type BlogListCard = {
   image?: string;
   date: Date;
   authors: string[];
-  categories: string[];
+  categories: (string | { id: string; name: string })[];
 };
 
 export function collectionEntryToBlogListCard(
   post: CollectionEntry<"posts">,
 ): BlogListCard {
+  const data = post.data as any;
+  
+  // カテゴリーの形式を維持しつつ、安全に取得する
+  const categories = Array.isArray(data.categories) ? data.categories : [];
+
   return {
     id: post.id,
-    title: post.data.title,
-    excerpt: plainify(post.body ?? ""),
-    image: post.data.image,
-    date: post.data.date ?? new Date(),
-    authors: post.data.authors,
-    categories: post.data.categories,
+    title: data.title,
+    excerpt: data.description || plainify(post.body ?? ""),
+    image: data.image,
+    date: data.date ?? new Date(),
+    authors: data.authors ?? [],
+    categories: categories,
   };
 }
 

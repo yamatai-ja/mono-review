@@ -1,4 +1,4 @@
-﻿---
+---
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { slugify } from "@/lib/utils/textConverter";
 
@@ -9,8 +9,14 @@ export const getTaxonomy = async (collection: any, name: string) => {
   let taxonomies: string[] = [];
   for (let i = 0; i < taxonomyPages.length; i++) {
     const categoryArray = taxonomyPages[i];
+    if (!categoryArray) continue;
     for (let j = 0; j < categoryArray.length; j++) {
-      taxonomies.push(slugify(categoryArray[j])!);
+      const item = categoryArray[j];
+      if (typeof item === "object" && item !== null && item.id) {
+        taxonomies.push(item.id);
+      } else if (typeof item === "string") {
+        taxonomies.push(slugify(item)!);
+      }
     }
   }
   const taxonomy = [...new Set(taxonomies)];
@@ -24,8 +30,14 @@ export const getAllTaxonomy = async (collection: any, name: string) => {
   let taxonomies: string[] = [];
   for (let i = 0; i < taxonomyPages.length; i++) {
     const categoryArray = taxonomyPages[i];
+    if (!categoryArray) continue;
     for (let j = 0; j < categoryArray.length; j++) {
-      taxonomies.push(slugify(categoryArray[j])!);
+      const item = categoryArray[j];
+      if (typeof item === "object" && item !== null && item.id) {
+        taxonomies.push(item.id);
+      } else if (typeof item === "string") {
+        taxonomies.push(slugify(item)!);
+      }
     }
   }
   return taxonomies;

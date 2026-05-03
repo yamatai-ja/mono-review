@@ -61,10 +61,10 @@ const { title, meta_title, description, image, noindex, canonical } =
         const typeKey = `${key}_type`;
         const fallback = (theme.fonts.font_family as any)[typeKey] || "sans-serif";
         return (
-          <>
+          <Fragment key={key}>
             <link href={`https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@${weights}&display=swap`} rel="stylesheet" />
             <style is:inline set:html={`:root { --font-${key}: '${family}', ${fallback}; }`} />
-          </>
+          </Fragment>
         );
       })
     }
@@ -107,7 +107,7 @@ const { title, meta_title, description, image, noindex, canonical } =
     <!-- google analytics (gtag.js) -->
     {
       config.analytics.google_analytics_id && (
-        <>
+        <Fragment>
           <script
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${config.analytics.google_analytics_id}`}
@@ -121,8 +121,9 @@ const { title, meta_title, description, image, noindex, canonical } =
               gtag('config', '${config.analytics.google_analytics_id}');
             `}
           />
-        </>
+        </Fragment>
       )
+    }
     {
       config.adsense.adsense_id && (
         <script

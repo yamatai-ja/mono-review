@@ -1,6 +1,10 @@
 {
   "main": [
     {
+      "name": "ホーム",
+      "url": "/"
+    },
+    {
       "name": "デジタル・ガジェット",
       "url": "/categories/digital-gadget"
     },
