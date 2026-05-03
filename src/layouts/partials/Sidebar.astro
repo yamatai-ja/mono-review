@@ -150,6 +150,14 @@ const popularPosts = latestPosts.slice(0, 3);
       ))}
     </div>
   </div>
+
+  <!-- サイドバー広告 -->
+  {config.adsense.ad_sidebar && (
+    <div class="p-4 bg-white rounded-lg border border-border shadow-sm text-center">
+      <p class="text-[10px] text-text-light mb-2">SPONSORED</p>
+      <div set:html={config.adsense.ad_sidebar} />
+    </div>
+  )}
 </aside>
 
 <style>

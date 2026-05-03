@@ -123,9 +123,15 @@ const { title, meta_title, description, image, noindex, canonical } =
           />
         </>
       )
+    {
+      config.adsense.adsense_id && (
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsense.adsense_id}`}
+          crossorigin="anonymous"
+        />
+      )
     }
-
-    <ClientRouter />
 
     <!-- author from config.json -->
     <meta name="author" content={config.metadata.meta_author} />

@@ -39,6 +39,20 @@ const bodyHtml = rawBodyHtml.replace(/<h([23])(.*?)>(.*?)<\/h\1>/g, (match, leve
 });
 
 const { title, description, authors, categories, image } = article;
+
+// 記事内広告の挿入
+let bodyWithAds = bodyHtml;
+if (config.adsense.ad_in_article) {
+  const adInArticle = `
+    <div class="my-8 text-center border-t border-b border-border py-4">
+      <p class="text-[10px] text-text-light mb-2">SPONSORED</p>
+      ${config.adsense.ad_in_article}
+    </div>
+  `;
+  // 最初の </h2> の後に挿入
+  bodyWithAds = bodyHtml.replace(/<\/h2>/, `</h2>${adInArticle}`);
+}
+
 const tagList = pickTags(article.tags);
 const categoryList = pickCategories(categories);
 const heroSrc = resolvePostImageSrc(
@@ -188,7 +202,7 @@ const blogPostingSchema = {
         </div>
 
         <div class="content mb-16 text-left">
-          <div set:html={bodyHtml} />
+          <div set:html={bodyWithAds} />
         </div>
 
         {
