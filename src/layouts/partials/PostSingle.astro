@@ -16,6 +16,7 @@ import dateFormat from "@/lib/utils/dateFormat";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
 import ProductCard from "@/components/ProductCard.astro";
+import Sidebar from "./Sidebar.astro";
 
 type Props = {
   article: MicroCMSContent<MicroCMSBlogPostFields>;
@@ -44,6 +45,10 @@ const heroSrc = resolvePostImageSrc(
 
 const shareSlug = `${config.site.base_path.replace(/^\/|\/$/g, "")}/blog/${article.id}`;
 
+const metaDescription = description
+  ? plainify(description)
+  : plainify(bodyHtml.slice(0, 500));
+
 const catSet = new Set(categoryList);
 const tagSet = new Set(tagList);
 const similarCards =
@@ -63,104 +68,88 @@ const similarCards =
         .slice(0, 10);
 
 const displaySimilar = similarCards.slice(0, 3);
-
-const metaDescription = description
-  ? plainify(description)
-  : plainify(bodyHtml.slice(0, 500));
 ---
 
 <section class="section">
   <div class="container">
-    <article class="row justify-center">
-      <div class="md:col-10 text-center">
-        <h1 class="h2">{title}</h1>
-        <ul class="mt-4 flex flex-wrap items-center justify-center text-text">
-          <li class="mx-3">
-            {
-              allAuthors
-                .filter((author) =>
-                  (authors ?? [])
-                    .map((a: string) => slugify(a))
-                    .includes(slugify(author.data.title))
-                )
-                .map((author) => (
-                  <a
-                    href={`${import.meta.env.BASE_URL}authors/${slugify(author.data.title)}`}
-                    class="flex items-center hover:text-primary font-medium"
-                  >
-                    {author.data.image && (
-                      <Image
-                        src={
-                          resolvePostImageSrc(author.data.image) ??
-                          author.data.image
-                        }
-                        alt={author.data.title}
-                        height={50}
-                        width={50}
-                        class="mr-2 h-6 w-6 rounded-full"
-                      />
-                    )}
-                    <span>{author.data.title}</span>
-                  </a>
-                ))
-            }
-          </li>
-          <li class="mx-3 flex items-center flex-wrap font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-1" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path d="m9.08 16.17 1.41 1.41 4.59-4.58-1.41-1.42z"/></svg>{dateFormat(article.publishedAt)}
-          </li>
-          <li class="mx-3 flex items-center flex-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-1" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg><ul>
+    <div class="row">
+      <!-- メインコンテンツ -->
+      <article class="lg:col-8">
+        <div class="text-center md:text-left">
+          <h1 class="h2">{title}</h1>
+          <ul class="mt-4 flex flex-wrap items-center justify-center md:justify-start text-text">
+            <li class="mr-6 mb-2">
               {
-                categoryList.map((category: string, i: number) => (
-                  <li class="inline-block">
+                allAuthors
+                  .filter((author) =>
+                    (authors ?? [])
+                      .map((a: string) => slugify(a))
+                      .includes(slugify(author.data.title))
+                  )
+                  .map((author) => (
                     <a
-                      href={`${import.meta.env.BASE_URL}categories/${slugify(category)}`}
-                      class="mr-2 hover:text-primary font-medium"
+                      href={`${import.meta.env.BASE_URL}authors/${slugify(author.data.title)}`}
+                      class="flex items-center hover:text-primary font-medium"
                     >
-                      {humanize(category)}
-                      {i !== categoryList.length - 1 && ","}
+                      {author.data.image && (
+                        <Image
+                          src={
+                            resolvePostImageSrc(author.data.image) ??
+                            author.data.image
+                          }
+                          alt={author.data.title}
+                          height={50}
+                          width={50}
+                          class="mr-2 h-6 w-6 rounded-full"
+                        />
+                      )}
+                      <span>{author.data.title}</span>
                     </a>
-                  </li>
-                ))
+                  ))
               }
-            </ul>
-          </li>
-        </ul>
-      </div>
+            </li>
+            <li class="mr-6 mb-2 flex items-center font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-1" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path d="m9.08 16.17 1.41 1.41 4.59-4.58-1.41-1.42z"/></svg>{dateFormat(article.publishedAt)}
+            </li>
+            <li class="mb-2 flex items-center font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-1" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>
+              <ul class="inline-block">
+                {
+                  categoryList.map((category: string, i: number) => (
+                    <li class="inline-block">
+                      <a
+                        href={`${import.meta.env.BASE_URL}categories/${slugify(category)}`}
+                        class="mr-2 hover:text-primary font-medium"
+                      >
+                        {humanize(category)}
+                        {i !== categoryList.length - 1 && ","}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </li>
+          </ul>
+        </div>
 
-      <div class="col-12 mt-8 mb-2">
-        {
-          heroSrc && (
-            <Image
-              src={heroSrc}
-              height={500}
-              width={1000}
-              alt={title}
-              class="rounded-lg"
-            />
-          )
-        }
-      </div>
+        <div class="mt-8 mb-8">
+          {
+            heroSrc && (
+              <Image
+                src={heroSrc}
+                height={500}
+                width={1000}
+                alt={title}
+                class="rounded-lg w-full"
+              />
+            )
+          }
+        </div>
 
-      <div class="lg:col-3 order-2 lg:order-1 mt-8">
-        {headings.length > 0 && (
-          <div class="toc sticky top-24 p-4 bg-light rounded-lg border border-border">
-            <h4 class="h5 mb-4 border-b pb-2">目次</h4>
-            <ul class="space-y-2 text-sm">
-              {headings.map((h) => (
-                <li class={h.level === 3 ? "ml-4" : "font-medium"}>
-                  <a href={`#${h.id}`} class="hover:text-primary transition">{h.text}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <div class="lg:col-9 order-1 lg:order-2">
         <div class="content mb-16 text-left">
           <div set:html={bodyHtml} />
         </div>
+
         {
           article.products && article.products.length > 0 && (
             <div class="mt-12">
@@ -178,6 +167,7 @@ const metaDescription = description
             </div>
           )
         }
+
         <div class="flex flex-wrap items-center justify-between mt-12">
           <ul class="mr-4 mb-4 space-x-3">
             {
@@ -200,8 +190,13 @@ const metaDescription = description
             slug={shareSlug}
           />
         </div>
-      </div>
-    </article>
+      </article>
+
+      <!-- サイドバー -->
+      <aside class="lg:col-4 mt-12 lg:mt-0">
+        <Sidebar headings={headings} latestPosts={allPosts} />
+      </aside>
+    </div>
   </div>
 </section>
 
@@ -224,14 +219,6 @@ const metaDescription = description
     border: 1px solid #dee2e6;
     padding: 12px;
     vertical-align: middle;
-  }
-
-  /* 目次のレスポンシブ調整 */
-  @media (max-width: 991px) {
-    .toc {
-      position: static;
-      margin-bottom: 2rem;
-    }
   }
 </style>
 

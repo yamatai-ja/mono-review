@@ -1,0 +1,113 @@
+---
+import { Image } from "astro:assets";
+import { resolvePostImageSrc } from "@/lib/utils/blogListCard";
+import dateFormat from "@/lib/utils/dateFormat";
+import { humanize, slugify } from "@/lib/utils/textConverter";
+
+const { headings, latestPosts } = Astro.props;
+
+// プロフィール情報
+const profile = {
+  name: "T.Y",
+  image: "/images/author.png", // 後で画像を変更可能
+  bio: "AI（Gemini/GPT）を駆使して「モノの深掘り」を記録するエンジニア・ブロガー。ガジェット、スポーツ、日用品の徹底検証を『図録』として発信中。"
+};
+
+// おすすめランキング（とりあえず最新の中から3つをピックアップ、後で手動指定可能）
+const popularPosts = latestPosts.slice(0, 3);
+---
+
+<aside class="space-y-8">
+  <!-- プロフィール -->
+  <div class="bg-light p-6 rounded-lg border border-border text-center">
+    <div class="mb-4 flex justify-center">
+      <Image
+        src={profile.image}
+        alt={profile.name}
+        width={100}
+        height={100}
+        class="rounded-full border-4 border-white shadow-sm h-24 w-24 object-cover"
+      />
+    </div>
+    <h3 class="h5 mb-2">{profile.name}</h3>
+    <p class="text-sm text-text mb-4 leading-relaxed">
+      {profile.bio}
+    </p>
+    <a href="/about" class="btn btn-outline-primary btn-sm w-full">詳しく見る</a>
+  </div>
+
+  <!-- 目次 (Sticky) -->
+  {headings && headings.length > 0 && (
+    <div class="toc-sidebar sticky top-24 p-6 bg-white rounded-lg border border-border shadow-sm hidden lg:block">
+      <h3 class="h6 mb-4 border-b pb-2 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        目次
+      </h3>
+      <ul class="space-y-3 text-sm">
+        {headings.map((h: any) => (
+          <li class={h.level === 3 ? "ml-4 text-text-light" : "font-medium text-dark"}>
+            <a href={`#${h.id}`} class="hover:text-primary transition-colors duration-200 block">
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <!-- 新着記事 -->
+  <div class="p-6 bg-white rounded-lg border border-border shadow-sm">
+    <h3 class="h6 mb-4 border-b pb-2">新着記事</h3>
+    <div class="space-y-4">
+      {latestPosts.slice(0, 5).map((post: any) => (
+        <a href={`${import.meta.env.BASE_URL}blog/${post.id}`} class="group flex gap-3 items-start">
+          <div class="flex-shrink-0 w-20 h-14 overflow-hidden rounded">
+            <Image
+              src={resolvePostImageSrc(post.image?.url) || "/images/author.png"}
+              alt={post.title}
+              width={80}
+              height={56}
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+            />
+          </div>
+          <div class="flex-grow">
+            <h4 class="text-xs font-bold leading-tight group-hover:text-primary transition duration-200 line-clamp-2">
+              {post.title}
+            </h4>
+            <span class="text-[10px] text-text-light">{dateFormat(post.publishedAt)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- おすすめランキング -->
+  <div class="p-6 bg-white rounded-lg border border-border shadow-sm">
+    <h3 class="h6 mb-4 border-b pb-2">おすすめ記事</h3>
+    <div class="space-y-4">
+      {popularPosts.map((post: any, index: number) => (
+        <a href={`${import.meta.env.BASE_URL}blog/${post.id}`} class="group flex gap-3 items-center">
+          <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-light text-primary font-bold text-sm">
+            {index + 1}
+          </div>
+          <h4 class="text-xs font-bold leading-tight group-hover:text-primary transition duration-200 line-clamp-2">
+            {post.title}
+          </h4>
+        </a>
+      ))}
+    </div>
+  </div>
+</aside>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .toc-sidebar {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+</style>
