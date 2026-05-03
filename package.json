@@ -1,11 +1,11 @@
 {
   "name": "mono-review-prod",
-  "version": "4.2.3",
+  "version": "4.2.4",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "echo 'SYNC_VERIFIED_4.2.3'; astro build",
+    "build": "echo 'SYNC_VERIFIED_4.2.4'; astro build",
     "preview": "astro preview",
     "format": "prettier -w .",
     "check": "astro check",
