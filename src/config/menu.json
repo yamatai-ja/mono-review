@@ -1,27 +1,16 @@
 {
   "main": [
     {
-      "name": "ホーム",
-      "url": "/"
+      "name": "デジタル・ガジェット",
+      "url": "/categories/digital-gadget"
     },
     {
-      "name": "新着記事",
-      "url": "/blog"
+      "name": "スポーツ・趣味",
+      "url": "/categories/sports-hobby"
     },
     {
-      "name": "カテゴリー",
-      "url": "",
-      "hasChildren": true,
-      "children": [
-        {
-          "name": "カテゴリー一覧",
-          "url": "/categories"
-        },
-        {
-          "name": "タグ一覧",
-          "url": "/tags"
-        }
-      ]
+      "name": "ホーム & キッチン",
+      "url": "/categories/home-kitchen"
     },
     {
       "name": "このサイトについて",
