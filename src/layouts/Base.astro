@@ -130,15 +130,13 @@ const { title, meta_title, description, image, noindex, canonical } =
     <!-- author from config.json -->
     <meta name="author" content={config.metadata.meta_author} />
 
-    <!-- og-title -->
+    <!-- og-meta -->
     <meta
       property="og:title"
       content={plainify(
         meta_title ? meta_title : title ? title : config.site.title,
       )}
     />
-
-    <!-- og-description -->
     <meta
       property="og:description"
       content={plainify(
@@ -146,20 +144,16 @@ const { title, meta_title, description, image, noindex, canonical } =
       )}
     />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content={`${config.site.base_url}/${Astro.url.pathname.replace("/", "")}`}
-    />
+    <meta property="og:url" content={Astro.url} />
 
-    <!-- twitter-title -->
+    <!-- twitter-meta -->
+    <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
       content={plainify(
         meta_title ? meta_title : title ? title : config.site.title,
       )}
     />
-
-    <!-- twitter-description -->
     <meta
       name="twitter:description"
       content={plainify(
@@ -170,19 +164,17 @@ const { title, meta_title, description, image, noindex, canonical } =
     <!-- og-image -->
     <meta
       property="og:image"
-      content={`${config.site.base_url}${import.meta.env.BASE_URL}${
-        image ? image.replace(/^\//, "") : config.metadata.meta_image.replace(/^\//, "")
+      content={`${config.site.base_url}${
+        image ? image : config.metadata.meta_image
+      }`}
+    />
+    <meta
+      name="twitter:image"
+      content={`${config.site.base_url}${
+        image ? image : config.metadata.meta_image
       }`}
     />
 
-    <!-- twitter-image -->
-    <meta
-      name="twitter:image"
-      content={`${config.site.base_url}${import.meta.env.BASE_URL}${
-        image ? image.replace(/^\//, "") : config.metadata.meta_image.replace(/^\//, "")
-      }`}
-    />
-    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <TwSizeIndicator />
