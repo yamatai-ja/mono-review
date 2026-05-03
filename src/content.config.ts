@@ -65,7 +65,17 @@ const postsCollection = defineCollection({
     description: z.string().optional(),
     date: z.coerce.date().optional(),
     image: z.string().optional(),
-    categories: z.array(z.string()).default(() => ["others"]),
+    categories: z
+      .array(
+        z.union([
+          z.string(),
+          z.object({
+            id: z.string(),
+            name: z.string(),
+          }),
+        ]),
+      )
+      .default(() => ["others"]),
     authors: z.array(z.string()).default(() => ["Admin"]),
     tags: z.array(z.string()).default(() => ["others"]),
     draft: z.boolean().optional(),
