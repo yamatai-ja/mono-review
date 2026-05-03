@@ -2,7 +2,7 @@ import dateFormat from "@/lib/utils/dateFormat";
 import { humanize, slugify } from "@/lib/utils/textConverter";
 import Fuse from "fuse.js";
 import React, { useEffect, useRef, useState } from "react";
-import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
+import { BiCalendarEdit, BiCategoryAlt } from "@/layouts/helpers/ReactIconsWrapper";
 
 export type SearchItem = {
   slug: string;
