@@ -57,10 +57,14 @@ const popularPosts = latestPosts.slice(0, 3);
         <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
         目次
       </h3>
-      <ul class="space-y-3 text-sm">
+      <ul class="space-y-3 text-sm" id="toc-list">
         {headings.map((h: any) => (
           <li class={h.level === 3 ? "ml-4 text-text-light" : "font-medium text-dark"}>
-            <a href={`#${h.id}`} class="hover:text-primary transition-colors duration-200 block">
+            <a 
+              href={`#${h.id}`} 
+              data-toc-link 
+              class="hover:text-primary transition-colors duration-200 block border-l-2 border-transparent pl-3"
+            >
               {h.text}
             </a>
           </li>
@@ -68,6 +72,41 @@ const popularPosts = latestPosts.slice(0, 3);
       </ul>
     </div>
   )}
+
+<script>
+  // 目次のハイライト機能
+  const observerOptions = {
+    root: null,
+    rootMargin: '-10% 0px -80% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        const activeLink = document.querySelector(`[data-toc-link][href="#${id}"]`);
+        
+        // 全てのリンクから active クラスを削除
+        document.querySelectorAll('[data-toc-link]').forEach(link => {
+          link.classList.remove('text-primary', 'font-bold', 'border-primary');
+          link.classList.add('border-transparent');
+        });
+
+        // 現在の見出しに active クラスを付与
+        if (activeLink) {
+          activeLink.classList.add('text-primary', 'font-bold', 'border-primary');
+          activeLink.classList.remove('border-transparent');
+        }
+      }
+    });
+  }, observerOptions);
+
+  // 記事内の見出し（h2, h3）を監視
+  document.querySelectorAll('article h2, article h3').forEach(heading => {
+    observer.observe(heading);
+  });
+</script>
 
   <!-- 新着記事 -->
   <div class="p-6 bg-white rounded-lg border border-border shadow-sm">
