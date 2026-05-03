@@ -1,0 +1,62 @@
+---
+---
+
+<div id="mobile-fixed-menu" class="fixed bottom-0 left-0 z-50 w-full border-t border-border bg-white/80 backdrop-blur-md lg:hidden transform translate-y-full transition-transform duration-300">
+  <ul class="flex h-16 items-center justify-around text-[10px] font-bold text-text">
+    <li>
+      <a href="/" class="flex flex-col items-center justify-center space-y-1 px-4 py-2 hover:text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>ホーム</span>
+      </a>
+    </li>
+    <li>
+      <a href="/categories" class="flex flex-col items-center justify-center space-y-1 px-4 py-2 hover:text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>カテゴリー</span>
+      </a>
+    </li>
+    <li>
+      <a href="/search" class="flex flex-col items-center justify-center space-y-1 px-4 py-2 hover:text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>検索</span>
+      </a>
+    </li>
+    <li>
+      <button id="scroll-to-top" class="flex flex-col items-center justify-center space-y-1 px-4 py-2 hover:text-primary outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        <span>トップへ</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<script>
+  const menu = document.getElementById('mobile-fixed-menu');
+  const scrollBtn = document.getElementById('scroll-to-top');
+
+  // 少しスクロールしたら表示する
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 100) {
+      menu?.classList.remove('translate-y-full');
+    } else {
+      menu?.classList.add('translate-y-full');
+    }
+  });
+
+  // トップへ戻る
+  scrollBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
+<style>
+  /* 下部の余白確保（メニューで隠れないように） */
+  :global(body) {
+    padding-bottom: 4rem;
+  }
+  @media (min-width: 1024px) {
+    :global(body) {
+      padding-bottom: 0;
+    }
+  }
+</style>
