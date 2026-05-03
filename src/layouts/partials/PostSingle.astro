@@ -17,6 +17,7 @@ import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
 import ProductCard from "@/components/ProductCard.astro";
 import Sidebar from "./Sidebar.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 
 type Props = {
   article: MicroCMSContent<MicroCMSBlogPostFields>;
@@ -75,6 +76,17 @@ const displaySimilar = similarCards.slice(0, 3);
     <div class="row">
       <!-- メインコンテンツ -->
       <article class="lg:col-8">
+        <Breadcrumbs 
+          className="mb-6"
+          items={[
+            { name: "ホーム", url: "/" },
+            { 
+              name: categoryList[0] || "ブログ", 
+              url: categoryList[0] ? `/categories/${slugify(categoryList[0])}` : "/blog" 
+            },
+            { name: title }
+          ]}
+        />
         <div class="text-center md:text-left">
           <h1 class="h2">{title}</h1>
           <ul class="mt-4 flex flex-wrap items-center justify-center md:justify-start text-text">

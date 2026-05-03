@@ -1,0 +1,46 @@
+---
+import { humanize, slugify } from "@/lib/utils/textConverter";
+
+const { className, items } = Astro.props;
+
+// JSON-LD 構造化データ
+const breadcrumbList = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": items.map((item: any, index: number) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "name": item.name,
+    "item": item.url ? `${Astro.url.origin}${item.url}` : undefined
+  }))
+};
+---
+
+<nav aria-label="Breadcrumb" class={className}>
+  <ol class="flex flex-wrap list-none p-0 text-sm text-text-light">
+    {items.map((item: any, index: number) => (
+      <li class="flex items-center">
+        {index > 0 && <span class="mx-2 text-[10px]">/</span>}
+        {item.url ? (
+          <a href={item.url} class="hover:text-primary transition-colors duration-200">
+            {humanize(item.name)}
+          </a>
+        ) : (
+          <span class="text-dark font-medium line-clamp-1">{item.name}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<!-- JSON-LD 構造化データの埋め込み -->
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbList)} />
+
+<style>
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
