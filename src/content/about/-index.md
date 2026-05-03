@@ -1,5 +1,5 @@
 ---
-title: "「mono図録」へようこそ。管理人の T.Y です。"
+title: "「Mono's Log」へようこそ。管理人の T.Y です。"
 meta_title: "このサイトについて"
 image: "/images/author.png"
 draft: false
