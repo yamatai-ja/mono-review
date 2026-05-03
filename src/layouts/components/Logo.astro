@@ -31,7 +31,18 @@ const {
         }}
       />
     ) : logo_text ? (
-      logo_text
+      <span style={{ 
+        fontSize: "28px", 
+        fontWeight: "700", 
+        color: "#000", 
+        lineHeight: "1", 
+        display: "inline-flex", 
+        alignItems: "center",
+        letterSpacing: "-0.02em"
+      }}>
+        <span style={{ fontFamily: "'Montserrat', sans-serif" }}>mono</span>
+        <span style={{ fontFamily: "'Noto Serif JP', serif", marginLeft: "2px" }}>図録</span>
+      </span>
     ) : (
       title
     )
