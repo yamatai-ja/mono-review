@@ -18,6 +18,7 @@ import { Image } from "astro:assets";
 import ProductCard from "@/components/ProductCard.astro";
 import Sidebar from "./Sidebar.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import ReviewScore from "@/components/ReviewScore.astro";
 
 type Props = {
   article: MicroCMSContent<MicroCMSBlogPostFields>;
@@ -161,6 +162,19 @@ const displaySimilar = similarCards.slice(0, 3);
         <div class="content mb-16 text-left">
           <div set:html={bodyHtml} />
         </div>
+
+        {
+          article.rating && (
+            <ReviewScore
+              title={title}
+              rating={article.rating}
+              pros={article.review_pros}
+              cons={article.review_cons}
+              image={heroSrc}
+              description={metaDescription}
+            />
+          )
+        }
 
         {
           article.products && article.products.length > 0 && (

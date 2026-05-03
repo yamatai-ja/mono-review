@@ -50,6 +50,9 @@ export type MicroCMSBlogPostFields = {
     yahoo_url?: string;
     price?: string;
   }[];
+  rating?: number;
+  review_pros?: string[];
+  review_cons?: string[];
 };
 
 function pickImageUrl(
