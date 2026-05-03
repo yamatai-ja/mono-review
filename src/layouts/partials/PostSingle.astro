@@ -251,8 +251,11 @@ const displaySimilar = similarCards.slice(0, 3);
 {
   displaySimilar.length > 0 && (
     <section class="section pt-0">
-      <div class="container">
-        <h2 class="mb-8 text-center h3">Similar Posts</h2>
+      <div class="container border-t border-border pt-12">
+        <h2 class="mb-8 h3 flex items-center justify-center md:justify-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 text-primary" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          あわせて読みたい
+        </h2>
         <SimilarPosts posts={displaySimilar} />
       </div>
     </section>
