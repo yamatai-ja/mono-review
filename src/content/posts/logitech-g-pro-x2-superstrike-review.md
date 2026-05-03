@@ -5,6 +5,14 @@ date: 2026-05-03T11:55:27.175Z
 categories: 
   - id: digital-gadget
     name: デジタル・ガジェット
+products:
+  - title: "Logicool G PRO X2 SUPERSTRIKE (G-PPD-004WL-STRK)"
+    image:
+      url: "https://m.media-amazon.com/images/I/51rR-W-0J3L._AC_SL1500_.jpg"
+    amazon_url: "https://www.amazon.co.jp/dp/B0GGWQ7HZ2/?tag=aaaaaaaaaee-22"
+    rakuten_url: "https://hb.afl.rakuten.co.jp/hgc/0c8e00be.21e69d5e.0c8e00bf.3692be81/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fihp-shop%2Fihp10ggx35x72%2F"
+    yahoo_url: "https://shopping.yahoo.co.jp/search?p=G-PPD-004WL-STRK"
+    price: "25,175円 (税込)"
 draft: false
 ---
 
