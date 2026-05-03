@@ -215,3 +215,46 @@ footer p a {
 
 .notice-box.box-tip { border-color: #e3a72c; }
 .notice-box.box-tip::before { content: "🌟 ヒント"; color: #e3a72c; }
+
+/* Comparison Table Style */
+.table-wrapper {
+  @apply my-8 overflow-x-auto rounded-lg border border-border shadow-sm;
+}
+.comparison-table {
+  @apply m-0 w-full border-collapse bg-white text-sm md:text-base;
+}
+.comparison-table th,
+.comparison-table td {
+  @apply min-w-[120px] border border-border px-4 py-4 text-center align-middle;
+}
+.comparison-table th {
+  @apply bg-light font-bold text-dark;
+}
+
+/* Icons for table cells */
+.comparison-table td.is-check::before {
+  content: "✅";
+  @apply block text-xl;
+}
+.comparison-table td.is-cross::before {
+  content: "❌";
+  @apply block text-xl;
+}
+.comparison-table td.is-circle::before {
+  content: "⭕";
+  @apply block text-xl;
+}
+.comparison-table td.is-triangle::before {
+  content: "🔺";
+  @apply block text-xl;
+}
+
+/* Highlight "Best" column */
+.comparison-table .is-best {
+  @apply bg-primary/5 font-bold;
+  border-left: 2px solid theme("colors.primary");
+  border-right: 2px solid theme("colors.primary");
+}
+.comparison-table th.is-best {
+  @apply bg-primary text-white;
+}
