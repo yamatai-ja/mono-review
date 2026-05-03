@@ -1,68 +1,56 @@
 {
   "main": [
     {
-      "name": "Home",
+      "name": "ホーム",
       "url": "/"
     },
     {
-      "name": "About",
-      "url": "/about"
-    },
-    {
-      "name": "Contact",
-      "url": "/contact"
-    },
-    {
-      "name": "Blog",
+      "name": "新着記事",
       "url": "/blog"
     },
     {
-      "name": "Pages",
+      "name": "カテゴリー",
       "url": "",
       "hasChildren": true,
       "children": [
         {
-          "name": "Authors",
-          "url": "/authors"
-        },
-        {
-          "name": "Categories",
+          "name": "カテゴリー一覧",
           "url": "/categories"
         },
         {
-          "name": "Tags",
+          "name": "タグ一覧",
           "url": "/tags"
-        },
-        {
-          "name": "Elements",
-          "url": "/elements"
-        },
-        {
-          "name": "Privacy Policy",
-          "url": "/privacy-policy"
         }
       ]
+    },
+    {
+      "name": "このサイトについて",
+      "url": "/about"
+    },
+    {
+      "name": "お問い合わせ",
+      "url": "/contact"
     }
   ],
   "footer": [
     {
-      "name": "About",
-      "url": "/about"
+      "name": "ホーム",
+      "url": "/"
     },
     {
-      "name": "Contact",
-      "url": "/contact"
-    },
-    {
-      "name": "Blog",
+      "name": "新着記事",
       "url": "/blog"
     },
     {
-      "name": "Elements",
-      "url": "/elements"
+      "name": "このサイトについて",
+      "url": "/about"
     },
     {
-      "name": "Privacy Policy",
+      "name": "お問い合わせ",
+      "url": "/contact"
+    },
+    {
+      "name": "プライバシーポリシー",
       "url": "/privacy-policy"
     }
   ]
