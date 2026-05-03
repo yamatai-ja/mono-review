@@ -234,21 +234,42 @@ const blogPostingSchema = {
         }
 
         {
-          article.products && article.products.length > 0 && (
-            <div class="mt-12">
-              <h2 class="h3 border-b-2 border-primary pb-2 mb-8">おすすめ商品</h2>
-              {article.products.map((product) => (
-                <ProductCard
-                  title={product.title}
-                  image={product.image?.url}
-                  amazonUrl={product.amazon_url}
-                  rakutenUrl={product.rakuten_url}
-                  yahooUrl={product.yahoo_url}
-                  price={product.price}
-                />
-              ))}
-            </div>
-          )
+          (() => {
+            // 商品データの探索ロジック
+            const findProducts = () => {
+              if (article.products && Array.isArray(article.products)) return article.products;
+              
+              const keys = Object.keys(article);
+              for (const key of keys) {
+                if (key.toLowerCase().includes('product') || key.toLowerCase().includes('card')) {
+                  const val = (article as any)[key];
+                  if (val && Array.isArray(val)) return val;
+                }
+              }
+              return [];
+            };
+
+            const productList = findProducts();
+
+            if (productList.length > 0) {
+              return (
+                <div class="mt-12">
+                  <h2 class="h3 border-b-2 border-primary pb-2 mb-8">おすすめ商品</h2>
+                  {productList.map((p: any) => (
+                    <ProductCard
+                      title={p.title || p.name || p.product_name}
+                      image={p.image?.url || p.product_image?.url}
+                      amazonUrl={p.amazon_url || p.amazon_link}
+                      rakutenUrl={p.rakuten_url || p.rakuten_link}
+                      yahooUrl={p.yahoo_url || p.yahoo_link}
+                      price={p.price}
+                    />
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()
         }
 
         <div class="flex flex-wrap items-center justify-between mt-12">
