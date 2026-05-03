@@ -1,4 +1,21 @@
 @import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-primary: #01AD9F;
+  --color-body: #fff;
+  --color-border: #D5D5D5;
+  --color-light: #FAFAFA;
+  --color-dark: #152035;
+
+  --color-text: #747577;
+  --color-text-dark: #152035;
+  --color-text-light: #a1a5ae;
+
+  /* Fonts */
+  --font-primary: "Mulish", sans-serif;
+}
+
 @import "./safe.css";
 @import "./utilities.css";
 
