@@ -18,122 +18,82 @@ function parseEnvFile(filePath) {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;
     const eq = t.indexOf("=");
-    if (eq <= 0) continue;
-    const k = t.slice(0, eq).trim();
-    if (!k) continue;
-    let v = t.slice(eq + 1).trim();
-    if (
-      (v.startsWith('"') && v.endsWith('"')) ||
-      (v.startsWith("'") && v.endsWith("'"))
-    ) {
-      v = v.slice(1, -1);
-    }
-    out[k] = v;
+    if (eq === -1) continue;
+    out[t.slice(0, eq).trim()] = t.slice(eq + 1).trim();
   }
   return out;
 }
 
-function dotEnvForMode(mode) {
-  const root = process.cwd();
-  return {
-    ...parseEnvFile(resolve(root, ".env")),
-    ...parseEnvFile(resolve(root, ".env.local")),
-    ...parseEnvFile(resolve(root, `.env.${mode}`)),
-    ...parseEnvFile(resolve(root, `.env.${mode}.local`)),
-  };
+const env = parseEnvFile(resolve(process.cwd(), ".env"));
+
+function micro(key) {
+  return process.env[key] || env[key] || "";
 }
 
-// Helper to parse font string format: "FontName:wght@400;500;600;700"
-function parseFontString(fontStr) {
-  const [name, weightPart] = fontStr.split(":");
-  let weights = [400]; // default weight
+const {
+  colors: { default: colors },
+  fonts: fonts,
+} = theme;
 
-  if (weightPart) {
-    // Extract weights from wght@400;500;600 format
-    const weightMatch = weightPart.match(/wght@?([\d;]+)/);
-    if (weightMatch) {
-      weights = weightMatch[1].split(";").map((w) => parseInt(w, 10));
-    }
-  }
+const fontsConfig = Object.entries(fonts.font_family)
+  .filter(([key]) => key === "primary" || key === "secondary")
+  .map(([key, name]) => {
+    const weights = [400, 500, 600, 700];
+    const fallback = key === "primary" ? "sans-serif" : "serif";
+    return {
+      name,
+      cssVariable: `--font-${key}`,
+      provider: fontProviders.google(),
+      weights,
+      display: "swap",
+      fallbacks: [fallback],
+    };
+  });
 
-  // remove + from font name and add space
-  const cleanName = name.replace(/\+/g, " ");
-  return { name: cleanName, weights };
-}
-
-// https://astro.build/config
-export default defineConfig(({ mode }) => {
-  const fromFile = dotEnvForMode(mode);
-  const micro = (key) =>
-    JSON.stringify(process.env[key] ?? fromFile[key] ?? "");
-
-  // Build fonts configuration from theme.json inside defineConfig
-  const fontsConfig = Object.entries(theme.fonts.font_family)
-    .filter(([key]) => !key.includes("_type")) // Filter out type entries
-    .map(([key, fontStr]) => {
-      const { name, weights } = parseFontString(fontStr);
-      const typeKey = `${key}_type`;
-      const fallback = theme.fonts.font_family[typeKey] || "sans-serif";
-
-      return {
-        name,
-        cssVariable: `--font-${key}`,
-        provider: fontProviders.google(),
-        weights,
-        display: "swap",
-        fallbacks: [fallback],
-      };
-    });
-
-  console.log("FONTS_CONFIG (inside):", JSON.stringify(fontsConfig, null, 2));
-
-  return {
-    site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
-    base: config.site.base_path ? config.site.base_path : "/",
-    trailingSlash: config.site.trailing_slash ? "always" : "never",
-    image: {
-      service: sharpImageService(),
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: "images.microcms-assets.io",
-          pathname: "/**",
-        },
-      ],
-    },
-    vite: {
-      plugins: [tailwindcss()],
-      define: {
-        "import.meta.env.MICROCMS_API_ORIGIN": micro("MICROCMS_API_ORIGIN"),
+export default defineConfig({
+  site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
+  base: config.site.base_path ? config.site.base_path : "/",
+  trailingSlash: config.site.trailing_slash ? "always" : "never",
+  image: {
+    service: sharpImageService(),
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.microcms-assets.io",
+        pathname: "/**",
       },
-      ssr: {
-        noExternal: ["react-icons"],
-      },
-    },
-    fonts: fontsConfig,
-    integrations: [
-      react(),
-      sitemap(),
-      AutoImport({
-        imports: [
-          "@/shortcodes/Button",
-          "@/shortcodes/Accordion",
-          "@/shortcodes/Notice",
-          "@/shortcodes/Video",
-          "@/shortcodes/Youtube",
-          "@/shortcodes/Tabs",
-          "@/shortcodes/Tab",
-        ],
-      }),
-      mdx(),
-      gtm({
-        enable: config.google_tag_manager.enable,
-        id: config.google_tag_manager.gtm_id,
-        devMode: true,
-      }),
     ],
-    markdown: {
-      shikiConfig: { theme: "one-dark-pro", wrap: true },
+  },
+  vite: {
+    plugins: [tailwindcss()],
+    define: {
+      "import.meta.env.MICROCMS_API_ORIGIN": JSON.stringify(micro("MICROCMS_API_ORIGIN")),
     },
-  };
+  },
+  fonts: fontsConfig,
+  integrations: [
+    react(),
+    sitemap(),
+    AutoImport({
+      imports: [
+        "@/shortcodes/Button",
+        "@/shortcodes/Accordion",
+        "@/shortcodes/Notice",
+        "@/shortcodes/Video",
+        "@/shortcodes/Youtube",
+        "@/shortcodes/Tabs",
+        "@/shortcodes/Tab",
+      ],
+    }),
+    mdx(),
+    gtm({
+      enable: config.google_tag_manager.enable,
+      id: config.google_tag_manager.gtm_id,
+      devMode: true,
+    }),
+  ],
+  markdown: {
+    shikiConfig: { theme: "one-dark-pro", wrap: true },
+    extendDefaultPlugins: true,
+  },
 });

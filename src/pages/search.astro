@@ -1,5 +1,5 @@
 ---
-import SearchBar from "@/layouts/helpers/SearchBar.tsx";
+import SearchBar from "@/helpers/SearchBar.tsx";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
 
@@ -17,8 +17,7 @@ const searchList = posts.map((item) => ({
 <Base title={`Search`}>
   <section class="section">
     <div class="container">
-      <SearchBar client:load searchList={searchList} />
+      <SearchBar client:only="react" searchList={searchList} />
     </div>
   </section>
 </Base>
-
