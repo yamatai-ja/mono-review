@@ -3,7 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
-
+  repository_dispatch:
+    types: [update_from_microcms]
+  workflow_dispatch:
 # GitHub Pagesへのデプロイに必要な権限
 permissions:
   contents: read

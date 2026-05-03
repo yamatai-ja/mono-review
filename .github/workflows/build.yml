@@ -2,9 +2,11 @@ name: Build and Check
 
 on:
   push:
-    branches: [ main ] # Adjust branches as needed
+    branches: [ main ]
   pull_request:
-    branches: [ main ] # Adjust branches as needed
+    branches: [ main ]
+  repository_dispatch:
+    types: [update_from_microcms]
   workflow_dispatch:
 
 concurrency:
