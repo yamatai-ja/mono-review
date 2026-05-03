@@ -67,7 +67,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     define: {
-      "import.meta.env.MICROCMS_API_ORIGIN": JSON.stringify(micro("MICROCMS_API_ORIGIN")),
+      "import.meta.env.MICROCMS_API_ORIGIN": JSON.stringify(micro("MICROCMS_API_ORIGIN") || "https://9dpfhv920t.microcms.io"),
     },
   },
   fonts: fontsConfig,
