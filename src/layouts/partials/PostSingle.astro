@@ -15,6 +15,7 @@ import {
 import dateFormat from "@/lib/utils/dateFormat";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
+import ProductCard from "@/components/ProductCard.astro";
 
 type Props = {
   article: MicroCMSContent<MicroCMSBlogPostFields>;
@@ -160,7 +161,24 @@ const metaDescription = description
         <div class="content mb-16 text-left">
           <div set:html={bodyHtml} />
         </div>
-        <div class="flex flex-wrap items-center justify-between">
+        {
+          article.products && article.products.length > 0 && (
+            <div class="mt-12">
+              <h2 class="h3 border-b-2 border-primary pb-2 mb-8">おすすめ商品</h2>
+              {article.products.map((product) => (
+                <ProductCard
+                  title={product.title}
+                  image={product.image?.url}
+                  amazonUrl={product.amazon_url}
+                  rakutenUrl={product.rakuten_url}
+                  yahooUrl={product.yahoo_url}
+                  price={product.price}
+                />
+              ))}
+            </div>
+          )
+        }
+        <div class="flex flex-wrap items-center justify-between mt-12">
           <ul class="mr-4 mb-4 space-x-3">
             {
               tagList.map((tag: string) => (

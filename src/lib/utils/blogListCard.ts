@@ -41,6 +41,15 @@ export type MicroCMSBlogPostFields = {
   authors?: string[];
   categories?: string[] | { id?: string; name: string }[];
   tags?: string[] | { id?: string; name: string }[];
+  products?: {
+    fieldId: "product_card";
+    title: string;
+    image?: { url: string };
+    amazon_url?: string;
+    rakuten_url?: string;
+    yahoo_url?: string;
+    price?: string;
+  }[];
 };
 
 function pickImageUrl(
