@@ -18,6 +18,18 @@ const postsCollection = defineCollection({
       ])
     ).default([]),
     tags: z.array(z.string()).default([]),
+    products: z.array(
+      z.object({
+        title: z.string(),
+        image: z.object({
+          url: z.string().optional(),
+        }).optional(),
+        amazon_url: z.string().optional(),
+        rakuten_url: z.string().optional(),
+        yahoo_url: z.string().optional(),
+        price: z.string().optional(),
+      })
+    ).optional(),
     draft: z.boolean().default(false),
   }),
 });
