@@ -70,7 +70,33 @@ const similarCards =
         .slice(0, 10);
 
 const displaySimilar = similarCards.slice(0, 3);
+
+// BlogPosting JSON-LD
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": title,
+  "image": heroSrc ? [heroSrc] : [],
+  "datePublished": article.publishedAt,
+  "dateModified": article.updatedAt || article.publishedAt,
+  "author": [{
+    "@type": "Person",
+    "name": config.metadata.meta_author,
+    "url": `${config.site.base_url}/about`
+  }],
+  "publisher": {
+    "@type": "Organization",
+    "name": config.site.title,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${config.site.base_url}${config.site.logo}`
+    }
+  },
+  "description": metaDescription
+};
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
 
 <section class="section">
   <div class="container">
