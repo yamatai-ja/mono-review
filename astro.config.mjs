@@ -51,8 +51,8 @@ const fontsConfig = Object.entries(fonts.font_family)
   });
 
 export default defineConfig({
-  site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
-  base: config.site.base_path ? config.site.base_path : "/",
+  site: "https://monoslog.com",
+  base: "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
   image: {
     service: sharpImageService(),

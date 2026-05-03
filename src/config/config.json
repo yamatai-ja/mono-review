@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "Bookworm Light Astro | Blog Template",
-    "base_url": "https://yamatai-ja.github.io",
-    "base_path": "/mono-review",
+    "base_url": "https://monoslog.com",
+    "base_path": "/",
     "trailing_slash": true,
     "favicon": "/images/favicon.png",
     "logo": "/images/logo.png",
