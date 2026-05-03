@@ -1,5 +1,9 @@
 ---
-const { title, rating, pros, cons, image, description } = Astro.props;
+const { title, rating, pros: rawPros, cons: rawCons, image, description } = Astro.props;
+
+// 文字列（複数行テキスト）または配列を処理
+const pros = typeof rawPros === "string" ? rawPros.split("\n").filter(t => t.trim() !== "") : rawPros;
+const cons = typeof rawCons === "string" ? rawCons.split("\n").filter(t => t.trim() !== "") : rawCons;
 
 // 星の表示用配列を作成
 const fullStars = Math.floor(rating);

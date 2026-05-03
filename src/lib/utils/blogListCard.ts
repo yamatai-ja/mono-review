@@ -51,8 +51,8 @@ export type MicroCMSBlogPostFields = {
     price?: string;
   }[];
   rating?: number;
-  review_pros?: string[];
-  review_cons?: string[];
+  review_pros?: string | string[];
+  review_cons?: string | string[];
 };
 
 function pickImageUrl(
