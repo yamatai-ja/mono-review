@@ -12,6 +12,25 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 load_dotenv()
 
+def clean_affiliate_url(url):
+    if not url:
+        return ""
+    # Amazon URL のクリーンアップ (dp/ASIN/ 移行を保持し、余計なクエリを削除)
+    if "amazon.co.jp" in url:
+        asin_match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', url)
+        tag_match = re.search(r'tag=([^&]+)', url)
+        if asin_match and tag_match:
+            return f"https://www.amazon.co.jp/dp/{asin_match.group(1)}/?tag={tag_match.group(1)}"
+    
+    # 楽天 URL のクリーンアップ (余計なパラメータを削る)
+    if "rakuten.co.jp" in url:
+        # 楽天アフィリエイトリンクのベース部分を抽出
+        base_match = re.search(r'(https://hb\.afl\.rakuten\.co\.jp/hgc/[^?]+)', url)
+        if base_match:
+            return base_match.group(1)
+            
+    return url
+
 def upload_article(file_path):
     if not os.path.exists(file_path):
         print(f"Error: File {file_path} not found.")
@@ -94,10 +113,10 @@ def upload_article(file_path):
             product_entry = {
                 "fieldId": "product_card",
                 "title": p.get('title', ''),
-                "amazon_url": p.get('amazon_url', ''),
-                "rakuten_url": p.get('rakuten_url', ''),
+                "amazon_url": clean_affiliate_url(p.get('amazon_url', '')),
+                "rakuten_url": clean_affiliate_url(p.get('rakuten_url', '')),
                 "yahoo_url": p.get('yahoo_url', ''),
-                # "price": p.get('price', '') # 400エラーの原因となるため一旦無効化
+                # "price": p.get('price', '')
             }
             # if 'image' in p:
             #     img_data = p['image']

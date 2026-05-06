@@ -221,7 +221,7 @@ const blogPostingSchema = {
         </div>
 
         {
-          article.rating && (
+          article.rating > 0 && (
             <ReviewScore
               title={title}
               rating={article.rating}
