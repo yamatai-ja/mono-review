@@ -11,43 +11,49 @@ interface Props {
 const { title, image, amazonUrl, rakutenUrl, yahooUrl, price } = Astro.props;
 ---
 
-<div class="product-card border rounded-lg p-4 my-6 shadow-sm bg-white flex flex-col md:flex-row gap-6">
+<div class="my-8 border border-[#ddd] rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col md:flex-row">
   {image && (
-    <div class="product-image flex-shrink-0 w-full md:w-48 flex items-center justify-center">
-      <img src={image} alt={title} class="max-h-48 object-contain" />
+    <div class="bg-[#f8f9fa] flex items-center justify-center md:flex-[0_0_30%] p-4 border-b md:border-b-0 md:border-r border-[#eee]">
+      <img 
+        src={image} 
+        alt={title} 
+        class="max-w-full max-h-[160px] object-contain w-auto h-auto"
+        loading="lazy"
+        onerror="this.style.display='none'; this.parentNode.style.display='none';"
+      />
     </div>
   )}
-  <div class="product-info flex-grow">
-    <h4 class="text-xl font-bold mb-2 text-dark">{title}</h4>
-    {price && <p class="text-primary font-bold text-lg mb-4">{price}</p>}
+  
+  <div class="flex flex-col flex-1 p-5">
+    <h3 class="text-base font-semibold text-dark mb-2 leading-snug line-clamp-2">
+      {title}
+    </h3>
     
-    <div class="product-links flex flex-wrap gap-2">
+    {price && (
+      <div class="text-[#B12704] font-bold text-lg mb-4">
+        {price.includes('¥') ? price : `¥${price}`}
+      </div>
+    )}
+
+    <div class="mt-auto flex flex-wrap gap-2">
       {amazonUrl && (
-        <a href={amazonUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#FF9900] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+        <a href={amazonUrl} target="_blank" rel="noopener noreferrer" 
+           class="bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Amazonで見る
         </a>
       )}
       {rakutenUrl && (
-        <a href={rakutenUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#BF0000] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+        <a href={rakutenUrl} target="_blank" rel="noopener noreferrer" 
+           class="bg-[#BF0000] hover:bg-[#990000] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           楽天で見る
         </a>
       )}
       {yahooUrl && (
-        <a href={yahooUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary bg-[#FF0033] border-none text-white px-4 py-2 text-sm flex items-center gap-2 hover:opacity-80 transition">
+        <a href={yahooUrl} target="_blank" rel="noopener noreferrer" 
+           class="bg-[#FF0033] hover:bg-[#CC0029] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Yahooで見る
         </a>
       )}
     </div>
   </div>
 </div>
-
-<style>
-  .product-card {
-    border: 1px solid #e5e7eb;
-  }
-  .btn {
-    border-radius: 4px;
-    font-weight: 600;
-    text-decoration: none !important;
-  }
-</style>
