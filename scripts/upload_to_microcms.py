@@ -116,14 +116,12 @@ def upload_article(file_path):
                 "amazon_url": clean_affiliate_url(p.get('amazon_url', '')),
                 "rakuten_url": clean_affiliate_url(p.get('rakuten_url', '')),
                 "yahoo_url": p.get('yahoo_url', ''),
-                # "price": p.get('price', '')
+                "price": str(p.get('price', '')) if p.get('price') else ""
             }
-            # if 'image' in p:
-            #     img_data = p['image']
-            #     if isinstance(img_data, dict) and 'url' in img_data:
-            #         product_entry["image"] = {"url": img_data['url']}
-            #     elif isinstance(img_data, str):
-            #         product_entry["image"] = {"url": img_data}
+            if 'image' in p and p['image']:
+                img_url = p['image']
+                # microCMS のカスタムフィールド内の画像は通常オブジェクト形式を期待する
+                product_entry["image"] = {"url": img_url}
             
             products_payload.append(product_entry)
 
