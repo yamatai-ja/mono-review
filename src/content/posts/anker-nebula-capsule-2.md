@@ -22,4 +22,9 @@ Android TV搭載
 
 Nebula Capsule II。500ml缶サイズでどこでも置きやすい。昼間は遮光カーテンを閉めないと見にくいけど、夜に動画を流すにはしっくりくる。使用感まとめた。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/anker-nebula-capsule-2)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00trww3.heldq40f.g00trww3.heldr422/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjustrich%2F1246-002597%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjustrich%2Fi%2F10001061%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=Anker%20Nebula%20Capsule%20II&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

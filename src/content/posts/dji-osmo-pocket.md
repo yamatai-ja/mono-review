@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 旅行用に導入したOSMO POCKET。片手で持ててブレずに撮れるから、記録が本当にスムーズ。夜は少しノイズがのるけど、軽くて扱いやすい。使用感まとめた。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/dji-osmo-pocket)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00tzot3.heldq507.g00tzot3.heldr004/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdji-shop%2F6941565969903c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdji-shop%2Fi%2F10002016%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=DJI%20OSMO%20POCKET&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 ソニーのWH-1000XM4を導入したら、カフェでも静かに集中できてスムーズ。夏は耳がちょっと蒸れるけど、外での作業がかなりラクになった。比較画像あり。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/sony-wh-1000xm4)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00sxgs3.heldq992.g00sxgs3.heldrc57/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsokutei%2F4548736112100%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsokutei%2Fi%2F10002889%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=SONY%20WH-1000XM4&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

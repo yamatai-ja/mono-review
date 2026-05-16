@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 気になっていたAnkerのスタンド。置くだけで充電できて、画面が見やすいから通知チェックが楽。急速充電は別のアダプタが必要だけど置きやすい。使用感まとめた。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/anker-powerwave-10)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00qnmb3.heldq664.g00qnmb3.heldrc45/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Frk-king%2Fkb510%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Frk-king%2Fi%2F10023508%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=Anker%20PowerWave%2010%20Stand&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

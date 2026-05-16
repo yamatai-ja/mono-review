@@ -22,4 +22,9 @@ iPhoneを2回以上充電
 
 評判を見て買ったAnkerの薄型バッテリー。スマホ2回分は余裕。付属ケーブルは少し短いけど、薄いからバッグの中で邪魔にならない。使用感まとめた。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/anker-powercore-slim)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00t3u13.heldq95f.g00t3u13.heldrcb9/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonedayonestyle%2Fpowercoreslim10000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fonedayonestyle%2Fi%2F10001301%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=Anker%20PowerCore%20Slim%2010000&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

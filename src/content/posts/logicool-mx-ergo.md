@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 手首が辛くて導入したMX ERGO。20度の傾斜が手に馴染む感じで作業がスムーズ。重いから持ち運びには向かないけど、家で使うならストレスがない。比較画像あり。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/logicool-mx-ergo)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00tpxd3.heldqd4d.g00tpxd3.heldr5e1/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flogicool%2Fmxtb2d%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flogicool%2Fi%2F10000684%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=Logicool%20MX%20ERGO&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

@@ -22,4 +22,9 @@ Wi-Fi接続
 
 帰宅時の部屋の暑さを変えたくて導入。駅からスマホでエアコンをつけられるから本当にラク。Wi-Fiの5GHz帯に非対応なのは注意だけど、生活に余裕が出た。使用感まとめた。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/linkjapan-eremote-mini)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00rfqv3.heldq7cb.g00rfqv3.heldr835/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fcompmoto-r%2F9760044480077%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fcompmoto-r%2Fi%2F10638527%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=LinkJapan%20eRemote%20mini&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

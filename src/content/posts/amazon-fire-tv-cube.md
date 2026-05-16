@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 スティック型からFire TV Cubeへ。声だけで操作できて、動画の切り替えもスムーズ。本体に少し厚みがあって置き場所に迷うけど、動作のストレスがない。比較画像あり。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/amazon-fire-tv-cube)
+### 購入はこちらから
+*   [楽天市場で探す]()
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=Amazon%20Fire%20TV%20Cube%20%E7%AC%AC3%E4%B8%96%E4%BB%A3&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。

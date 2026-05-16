@@ -22,4 +22,9 @@ tags: ["", "レビュー"]
 
 エレコムのPCスタンド。8段階で細かく角度を変えられて目線が上がるから、首がラクになった。タイピング時の微妙な揺れは気になるけど、扱いやすい。デスク写真あり。
 
-[詳細をチェックする（公式サイト/販売ページへ）](https://monoslog.com/go/elecom-pc-stand)
+### 購入はこちらから
+*   [楽天市場で探す](https://hb.afl.rakuten.co.jp/hgc/g00su2x3.heldq96a.g00su2x3.heldrd1e/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdeco-maison%2Fds-2363544%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdeco-maison%2Fi%2F11144760%2F&rafcid=wsc_i_is_1083036408535882229)
+*   [Amazonで探す](https://www.amazon.co.jp/s?k=ELECOM%20PCA-LTSH8BK&tag=blogger045-22)
+
+---
+※この記事のリンクはアフィリエイトリンクを含んでいます。
