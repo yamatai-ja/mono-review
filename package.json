@@ -13,7 +13,12 @@
     "check": "astro check",
     "deploy:cf-workers": "npm run build && wrangler deploy",
     "preview:cf-workers": "npm run build && wrangler dev",
-    "cms:local": "npx -y decap-server"
+    "cms:local": "npx -y decap-server",
+    "oauth:dev": "wrangler dev --config workers/decap-oauth/wrangler.jsonc",
+    "oauth:deploy": "wrangler deploy --config workers/decap-oauth/wrangler.jsonc",
+    "oauth:secret:client-id": "wrangler secret put GITHUB_CLIENT_ID --config workers/decap-oauth/wrangler.jsonc",
+    "oauth:secret:client-secret": "wrangler secret put GITHUB_CLIENT_SECRET --config workers/decap-oauth/wrangler.jsonc",
+    "oauth:secret:state": "wrangler secret put OAUTH_STATE_SECRET --config workers/decap-oauth/wrangler.jsonc"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",

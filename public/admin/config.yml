@@ -2,6 +2,8 @@ backend:
   name: github
   repo: yamatai-ja/mono-review
   branch: main
+  base_url: https://decap-oauth.monoslog.com
+  auth_endpoint: auth
 
 local_backend: true
 

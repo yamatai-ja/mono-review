@@ -214,3 +214,76 @@ npm run sync:microcms
 ```
 
 Use it only when you intentionally want to overwrite/import Markdown from microCMS.
+## Decap CMS GitHub OAuth Proxy
+
+Production Decap CMS login at `https://monoslog.com/admin/` uses a Cloudflare Worker OAuth proxy.
+
+Worker files:
+
+- `workers/decap-oauth/index.js`
+- `workers/decap-oauth/wrangler.jsonc`
+
+Decap config:
+
+```yaml
+backend:
+  name: github
+  repo: yamatai-ja/mono-review
+  branch: main
+  base_url: https://decap-oauth.monoslog.com
+  auth_endpoint: auth
+```
+
+### 1. Create a GitHub OAuth App
+
+Create it from GitHub Developer settings.
+
+Recommended values:
+
+```text
+Application name: Monoslog Decap CMS
+Homepage URL: https://monoslog.com/admin/
+Authorization callback URL: https://decap-oauth.monoslog.com/callback
+```
+
+Copy the Client ID and Client Secret.
+
+### 2. Register Cloudflare Worker secrets
+
+```bash
+npm run oauth:secret:client-id
+npm run oauth:secret:client-secret
+npm run oauth:secret:state
+```
+
+Use a long random value for `OAUTH_STATE_SECRET`.
+
+### 3. Deploy the OAuth Worker
+
+```bash
+npm run oauth:deploy
+```
+
+The Worker is configured for the custom domain:
+
+```text
+https://decap-oauth.monoslog.com
+```
+
+Make sure the custom domain exists in Cloudflare Workers routes/custom domains.
+
+### 4. Test production CMS login
+
+Open:
+
+```text
+https://monoslog.com/admin/
+```
+
+Click GitHub login. After authorization, Decap CMS can commit Markdown edits to `yamatai-ja/mono-review` on `main`. GitHub Pages then publishes the site automatically.
+
+Notes:
+
+- The GitHub user must have write permission to `yamatai-ja/mono-review`.
+- The Worker scope defaults to `repo` so it works for both public and private repositories. You can change `GITHUB_OAUTH_SCOPE` in `workers/decap-oauth/wrangler.jsonc` if needed.
+- Local editing still works without GitHub OAuth by running `npm run dev` and `npm run cms:local`.

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "monoslog-decap-oauth",
+  "main": "index.js",
+  "compatibility_date": "2026-06-01",
+  "routes": [
+    {
+      "pattern": "decap-oauth.monoslog.com",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://monoslog.com,http://127.0.0.1:4321,http://localhost:4321",
+    "DEFAULT_SITE_ORIGIN": "https://monoslog.com",
+    "GITHUB_OAUTH_SCOPE": "repo"
+  }
+}
