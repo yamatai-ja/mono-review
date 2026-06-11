@@ -84,6 +84,9 @@ const similarCards =
         .slice(0, 10);
 
 const displaySimilar = similarCards.slice(0, 3);
+const reviewRating = article.rating ?? 0;
+const reviewPros = article.review_pros ?? [];
+const reviewCons = article.review_cons ?? [];
 
 // BlogPosting JSON-LD
 const blogPostingSchema = {
@@ -257,12 +260,12 @@ const blogPostingSchema = {
         </div>
 
         {
-          article.rating > 0 && (
+          reviewRating > 0 && (
             <ReviewScore
               title={title}
-              rating={article.rating}
-              pros={article.review_pros}
-              cons={article.review_cons}
+              rating={reviewRating}
+              pros={reviewPros}
+              cons={reviewCons}
               image={heroSrc}
               description={metaDescription}
             />

@@ -78,6 +78,25 @@ const postsCollection = defineCollection({
       .default(() => ["others"]),
     authors: z.array(z.string()).default(() => ["Admin"]),
     tags: z.array(z.string()).default(() => ["others"]),
+    products: z
+      .array(
+        z.object({
+          title: z.string(),
+          image: z
+            .object({
+              url: z.string().optional(),
+            })
+            .optional(),
+          amazon_url: z.string().optional(),
+          rakuten_url: z.string().optional(),
+          yahoo_url: z.string().optional(),
+          price: z.string().optional(),
+        }),
+      )
+      .optional(),
+    rating: z.number().default(0),
+    review_pros: z.array(z.string()).default(() => []),
+    review_cons: z.array(z.string()).default(() => []),
     draft: z.boolean().optional(),
   }),
 });

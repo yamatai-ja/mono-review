@@ -1,0 +1,91 @@
+backend:
+  name: github
+  repo: yamatai-ja/mono-review
+  branch: main
+
+local_backend: true
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+site_url: "https://monoslog.com"
+display_url: "https://monoslog.com"
+locale: "ja"
+
+collections:
+  - name: "posts"
+    label: "Posts"
+    label_singular: "Post"
+    folder: "src/content/posts"
+    create: true
+    extension: "md"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    preview_path: "blog/{{slug}}"
+    summary: "{{title}}"
+    sortable_fields: ["date", "title", "draft"]
+    view_filters:
+      - label: "Drafts"
+        field: "draft"
+        pattern: true
+      - label: "Published"
+        field: "draft"
+        pattern: false
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "SEO Title", name: "meta_title", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - label: "Date"
+        name: "date"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        format: "YYYY-MM-DD"
+      - { label: "Hero Image", name: "image", widget: "image", required: false }
+      - label: "Authors"
+        name: "authors"
+        widget: "list"
+        required: false
+        default: ["Admin"]
+        field: { label: "Author", name: "author", widget: "string" }
+      - label: "Categories"
+        name: "categories"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "ID", name: "id", widget: "string", default: "digital-gadget" }
+          - { label: "Name", name: "name", widget: "string", default: "Digital Gadget" }
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        field: { label: "Tag", name: "tag", widget: "string" }
+      - label: "Products"
+        name: "products"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Product Title", name: "title", widget: "string" }
+          - label: "Image"
+            name: "image"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Image URL", name: "url", widget: "string", required: false }
+          - { label: "Amazon URL", name: "amazon_url", widget: "string", required: false }
+          - { label: "Rakuten URL", name: "rakuten_url", widget: "string", required: false }
+          - { label: "Yahoo URL", name: "yahoo_url", widget: "string", required: false }
+          - { label: "Price", name: "price", widget: "string", required: false }
+      - { label: "Rating", name: "rating", widget: "number", required: false, default: 0, value_type: "float", min: 0, max: 5, step: 0.1 }
+      - label: "Pros"
+        name: "review_pros"
+        widget: "list"
+        required: false
+        field: { label: "Pro", name: "pro", widget: "string" }
+      - label: "Cons"
+        name: "review_cons"
+        widget: "list"
+        required: false
+        field: { label: "Con", name: "con", widget: "string" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }

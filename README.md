@@ -114,3 +114,103 @@ Copyright (c) 2023 - Present, Designed & Developed by [Themefisher](https://them
 Besides developing beautifully designed and blazing-fast themes, we help businesses create fast, performance-focused, scalable & secure websites based on NextJs, Hugo, Astro, etc.
 
 If you need a custom theme, theme customization, or complete website development services from scratch you can [Hire Us](https://themefisher.com/contact).
+
+## Decap CMS
+
+This site includes a Decap CMS admin screen for editing Markdown posts in `src/content/posts`.
+
+Files:
+
+- `public/admin/index.html`
+- `public/admin/config.yml`
+
+Local editing flow:
+
+```bash
+npm run cms:local
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:4321/admin/
+```
+
+The CMS edits the Astro `posts` collection frontmatter fields, including `title`, `description`, `date`, `categories`, `tags`, `products`, and `draft`.
+
+Production note: the config uses the GitHub backend for `yamatai-ja/mono-review`. To edit from the deployed `/admin/` page, configure GitHub OAuth for Decap CMS or a compatible auth proxy. Local editing works with `local_backend: true`.
+## Content Sync Policy
+
+This project treats Astro Markdown files in `src/content/posts` as the normal editing source for Decap CMS.
+
+Use these commands for day-to-day editing:
+
+```bash
+npm run dev
+npm run cms:local
+```
+
+microCMS import is intentionally manual so Decap CMS edits are not overwritten during local development or production builds.
+
+Run this only when you explicitly want to import posts from microCMS:
+
+```bash
+npm run sync:microcms
+```
+
+If you want to import from microCMS and then build immediately:
+
+```bash
+npm run build:microcms
+```
+## Publishing Flow
+
+The normal publishing source is the Astro Markdown collection in `src/content/posts`.
+
+Recommended flow:
+
+```text
+Decap CMS or Codex edits Markdown
+-> commit to GitHub main
+-> GitHub Actions runs npm run build
+-> GitHub Pages publishes https://monoslog.com
+```
+
+Local editing:
+
+```bash
+npm run dev
+npm run cms:local
+```
+
+Open:
+
+```text
+http://127.0.0.1:4321/admin/
+```
+
+Production editing:
+
+```text
+https://monoslog.com/admin/
+```
+
+The production admin screen uses the GitHub backend configured in `public/admin/config.yml`:
+
+```yaml
+backend:
+  name: github
+  repo: yamatai-ja/mono-review
+  branch: main
+```
+
+To save from the deployed CMS, configure a Decap CMS compatible GitHub OAuth provider/auth proxy for `https://monoslog.com/admin/`. Local editing does not need OAuth because it uses `local_backend: true` and `npm run cms:local`.
+
+Do not run microCMS import during normal editing. It is manual only:
+
+```bash
+npm run sync:microcms
+```
+
+Use it only when you intentionally want to overwrite/import Markdown from microCMS.

@@ -4,13 +4,16 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "python scripts/sync_from_microcms.py && astro dev",
-    "build": "python scripts/sync_from_microcms.py && echo 'SYNC_VERIFIED_4.2.5'; astro build",
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "sync:microcms": "python scripts/sync_from_microcms.py",
+    "build:microcms": "npm run sync:microcms && astro build",
     "preview": "astro preview",
     "format": "prettier -w .",
     "check": "astro check",
     "deploy:cf-workers": "npm run build && wrangler deploy",
-    "preview:cf-workers": "npm run build && wrangler dev"
+    "preview:cf-workers": "npm run build && wrangler dev",
+    "cms:local": "npx -y decap-server"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",

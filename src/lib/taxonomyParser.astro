@@ -13,9 +13,11 @@ export const getTaxonomy = async (collection: any, name: string) => {
     for (let j = 0; j < categoryArray.length; j++) {
       const item = categoryArray[j];
       if (typeof item === "object" && item !== null && item.id) {
-        taxonomies.push(item.id);
+        const id = String(item.id).trim();
+        if (id) taxonomies.push(id);
       } else if (typeof item === "string") {
-        taxonomies.push(slugify(item)!);
+        const slug = slugify(item);
+        if (slug) taxonomies.push(slug);
       }
     }
   }
@@ -34,9 +36,11 @@ export const getAllTaxonomy = async (collection: any, name: string) => {
     for (let j = 0; j < categoryArray.length; j++) {
       const item = categoryArray[j];
       if (typeof item === "object" && item !== null && item.id) {
-        taxonomies.push(item.id);
+        const id = String(item.id).trim();
+        if (id) taxonomies.push(id);
       } else if (typeof item === "string") {
-        taxonomies.push(slugify(item)!);
+        const slug = slugify(item);
+        if (slug) taxonomies.push(slug);
       }
     }
   }
