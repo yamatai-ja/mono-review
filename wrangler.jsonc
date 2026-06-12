@@ -4,7 +4,7 @@
    * Deploy:  npm run deploy:cf-workers
    * Preview: npm run preview:cf-workers
    */
-  "name": "bookworm-light-astro",
+  "name": "mono-review",
   "compatibility_date": "2026-03-01",
   "assets": {
     "directory": "./dist",
