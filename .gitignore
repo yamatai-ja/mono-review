@@ -10,7 +10,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 package-lock.json
+
+# local workflow artifacts
+output/
+input/
+
+# Python cache
+**/__pycache__/
+*.pyc
+
+# local backups
+*.bak
+*.bak.*
 
 
 # environment variables
