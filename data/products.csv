@@ -1,0 +1,4 @@
+﻿product_id,name,category,tags,amazon_url,rakuten_url,price,status,notes
+p_test_ugreen_revodok_314,UGREEN Revodok Pro 314,USB-Cハブ,"UGREEN,Revodok,USB-C,外付けSSD",,,,active,test data
+p_test_fs040w,FS040W,モバイルWiFi,"FS040W,povo,モバイルWiFi,ルーター",,,,active,test data
+motorola-edge-60-product-001,motorola edge 60,スマホ,"motorola,edge 60,スマホ,Android,RSS",https://amzn.to/3QGhPYj,,,url_checked,"RSS source candidate | Source: https://k-tai.watch.impress.co.jp/docs/news/2116804.html | Amazon/Rakuten/Yahoo/official URLs need manual confirmation | Check price, stock, bands, warranty, SIM-free/carrier variant before body generation | Not in products.csv columns: yahoo_url, official_url"

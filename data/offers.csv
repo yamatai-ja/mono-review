@@ -1,0 +1,3 @@
+﻿offer_id,product_id,platform,url,price,commission,status,updated_at,notes
+o_test_povo_wifi,p_test_fs040w,povo,https://example.com/povo-wifi,,test,active,2026-06-12,test data
+motorola-edge-60-offer-001,motorola-edge-60-product-001,multi,https://amzn.to/3QGhPYj,,,url_checked,2026-06-14,"RSS source candidate | Source: https://k-tai.watch.impress.co.jp/docs/news/2116804.html | Amazon/Rakuten/Yahoo/official URLs need manual confirmation | Do not use this offer for strong purchase CTA until URLs are manually confirmed | Check price, stock, bands, warranty, SIM-free/carrier variant before body generation | Not in offers.csv columns: product_name/name/title, offer_type/type"

@@ -1,0 +1,5 @@
+﻿queue_id,keyword,article_title,article_type,priority,status,assigned_product_ids,notes,created_at
+q000001,外付けSSD 接続が切れる 対策,外付けSSD 接続が切れる 対策,howto,4,pending,p_test_ugreen_revodok_314,score=4 | commercial_terms=対策 | matched_products=p_test_ugreen_revodok_314,2026-06-12T10:35:24Z
+q000002,UGREEN Revodok Pro 314 評判,UGREEN Revodok Pro 314 評判,review,4,pending,p_test_ugreen_revodok_314,score=4 | commercial_terms=評判 | matched_products=p_test_ugreen_revodok_314,2026-06-12T10:35:24Z
+q000003,FS040W povo 設定,FS040W povo 設定の選び方とおすすめ候補,seo_article,5,pending,p_test_fs040w,score=5 | matched_products=p_test_fs040w | matched_offers=o_test_povo_wifi,2026-06-12T10:35:24Z
+q000005,motorola edge 60,motorola edge 60はどんな人向け？特徴を整理,review,190,candidate_from_rss,,source=rss | source_item_id=2cd0b388080a99df | url=https://k-tai.watch.impress.co.jp/docs/news/2116804.html | dry_run_priority=190,2026-06-13T09:32:01+00:00
