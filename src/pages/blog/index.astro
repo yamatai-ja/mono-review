@@ -3,29 +3,17 @@ import Posts from "@/components/Posts.astro";
 import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import Pagination from "@/layouts/components/Pagination.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
 import {
-  createMicroCMSClient,
-  microCMSConfigFromEnv,
-  microCMSPostsEndpoint,
-} from "@/lib/microcms";
-import {
-  type MicroCMSBlogPostFields,
-  microCMSContentToBlogListCard,
+  collectionEntryToBlogListCard,
   sortBlogListCardsByDate,
 } from "@/lib/utils/blogListCard";
 
-const postsEndpoint = "blogs";
-
-const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
-const all = await client.getAllContents<MicroCMSBlogPostFields>(postsEndpoint, {
-  orders: "-publishedAt",
-});
+const posts = await getSinglePage("posts");
 const sortedPosts = sortBlogListCardsByDate(
-  all.map(microCMSContentToBlogListCard),
+  posts.map(collectionEntryToBlogListCard),
 );
-const totalPages = Math.ceil(
-  sortedPosts.length / config.settings.pagination,
-);
+const totalPages = Math.ceil(sortedPosts.length / config.settings.pagination);
 const currentPosts = sortedPosts.slice(0, config.settings.pagination);
 ---
 

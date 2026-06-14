@@ -1,59 +1,173 @@
 ---
+import { render, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import Share from "@/components/Share.astro";
+import SimilarPosts from "@/components/SimilarPosts.astro";
 import Base from "@/layouts/Base.astro";
-import PostSingle from "@/partials/PostSingle.astro";
+import Sidebar from "@/partials/Sidebar.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
 import {
-  createMicroCMSClient,
-  microCMSConfigFromEnv,
-  microCMSPostsEndpoint,
-} from "@/lib/microcms";
-import type { MicroCMSContent } from "@/lib/microcms/types";
-import type { MicroCMSBlogPostFields } from "@/lib/utils/blogListCard";
-import { plainify } from "@/lib/utils/textConverter";
+  collectionEntryToBlogListCard,
+  pickTags,
+  resolvePostImageSrc,
+  sortBlogListCardsByDate,
+  type BlogListCard,
+} from "@/lib/utils/blogListCard";
+import dateFormat from "@/lib/utils/dateFormat";
+import { humanize, slugify } from "@/lib/utils/textConverter";
+import { Image } from "astro:assets";
 
-const postsEndpoint = "blogs";
+type PostEntry = CollectionEntry<"posts">;
+
+const entrySlug = (post: PostEntry) => {
+  const data = post.data as typeof post.data & { slug?: string };
+  return data.slug ?? post.id.replace(/\.(md|mdx)$/i, "");
+};
+
+const categoryNames = (
+  categories: (string | { id?: string; name: string })[] | undefined,
+) => (categories ?? []).map((category) =>
+  typeof category === "string" ? category : category.name,
+);
 
 export async function getStaticPaths() {
-  const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
-  const allPosts = await client.getAllContents<MicroCMSBlogPostFields>(
-    "blogs",
-    { orders: "-publishedAt" },
-  );
-  return allPosts.map((post) => ({
-    params: { single: post.id },
-    props: { allPosts },
+  const posts = await getSinglePage("posts");
+  const allPosts = sortBlogListCardsByDate(posts.map(collectionEntryToBlogListCard));
+
+  return posts.map((post) => ({
+    params: {
+      single:
+        (post.data as typeof post.data & { slug?: string }).slug ??
+        post.id.replace(/\.(md|mdx)$/i, ""),
+    },
+    props: { post, allPosts },
   }));
 }
 
 type Props = {
-  allPosts: MicroCMSContent<MicroCMSBlogPostFields>[];
+  post: PostEntry;
+  allPosts: BlogListCard[];
 };
 
-const { allPosts } = Astro.props as Props;
-const { single } = Astro.params;
+const { post, allPosts } = Astro.props as Props;
+const data = post.data as typeof post.data & { slug?: string };
+const { Content } = await render(post);
 
-const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
-const article = await client.getDetail<MicroCMSBlogPostFields>(
-  postsEndpoint,
-  single!,
-);
+const title = data.title;
+const metaTitle = data.meta_title ?? title;
+const description = data.description;
+const image = typeof data.image === "string" ? data.image : undefined;
+const heroSrc = resolvePostImageSrc(image);
+const categories = categoryNames(data.categories);
+const tags = pickTags(data.tags);
+const currentSlug = entrySlug(post);
+const publishedAt = data.date ?? new Date();
+const products = data.products ?? [];
 
-const title = article.title;
-const meta_title = article.meta_title ?? title;
-const description =
-  article.description != null && article.description !== ""
-    ? plainify(article.description)
-    : undefined;
-const imageUrl =
-  typeof article.image === "string"
-    ? article.image
-    : article.image?.url;
+const similarCards = allPosts
+  .filter((item) => item.id !== currentSlug)
+  .filter((item) => {
+    const itemCategories = categoryNames(item.categories);
+    return (
+      itemCategories.some((category) => categories.includes(category)) ||
+      item.categories.some((category) => {
+        const id = typeof category === "string" ? slugify(category) : category.id;
+        return categories.map(slugify).includes(id);
+      })
+    );
+  })
+  .slice(0, 3);
 ---
 
-<Base
-  title={title}
-  meta_title={meta_title}
-  description={description}
-  image={imageUrl}
->
-  <PostSingle article={article} allPosts={allPosts} />
+<Base title={title} meta_title={metaTitle} description={description} image={heroSrc}>
+  <section class="section">
+    <div class="container">
+      <div class="row">
+        <article class="lg:col-8">
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { name: "ホーム", url: "/" },
+              { name: categories[0] ?? "ブログ", url: categories[0] ? `/categories/${slugify(categories[0])}` : "/blog" },
+              { name: title },
+            ]}
+          />
+
+          <div class="text-center md:text-left">
+            <h1 class="h2">{title}</h1>
+            <ul class="mt-4 flex flex-wrap items-center justify-center text-text md:justify-start">
+              <li class="mr-6 mb-2 flex items-center font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path d="m9.08 16.17 1.41 1.41 4.59-4.58-1.41-1.42z"/></svg>
+                {dateFormat(publishedAt)}
+              </li>
+              {categories.length > 0 && (
+                <li class="mb-2 flex items-center font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>
+                  {categories.map((category, index) => (
+                    <a href={`${import.meta.env.BASE_URL}categories/${slugify(category)}`} class="mr-2 hover:text-primary">
+                      {humanize(category)}
+                      {index !== categories.length - 1 && ","}
+                    </a>
+                  ))}
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {heroSrc && (
+            <div class="mt-8 mb-8">
+              <Image src={heroSrc} height={500} width={1000} alt={title} class="w-full rounded-lg" loading="eager" />
+            </div>
+          )}
+
+          {products.length > 0 && (
+            <div class="mb-12">
+              <h2 class="h4 mb-6 border-b border-primary pb-2">この記事で紹介している商品</h2>
+              {products.map((product) => (
+                <ProductCard
+                  title={product.title}
+                  image={product.image?.url}
+                  amazonUrl={product.amazon_url}
+                  rakutenUrl={product.rakuten_url}
+                  yahooUrl={product.yahoo_url}
+                  price={product.price}
+                />
+              ))}
+            </div>
+          )}
+
+          <div class="content mb-16 text-left">
+            <Content />
+          </div>
+
+          <div class="mt-12 flex flex-wrap items-center justify-between">
+            <ul class="mr-4 mb-4 space-x-3">
+              {tags.map((tag) => (
+                <li class="inline-block">
+                  <a href={`${import.meta.env.BASE_URL}tags/${slugify(tag)}`} class="block rounded-lg bg-light px-4 py-2 text-sm font-semibold text-dark transition hover:text-primary">
+                    #{humanize(tag)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <Share className="social-share mb-4" title={title} description={description} slug={`blog/${currentSlug}`} />
+          </div>
+        </article>
+
+        <aside class="mt-12 lg:col-4 lg:mt-0">
+          <Sidebar headings={[]} latestPosts={allPosts} />
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  {similarCards.length > 0 && (
+    <section class="section pt-0">
+      <div class="container border-t border-border pt-12">
+        <h2 class="h3 mb-8">あわせて読みたい</h2>
+        <SimilarPosts posts={similarCards} />
+      </div>
+    </section>
+  )}
 </Base>

@@ -3,32 +3,19 @@ import Posts from "@/components/Posts.astro";
 import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import Pagination from "@/layouts/components/Pagination.astro";
-import {
-  createMicroCMSClient,
-  microCMSConfigFromEnv,
-  microCMSPostsEndpoint,
-} from "@/lib/microcms";
+import { getSinglePage } from "@/lib/contentParser.astro";
 import {
   type BlogListCard,
-  type MicroCMSBlogPostFields,
-  microCMSContentToBlogListCard,
+  collectionEntryToBlogListCard,
   sortBlogListCardsByDate,
 } from "@/lib/utils/blogListCard";
 
 export async function getStaticPaths() {
-  const client = createMicroCMSClient(microCMSConfigFromEnv(import.meta.env));
-  const all = await client.getAllContents<MicroCMSBlogPostFields>(
-    "blogs",
-    {
-      orders: "-publishedAt",
-    },
-  );
+  const posts = await getSinglePage("posts");
   const sorted = sortBlogListCardsByDate(
-    all.map(microCMSContentToBlogListCard),
+    posts.map(collectionEntryToBlogListCard),
   );
-  const totalPages = Math.ceil(
-    sorted.length / config.settings.pagination,
-  );
+  const totalPages = Math.ceil(sorted.length / config.settings.pagination);
 
   const paths: {
     params: { slug: string };

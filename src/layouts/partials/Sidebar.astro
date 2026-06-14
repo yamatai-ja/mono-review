@@ -6,6 +6,9 @@ import dateFormat from "@/lib/utils/dateFormat";
 import { humanize, slugify } from "@/lib/utils/textConverter";
 
 const { headings, latestPosts } = Astro.props;
+const postImage = (post: any) =>
+  typeof post.image === "string" ? post.image : post.image?.url;
+const postDate = (post: any) => post.publishedAt ?? post.date ?? new Date();
 
 // プロフィール情報
 const profile = {
@@ -117,7 +120,7 @@ const popularPosts = latestPosts.slice(0, 3);
         <a href={`${import.meta.env.BASE_URL}blog/${post.id}`} class="group flex gap-3 items-start">
           <div class="flex-shrink-0 w-20 h-14 overflow-hidden rounded">
             <Image
-              src={resolvePostImageSrc(post.image?.url) || "/images/author.png"}
+              src={resolvePostImageSrc(postImage(post)) || "/images/author.png"}
               alt={post.title}
               width={80}
               height={56}
@@ -128,7 +131,7 @@ const popularPosts = latestPosts.slice(0, 3);
             <h4 class="text-xs font-bold leading-tight group-hover:text-primary transition duration-200 line-clamp-2">
               {post.title}
             </h4>
-            <span class="text-[10px] text-text-light">{dateFormat(post.publishedAt)}</span>
+            <span class="text-[10px] text-text-light">{dateFormat(postDate(post))}</span>
           </div>
         </a>
       ))}

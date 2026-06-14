@@ -37,19 +37,19 @@ const { title, image, amazonUrl, rakutenUrl, yahooUrl, price } = Astro.props;
 
     <div class="mt-auto flex flex-wrap gap-2">
       {amazonUrl && (
-        <a href={amazonUrl} target="_blank" rel="noopener noreferrer" 
+        <a href={amazonUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
            class="bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Amazonで見る
         </a>
       )}
       {rakutenUrl && (
-        <a href={rakutenUrl} target="_blank" rel="noopener noreferrer" 
+        <a href={rakutenUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
            class="bg-[#BF0000] hover:bg-[#990000] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           楽天で見る
         </a>
       )}
       {yahooUrl && (
-        <a href={yahooUrl} target="_blank" rel="noopener noreferrer" 
+        <a href={yahooUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
            class="bg-[#FF0033] hover:bg-[#CC0029] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Yahooで見る
         </a>
