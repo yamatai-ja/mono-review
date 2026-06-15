@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "@/layouts/Base.astro";
+
+export async function getStaticPaths() {
+  const draftPosts = await getCollection("posts", ({ data }) => data.draft === true);
+
+  return draftPosts.map((post) => {
+    const data = post.data as typeof post.data & { slug?: string };
+    return {
+      params: { slug: data.slug ?? post.id.replace(/\.(md|mdx)$/i, "") },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+const data = post.data as typeof post.data & {
+  slug?: string;
+  sourceQueueId?: string;
+  updatedDate?: string;
+};
+const { Content } = await render(post);
+---
+
+<Base title={data.title} description={data.description} noindex={true}>
+  <section class="section">
+    <div class="container">
+      <div class="mb-8 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
+        <strong>下書きプレビュー</strong>
+        <span class="ml-2">このページはローカル確認用です。公開用ブログルートには表示されません。</span>
+      </div>
+
+      <article class="content mx-auto max-w-3xl text-left">
+        <Content />
+      </article>
+
+      <div class="mx-auto mt-10 max-w-3xl rounded border border-border bg-light px-4 py-3 text-xs text-text">
+        <p>sourceQueueId: {data.sourceQueueId ?? "unknown"}</p>
+        <p>slug: {data.slug ?? Astro.params.slug}</p>
+        <p>draft: true</p>
+      </div>
+    </div>
+  </section>
+</Base>
