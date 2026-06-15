@@ -1,0 +1,8 @@
+source_name,category,feed_url,priority,enabled,notes
+PC Watch,PC・ガジェット,https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf,1,true,Impress Watch RSS
+家電 Watch,家電・生活用品,https://kaden.watch.impress.co.jp/data/rss/1.0/kdw/feed.rdf,1,true,Impress Watch RSS
+ケータイ Watch,通信・スマホ,https://k-tai.watch.impress.co.jp/data/rss/1.0/ktw/feed.rdf,1,true,Impress Watch RSS
+AV Watch,AV・ガジェット,https://av.watch.impress.co.jp/data/rss/1.0/avw/feed.rdf,2,true,Impress Watch RSS
+ITmedia NEWS,IT・ニュース,https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml,2,true,ITmedia RSS
+ITmedia Mobile,通信・スマホ,https://rss.itmedia.co.jp/rss/2.0/mobile.xml,2,true,ITmedia RSS
+ITmedia PC USER,PC・ガジェット,https://rss.itmedia.co.jp/rss/2.0/pcuser.xml,2,true,ITmedia RSS
