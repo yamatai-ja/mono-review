@@ -1,0 +1,299 @@
+default_guidance:
+  review:
+    intent: "製品の特徴や向いている人を知り、購入前に確認すべきポイントを整理したい。"
+    outline: "製品概要 | 主な特徴 | メリット | デメリット・注意点 | 向いている人 | 向いていない人 | FAQ | まとめ"
+  reputation:
+    intent: "購入前に評判や口コミ傾向を確認し、自分に合うか判断したい。"
+    outline: "評判の概要 | 良い評価として見られやすい点 | 気になる評価・注意点 | 評判から見た向いている人 | 購入前に確認したいこと | FAQ | まとめ"
+  disadvantages:
+    intent: "デメリットや注意点を先に確認し、購入後の失敗を避けたい。"
+    outline: "先に確認したいデメリット | 注意したい仕様・条件 | デメリットが気になりにくい人 | 他候補と比較したいポイント | FAQ | まとめ"
+  faq:
+    intent: "購入前によくある疑問をまとめて確認したい。"
+    outline: "よくある疑問の全体像 | 仕様に関するFAQ | 購入・保証に関するFAQ | 利用シーンに関するFAQ | まとめ"
+  comparison:
+    intent: "他製品と比較するときに見るべき違いや確認ポイントを知りたい。"
+    outline: "比較前に押さえたい特徴 | 比較で見るべきポイント | 向いている人の違い | 価格・保証・販売条件の確認 | FAQ | まとめ"
+
+categories:
+  smartphone:
+    aliases:
+      - smartphone
+      - smart phone
+      - スマホ
+      - Android
+      - iPhone
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 5
+      disadvantages: 4
+      review: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}は他機種と比べてどうか"
+    category_rule: "対応バンド、SIM仕様、FeliCa、保証、販売モデルの違いを確認する。"
+    guidance:
+      review:
+        intent: "スマホの特徴、向いている人、対応バンドや販売モデルの注意点を整理したい。"
+        outline: "結論：どんな人に向いているか | 主な特徴 | 購入前に確認したい注意点 | 対応バンド・SIM仕様 | 向いている人・向いていない人 | FAQ | まとめ"
+      reputation:
+        intent: "スマホの評判や口コミ傾向を購入前に確認したい。"
+        outline: "評判の概要 | 良い評価として見られやすい点 | 気になる評価・注意点 | 評判から見た向いている人 | 購入前に確認したいこと | FAQ | まとめ"
+      disadvantages:
+        intent: "スマホのデメリット、対応回線、サイズ、価格差などを事前に確認したい。"
+        outline: "先に確認したいデメリット | 対応バンド・販売モデルの注意点 | サイズ・性能・電池持ちの確認 | デメリットが気になりにくい人 | FAQ | まとめ"
+      faq:
+        intent: "スマホ購入前のよくある疑問をまとめて確認したい。"
+        outline: "よくある疑問の全体像 | 仕様に関するFAQ | 回線・SIMに関するFAQ | 購入・保証に関するFAQ | まとめ"
+      comparison:
+        intent: "他のスマホと比較するときに見るべきポイントを知りたい。"
+        outline: "比較前に押さえたい特徴 | 性能・カメラ・電池持ちの比較ポイント | 対応バンド・FeliCa・保証の確認 | 向いている人の違い | FAQ | まとめ"
+
+  tablet:
+    aliases:
+      - tablet
+      - タブレット
+      - iPad
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "画面サイズ、重量、ペン対応、キーボード対応、用途を確認する。"
+
+  laptop:
+    aliases:
+      - laptop
+      - ノートPC
+      - ノートパソコン
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "CPU、メモリ、ストレージ、重量、バッテリー、保証を確認する。"
+
+  desktop_pc:
+    aliases:
+      - desktop
+      - desktop_pc
+      - デスクトップPC
+      - デスクトップパソコン
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "性能、拡張性、設置スペース、保証、用途を確認する。"
+
+  smartwatch:
+    aliases:
+      - smartwatch
+      - smart watch
+      - スマートウォッチ
+      - Apple Watch
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "対応スマホ、通知、健康管理、電池持ち、決済対応を確認する。"
+
+  earbuds:
+    aliases:
+      - earbuds
+      - wireless earbuds
+      - イヤホン
+      - ワイヤレスイヤホン
+    enabled_article_types:
+      - review
+      - reputation
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "音質、ノイズキャンセリング、装着感、通話品質、電池持ちを確認する。"
+
+  headphones:
+    aliases:
+      - headphones
+      - headphone
+      - ヘッドホン
+      - ヘッドフォン
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "音質、装着感、ノイズキャンセリング、重量、接続方式を確認する。"
+
+  router:
+    aliases:
+      - router
+      - Wi-Fiルーター
+      - wifiルーター
+      - モバイルルーター
+    enabled_article_types:
+      - review
+      - reputation
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 5
+      review: 4
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "対応回線、通信速度、対応バンド、同時接続、料金プランを確認する。"
+
+  mobile_battery:
+    aliases:
+      - mobile battery
+      - power bank
+      - モバイルバッテリー
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "容量、出力、重さ、急速充電、安全性、対応機器を確認する。"
+
+  home_appliance:
+    aliases:
+      - home appliance
+      - appliance
+      - 家電
+      - 生活家電
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "設置場所、消費電力、サイズ、保証、メンテナンス性を確認する。"
+
+  gadget:
+    aliases:
+      - gadget
+      - ガジェット
+      - デジタルガジェット
+      - digital_gadget
+    enabled_article_types:
+      - review
+      - reputation
+      - disadvantages
+      - faq
+      - comparison
+    priority:
+      comparison: 5
+      reputation: 4
+      review: 4
+      disadvantages: 4
+      faq: 3
+    templates:
+      review: "{product_name}はどんな人向け？特徴を整理"
+      reputation: "{product_name}の評判は？購入前の確認ポイント"
+      disadvantages: "{product_name}のデメリットと注意点"
+      faq: "{product_name}のよくある疑問まとめ"
+      comparison: "{product_name}の比較ポイント"
+    category_rule: "用途、対応機器、価格、保証、代替候補を確認する。"
