@@ -18,6 +18,7 @@ OFFERS_CSV = ROOT / "data" / "offers.csv"
 PROMPT_DIR = ROOT / "output" / "cluster_body_prompts"
 REPORT_CSV = ROOT / "output" / "cluster_prompt_report.csv"
 REPORT_MD = ROOT / "output" / "cluster_prompt_report.md"
+RESEARCH_NOTES_DIR = ROOT / "input" / "research_notes"
 
 REQUIRED_CLUSTER_COLUMNS = {
     "parent_queue_id",
@@ -63,6 +64,72 @@ CRITICAL_PROMPT_PATTERNS = [
     re.compile(r"最安値はこちら.*案内"),
 ]
 
+MATERIAL_REQUIREMENTS = {
+    "reputation": [
+        "実際の口コミ傾向",
+        "良い評判",
+        "悪い評判",
+        "レビュー/評判ソース",
+        "商品固有の評価ポイント",
+    ],
+    "comparison": [
+        "比較対象",
+        "比較軸",
+        "商品ごとの差",
+        "どんな人にどちらが向くか",
+    ],
+    "disadvantages": [
+        "商品固有の欠点",
+        "仕様上の制約",
+        "購入前の注意点",
+        "競合と比べて弱い点",
+    ],
+    "review": [
+        "公式仕様",
+        "主な特徴",
+        "向いている人",
+        "注意点",
+    ],
+    "faq": [
+        "想定質問",
+        "購入前不安",
+        "仕様確認ポイント",
+    ],
+}
+
+RESEARCH_KEYWORD_GROUPS = {
+    "reputation": {
+        "実際の口コミ傾向": ["口コミ", "評判", "レビュー", "SNS", "Amazon", "楽天"],
+        "良い評判": ["良い評判", "高評価", "メリット", "良い口コミ", "評価され"],
+        "悪い評判": ["悪い評判", "低評価", "デメリット", "悪い口コミ", "不満", "気になる"],
+        "レビュー/評判ソース": ["source", "Source", "URL", "http", "出典", "参照", "レビュー"],
+        "商品固有の評価ポイント": ["Amazfit", "Active 3", "Premium", "商品固有", "評価ポイント"],
+    },
+    "comparison": {
+        "比較対象": ["比較対象", "競合", "他機種", "VS", "vs", "Pixel", "Apple", "Garmin"],
+        "比較軸": ["比較軸", "価格", "機能", "バッテリー", "画面", "センサー", "通知"],
+        "商品ごとの差": ["差", "違い", "優位", "弱い", "強い"],
+        "どんな人にどちらが向くか": ["向いている", "おすすめ", "選ぶ", "どちら"],
+    },
+    "disadvantages": {
+        "商品固有の欠点": ["欠点", "デメリット", "弱点", "不満", "注意"],
+        "仕様上の制約": ["制約", "非対応", "未対応", "仕様", "制限"],
+        "購入前の注意点": ["購入前", "注意点", "確認", "保証", "価格"],
+        "競合と比べて弱い点": ["競合", "比較", "弱い", "劣る", "他機種"],
+    },
+    "review": {
+        "公式仕様": ["公式", "仕様", "スペック", "http", "Source"],
+        "主な特徴": ["特徴", "機能", "ポイント"],
+        "向いている人": ["向いている", "おすすめ", "適して"],
+        "注意点": ["注意", "確認", "デメリット"],
+    },
+    "faq": {
+        "想定質問": ["FAQ", "質問", "疑問", "Q"],
+        "購入前不安": ["不安", "心配", "購入前", "注意"],
+        "仕様確認ポイント": ["仕様", "確認", "スペック", "対応"],
+    },
+}
+
 
 def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     if not path.exists():
@@ -83,6 +150,9 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         "prompt_file",
         "status",
         "reason",
+        "research_note_found",
+        "needs_research",
+        "research_missing_items",
         "critical_warnings",
         "safe_notices",
     ]
@@ -118,6 +188,84 @@ def find_prompt_quality_notes(prompt: str) -> tuple[list[str], list[str]]:
 
     safe_notices = [term for term in SAFE_NOTICE_TERMS if term in prompt]
     return critical, safe_notices
+
+
+def research_note_path(queue_id: str, article_type: str) -> Path:
+    safe_queue_id = re.sub(r"[^A-Za-z0-9_-]+", "", queue_id or "unknown")
+    safe_article_type = re.sub(r"[^A-Za-z0-9_-]+", "", article_type or "article")
+    return RESEARCH_NOTES_DIR / f"{safe_queue_id}_{safe_article_type}.md"
+
+
+def load_research_note(queue_id: str, article_type: str) -> tuple[bool, str, Path]:
+    path = research_note_path(queue_id, article_type)
+    if not path.exists():
+        return False, "", path
+    return True, path.read_text(encoding="utf-8-sig").strip(), path
+
+
+def research_missing_items(article_type: str, note_text: str) -> list[str]:
+    requirements = MATERIAL_REQUIREMENTS.get(article_type, [])
+    if not requirements:
+        return []
+    if not note_text.strip():
+        return requirements
+
+    keyword_groups = RESEARCH_KEYWORD_GROUPS.get(article_type, {})
+    missing: list[str] = []
+    for item in requirements:
+        keywords = keyword_groups.get(item, [item])
+        if not any(keyword in note_text for keyword in keywords):
+            missing.append(item)
+    return missing
+
+
+def format_research_section(
+    article_type: str,
+    found: bool,
+    note_text: str,
+    missing_items: list[str],
+    note_path: Path,
+) -> str:
+    requirements = MATERIAL_REQUIREMENTS.get(article_type, [])
+    requirement_lines = "\n".join(f"- {item}" for item in requirements) or "- 追加要件なし"
+    missing_lines = "\n".join(f"- {item}" for item in missing_items) or "- none"
+    if found and note_text:
+        note_block = f"""## 根拠メモ
+
+以下は本文作成前の根拠メモです。丸写しせず、読者向けに再構成してください。
+根拠メモにない口コミ・評判・仕様は捏造しないでください。
+価格、発売日、FeliCa/Suica、医療効果、保証、対応バンドなどは根拠がない限り断定しないでください。
+
+```text
+{note_text}
+```"""
+    else:
+        note_block = f"""## 根拠メモ
+
+根拠メモは未提供です。
+想定パス: {note_path}
+商品固有情報・口コミ・比較材料が不足している場合は、無理に完成記事を書かず、情報不足として追加調査項目を返してください。
+一般論だけで記事を完成させないでください。"""
+
+    reputation_rule = ""
+    if article_type == "reputation":
+        reputation_rule = """
+
+reputation記事では、実際の口コミ、レビュー傾向、良い評判、悪い評判の材料がない場合は、評判記事として完成させないでください。口コミを推測で作らないでください。"""
+
+    return f"""{note_block}
+
+## 素材不足チェック
+
+この記事タイプで必要な材料:
+{requirement_lines}
+
+不足または未確認の材料:
+{missing_lines}
+
+商品固有情報・口コミ・比較材料が不足している場合は、無理に完成記事を書かず、情報不足として追加調査項目を返してください。
+一般論だけで記事を完成させないでください。{reputation_rule}
+"""
 
 
 def normalize_cluster_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -264,6 +412,7 @@ def build_prompt(
     outline: list[str],
     category_rule: str,
     guidance_source: str,
+    research_section: str,
 ) -> str:
     article_type = cluster.get("article_type", "")
     sections = "\n".join(f"- {section}" for section in outline)
@@ -316,6 +465,8 @@ def build_prompt(
 
 ## offer候補
 {offers_text}
+
+{research_section}
 
 ## 執筆ルール
 
@@ -401,6 +552,9 @@ def write_report(rows: list[dict[str, str]], applied: bool) -> None:
     counts = Counter(row.get("status", "") for row in rows)
     critical_count = sum(1 for row in rows if row.get("critical_warnings"))
     safe_notice_count = sum(1 for row in rows if row.get("safe_notices"))
+    research_note_found_count = sum(1 for row in rows if row.get("research_note_found") == "yes")
+    research_note_missing_count = sum(1 for row in rows if row.get("research_note_found") == "no")
+    needs_research_count = sum(1 for row in rows if row.get("needs_research") == "yes")
     lines = [
         "# Cluster Prompt Report",
         "",
@@ -411,8 +565,21 @@ def write_report(rows: list[dict[str, str]], applied: bool) -> None:
     ]
     for status, count in sorted(counts.items()):
         lines.append(f"- {status}: {count}")
+    lines.append(f"- research_note_found_count: {research_note_found_count}")
+    lines.append(f"- research_note_missing_count: {research_note_missing_count}")
+    lines.append(f"- needs_research_count: {needs_research_count}")
     lines.append(f"- critical_warning_count: {critical_count}")
     lines.append(f"- safe_notice_count: {safe_notice_count}")
+    lines.extend(["", "## needs_research", ""])
+    needs_research_rows = [row for row in rows if row.get("needs_research") == "yes"]
+    if needs_research_rows:
+        for row in needs_research_rows[:20]:
+            lines.append(
+                f"- {row.get('parent_queue_id')} / {row.get('article_type')} / "
+                f"{row.get('candidate_title')} / missing={row.get('research_missing_items')}"
+            )
+    else:
+        lines.append("- none")
     lines.extend(["", "## samples", ""])
     for row in rows[:10]:
         critical_text = row.get("critical_warnings") or "none"
@@ -420,6 +587,7 @@ def write_report(rows: list[dict[str, str]], applied: bool) -> None:
         lines.append(
             f"- {row.get('parent_queue_id')} / {row.get('article_type')} / "
             f"{row.get('candidate_title')} / {row.get('status')} / "
+            f"needs_research={row.get('needs_research')} / "
             f"critical={critical_text} / safe_notice={safe_notice_text}"
         )
     REPORT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -456,6 +624,8 @@ def main() -> None:
             prompt_file = ""
             critical_warnings: list[str] = []
             safe_notices: list[str] = []
+            research_found = False
+            missing_research_items: list[str] = []
         else:
             product_ids = product_ids_for_parent(parent, list(product_by_id.values()))
             products_text = format_products(product_ids, product_by_id)
@@ -464,6 +634,21 @@ def main() -> None:
                 rules,
                 cluster.get("category", ""),
                 cluster.get("article_type", ""),
+            )
+            research_found, research_note, research_path = load_research_note(
+                cluster.get("parent_queue_id", ""),
+                cluster.get("article_type", ""),
+            )
+            missing_research_items = research_missing_items(
+                cluster.get("article_type", ""),
+                research_note,
+            )
+            research_section = format_research_section(
+                cluster.get("article_type", ""),
+                research_found,
+                research_note,
+                missing_research_items,
+                research_path,
             )
             prompt = build_prompt(
                 cluster,
@@ -474,6 +659,7 @@ def main() -> None:
                 outline,
                 category_rule,
                 guidance_source,
+                research_section,
             )
             prompt_file = str(PROMPT_DIR / prompt_filename(cluster))
             critical_warnings, safe_notices = find_prompt_quality_notes(prompt)
@@ -494,6 +680,9 @@ def main() -> None:
             "prompt_file": prompt_file,
             "status": status,
             "reason": reason,
+            "research_note_found": "yes" if research_found else "no",
+            "needs_research": "yes" if missing_research_items else "no",
+            "research_missing_items": " / ".join(missing_research_items),
             "critical_warnings": "/".join(critical_warnings),
             "safe_notices": "/".join(safe_notices),
         })
@@ -506,6 +695,12 @@ def main() -> None:
         print(f"{status}={count}")
     critical_count = sum(1 for row in report_rows if row.get("critical_warnings"))
     safe_notice_count = sum(1 for row in report_rows if row.get("safe_notices"))
+    research_note_found_count = sum(1 for row in report_rows if row.get("research_note_found") == "yes")
+    research_note_missing_count = sum(1 for row in report_rows if row.get("research_note_found") == "no")
+    needs_research_count = sum(1 for row in report_rows if row.get("needs_research") == "yes")
+    print(f"research_note_found_count={research_note_found_count}")
+    print(f"research_note_missing_count={research_note_missing_count}")
+    print(f"needs_research_count={needs_research_count}")
     print(f"critical_warning_count={critical_count}")
     print(f"safe_notice_count={safe_notice_count}")
     print(f"report={REPORT_MD}")
