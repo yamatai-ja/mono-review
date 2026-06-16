@@ -38,6 +38,17 @@ BANNED_TERMS = [
     "\u3069\u3053\u3067\u3082\u5b89\u5b9a",
 ]
 
+INTERNAL_MEMO_TERMS = [
+    "CTA挿入候補",
+    "ProductCard",
+    "frontmatter",
+    "queue_id",
+    "draft",
+    "rel=",
+    "HTMLで挿入",
+    "URL確認後",
+]
+
 
 def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     if not path.exists():
@@ -114,6 +125,10 @@ def find_banned_terms(text: str) -> list[str]:
     return [term for term in BANNED_TERMS if term in text]
 
 
+def find_internal_memo_terms(text: str) -> list[str]:
+    return [term for term in INTERNAL_MEMO_TERMS if term in text]
+
+
 def url_bare_pastes(text: str) -> list[str]:
     return re.findall(r"https?://[^\s)>'\"]+", text)
 
@@ -168,6 +183,13 @@ def check_quality(text: str, target_keyword: str) -> tuple[int, str, list[str], 
     else:
         details.append("banned terms ok")
 
+    internal_terms = find_internal_memo_terms(text)
+    if internal_terms:
+        failed.append("internal_memo_terms:" + "/".join(internal_terms))
+        details.append("internal memo terms found: " + "/".join(internal_terms))
+    else:
+        details.append("internal memo terms ok")
+
     urls = url_bare_pastes(text)
     if urls:
         failed.append("bare_urls:" + "/".join(urls[:5]))
@@ -184,6 +206,7 @@ def check_quality(text: str, target_keyword: str) -> tuple[int, str, list[str], 
         item.startswith("h1_count")
         or item.startswith("missing_pr_ad_disclosure")
         or item.startswith("banned_terms")
+        or item.startswith("internal_memo_terms")
         or item.startswith("bare_urls")
         for item in failed
     )

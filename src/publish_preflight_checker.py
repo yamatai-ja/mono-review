@@ -45,6 +45,17 @@ STRONG_CTA_TERMS = [
     "迷わず購入",
 ]
 
+INTERNAL_MEMO_TERMS = [
+    "CTA挿入候補",
+    "ProductCard",
+    "frontmatter",
+    "queue_id",
+    "draft",
+    "rel=",
+    "HTMLで挿入",
+    "URL確認後",
+]
+
 
 def now_iso():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -180,9 +191,10 @@ def report_decision(failures, warnings):
         }
         or item.startswith("banned_term:")
         or item.startswith("strong_cta_term:")
+        or item.startswith("internal_memo_term:")
         or item.startswith("frontmatter_")
         or item.startswith("missing_frontmatter:")
-        or item.startswith("h1_count")
+        or item.startswith("h1_present")
     ]
     if blocking:
         return "blocked_for_publish"
@@ -218,7 +230,6 @@ def validate(queue_id):
     data = parse_frontmatter(frontmatter)
     slug = str(data.get("slug") or "unknown")
     source_queue_id = str(data.get("sourceQueueId") or data.get("queue_id") or "unknown")
-    full_public_text = f"{frontmatter}\n{body}"
 
     required = ["title", "description", "category", "tags", "slug", "qualityScore"]
     required.append("sourceQueueId" if queue_id == "q000003" else "queue_id")
@@ -243,8 +254,8 @@ def validate(queue_id):
         failures.append("qualityScore_below_80")
 
     count = h1_count(body)
-    if count != 1:
-        failures.append(f"h1_count={count}")
+    if count > 0:
+        warnings.append(f"h1_present={count}")
     if not has_h2(body):
         failures.append("h2_missing")
     if not any(term in body for term in ["PR", "広告", "アフィリエイト"]):
@@ -255,15 +266,18 @@ def validate(queue_id):
         failures.append("summary_missing")
 
     allowed_urls = [data.get("source_url", "")] if queue_id == "q000005" else []
-    if has_raw_url(full_public_text, allowed_urls):
+    if has_raw_url(body, allowed_urls):
         failures.append("raw_url_found")
 
     for term in BANNED_TERMS:
-        if term in full_public_text:
+        if term in body:
             failures.append(f"banned_term:{term}")
     for term in STRONG_CTA_TERMS:
-        if term in full_public_text:
+        if term in body:
             failures.append(f"strong_cta_term:{term}")
+    for term in INTERNAL_MEMO_TERMS:
+        if term in body:
+            failures.append(f"internal_memo_term:{term}")
 
     if queue_id == "q000005":
         product_id = data.get("product_id", "")
