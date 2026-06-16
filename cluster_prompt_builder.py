@@ -38,6 +38,31 @@ CLUSTER_QUEUE_COLUMNS = [
     "status",
 ]
 
+SAFE_NOTICE_TERMS = [
+    "CTA挿入候補",
+    "ProductCard",
+    "frontmatter",
+    "queue_id",
+    "draft",
+    "rel=",
+    "HTMLで挿入",
+    "URL確認後",
+    "実機レビュー",
+    "使ってみた",
+    "最安値",
+    "今すぐ購入",
+    "絶対おすすめ",
+]
+
+CRITICAL_PROMPT_PATTERNS = [
+    re.compile(r"CTA挿入候補.*本文に入れる"),
+    re.compile(r"ProductCard.*本文に書く"),
+    re.compile(r"rel=.*本文に明記"),
+    re.compile(r"実機レビューとして書く"),
+    re.compile(r"今すぐ購入.*促す"),
+    re.compile(r"最安値はこちら.*案内"),
+]
+
 
 def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     if not path.exists():
@@ -58,6 +83,8 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         "prompt_file",
         "status",
         "reason",
+        "critical_warnings",
+        "safe_notices",
     ]
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
@@ -81,6 +108,16 @@ def require_columns(columns: list[str], required: set[str], label: str) -> None:
     missing = sorted(required - set(columns))
     if missing:
         raise SystemExit(f"Missing columns in {label}: {', '.join(missing)}")
+
+
+def find_prompt_quality_notes(prompt: str) -> tuple[list[str], list[str]]:
+    critical = []
+    for pattern in CRITICAL_PROMPT_PATTERNS:
+        if pattern.search(prompt):
+            critical.append(pattern.pattern)
+
+    safe_notices = [term for term in SAFE_NOTICE_TERMS if term in prompt]
+    return critical, safe_notices
 
 
 def normalize_cluster_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -362,6 +399,8 @@ def prompt_filename(row: dict[str, str]) -> str:
 def write_report(rows: list[dict[str, str]], applied: bool) -> None:
     write_csv(REPORT_CSV, rows)
     counts = Counter(row.get("status", "") for row in rows)
+    critical_count = sum(1 for row in rows if row.get("critical_warnings"))
+    safe_notice_count = sum(1 for row in rows if row.get("safe_notices"))
     lines = [
         "# Cluster Prompt Report",
         "",
@@ -372,9 +411,17 @@ def write_report(rows: list[dict[str, str]], applied: bool) -> None:
     ]
     for status, count in sorted(counts.items()):
         lines.append(f"- {status}: {count}")
+    lines.append(f"- critical_warning_count: {critical_count}")
+    lines.append(f"- safe_notice_count: {safe_notice_count}")
     lines.extend(["", "## samples", ""])
     for row in rows[:10]:
-        lines.append(f"- {row.get('parent_queue_id')} / {row.get('article_type')} / {row.get('candidate_title')} / {row.get('status')}")
+        critical_text = row.get("critical_warnings") or "none"
+        safe_notice_text = row.get("safe_notices") or "none"
+        lines.append(
+            f"- {row.get('parent_queue_id')} / {row.get('article_type')} / "
+            f"{row.get('candidate_title')} / {row.get('status')} / "
+            f"critical={critical_text} / safe_notice={safe_notice_text}"
+        )
     REPORT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -407,6 +454,8 @@ def main() -> None:
             status = "skipped"
             reason = "missing_parent_queue"
             prompt_file = ""
+            critical_warnings: list[str] = []
+            safe_notices: list[str] = []
         else:
             product_ids = product_ids_for_parent(parent, list(product_by_id.values()))
             products_text = format_products(product_ids, product_by_id)
@@ -427,6 +476,7 @@ def main() -> None:
                 guidance_source,
             )
             prompt_file = str(PROMPT_DIR / prompt_filename(cluster))
+            critical_warnings, safe_notices = find_prompt_quality_notes(prompt)
             status = "would_write"
             reason = f"dry_run_guidance={guidance_source}"
             if applied:
@@ -444,6 +494,8 @@ def main() -> None:
             "prompt_file": prompt_file,
             "status": status,
             "reason": reason,
+            "critical_warnings": "/".join(critical_warnings),
+            "safe_notices": "/".join(safe_notices),
         })
 
     write_report(report_rows, applied)
@@ -452,6 +504,10 @@ def main() -> None:
     print(f"mode={'apply' if applied else 'dry-run'} target_count={len(target_rows)}")
     for status, count in sorted(Counter(row["status"] for row in report_rows).items()):
         print(f"{status}={count}")
+    critical_count = sum(1 for row in report_rows if row.get("critical_warnings"))
+    safe_notice_count = sum(1 for row in report_rows if row.get("safe_notices"))
+    print(f"critical_warning_count={critical_count}")
+    print(f"safe_notice_count={safe_notice_count}")
     print(f"report={REPORT_MD}")
     if not applied:
         print("dry-run: prompt files were not written")
