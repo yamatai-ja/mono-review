@@ -1,0 +1,6 @@
+﻿parent_queue_id,parent_slug,category,article_type,priority,candidate_title,status
+q000005,motorola-edge-60,smartphone,review,4,motorola edge 60はどんな人向け？特徴を整理,prompt_generated
+q000005,motorola-edge-60,smartphone,reputation,5,motorola edge 60の評判は？購入前の確認ポイント,prompt_generated
+q000005,motorola-edge-60,smartphone,disadvantages,4,motorola edge 60のデメリットと注意点,prompt_generated
+q000005,motorola-edge-60,smartphone,faq,3,motorola edge 60のよくある疑問まとめ,prompt_generated
+q000005,motorola-edge-60,smartphone,comparison,5,motorola edge 60は他機種と比べてどうか,prompt_generated
