@@ -23,6 +23,14 @@ class PublicationRiskResult:
     medium_matches: tuple[str, ...]
     required_tasks: tuple[str, ...]
 
+    @property
+    def detected_terms(self) -> tuple[str, ...]:
+        return tuple(dict.fromkeys((*self.high_matches, *self.medium_matches)))
+
+    @property
+    def research_notes_required(self) -> bool:
+        return any("research_notes" in task for task in self.required_tasks)
+
 
 def find_terms(text: str, terms: list[str]) -> tuple[str, ...]:
     normalized = text.casefold()

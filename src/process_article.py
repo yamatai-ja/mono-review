@@ -7,10 +7,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+try:
+    from .article_quality_checker import load_simple_yaml
+    from .publication_risk_checker import PublicationRiskResult, classify_publication_risk
+except ImportError:  # Support direct CLI execution from src/.
+    from article_quality_checker import load_simple_yaml
+    from publication_risk_checker import PublicationRiskResult, classify_publication_risk
+
 
 ROOT = Path(__file__).resolve().parents[1]
 QUALITY_REPORT_CSV = ROOT / "output" / "article_quality_report.csv"
 POSTS_DIR = ROOT / "src" / "content" / "posts"
+PROFILE_DIR = ROOT / "src" / "article_profiles"
 
 
 def run_command(command: list[str]) -> tuple[int, str]:
@@ -60,6 +68,40 @@ def read_quality_row(slug: str, article_type: str, draft_file: str) -> dict[str,
     return {}
 
 
+def evaluate_publication_risk(
+    article_type: str,
+    draft_file: str,
+    title: str = "",
+) -> PublicationRiskResult:
+    draft_path = Path(draft_file)
+    if not draft_path.is_absolute():
+        draft_path = ROOT / draft_path
+    if not draft_path.exists():
+        raise ValueError(f"draft file not found: {draft_file}")
+
+    profile_path = PROFILE_DIR / f"{article_type}.yaml"
+    if not profile_path.exists():
+        raise ValueError(f"article profile not found: {profile_path}")
+
+    markdown = draft_path.read_text(encoding="utf-8")
+    classification_text = f"{title}\n{markdown}" if title else markdown
+    return classify_publication_risk(classification_text, load_simple_yaml(profile_path))
+
+
+def publication_risk_lines(result: PublicationRiskResult) -> list[str]:
+    return [
+        f"publication_risk={result.level}",
+        f"detected_terms={','.join(result.detected_terms) or 'none'}",
+        f"required_human_checks={';'.join(result.required_tasks)}",
+        f"research_notes_required={'yes' if result.research_notes_required else 'no'}",
+    ]
+
+
+def print_publication_risk(result: PublicationRiskResult) -> None:
+    for line in publication_risk_lines(result):
+        print(line)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run quality check, Astro draft generation, npm check, and npm build for one article."
@@ -81,6 +123,18 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     generated_file = POSTS_DIR / f"{args.slug}.md"
+
+    try:
+        risk_result = evaluate_publication_risk(args.article_type, args.draft_file, args.title)
+    except (OSError, ValueError) as exc:
+        print("publication_risk=error")
+        print("detected_terms=none")
+        print("required_human_checks=unavailable")
+        print("research_notes_required=unknown")
+        print(f"publication_risk_error={exc}")
+        print("final_status=risk_check_failed")
+        return 1
+    print_publication_risk(risk_result)
 
     quality_command = [
         sys.executable,
