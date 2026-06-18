@@ -4,16 +4,13 @@ slug: "felica-android-smartphone-selection"
 draft: true
 article_type: "problem_solution"
 description: "FeliCa対応Androidスマホを選ぶときに確認したいポイントを解説。Suicaやおサイフケータイ利用時の注意点、対応バンド、販売モデル、保証、電池持ちなど、購入前にチェックしたい項目をまとめました。"
+pubDate: "2026-06-18"
 categories: ["スマホ"]
 tags: ["FeliCa", "Androidスマホ", "スマホ", "おサイフケータイ"]
 related_parent_slug: "motorola-edge-60"
 related_parent_link: "/blog/motorola-edge-60/"
 ---
 本記事には広告リンクを含みます。
-
-## メタディスクリプション案
-
-FeliCa対応Androidスマホを選ぶときに確認したいポイントを解説。Suicaやおサイフケータイ利用時の注意点、対応バンド、販売モデル、保証、電池持ちなど、購入前にチェックしたい項目をまとめました。
 
 ## 結論
 
