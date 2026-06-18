@@ -13,6 +13,9 @@ PRODUCTS_CSV = ROOT / "data" / "products.csv"
 POSTS_DIR = ROOT / "src" / "content" / "posts"
 PROMPT_DIR = ROOT / "output" / "problem_body_prompts"
 
+TARGET_KEYWORD = "FeliCa対応 Androidスマホ 選び方"
+TARGET_PROMPT_NAME = "felica-android-smartphone-selection_prompt.md"
+
 
 def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     if not path.exists():
@@ -40,8 +43,8 @@ def slugify(value: str) -> str:
 
 
 def prompt_filename(keyword: str) -> str:
-    if keyword == "FeliCa対応 Androidスマホ 選び方":
-        return "felica-android-smartphone-selection_prompt.md"
+    if keyword == TARGET_KEYWORD:
+        return TARGET_PROMPT_NAME
     return f"{slugify(keyword)}_prompt.md"
 
 
@@ -89,6 +92,18 @@ def parent_slug(article: dict[str, str], product_hint: str) -> str:
     return slugify(title)
 
 
+def product_supplement(product_hint: str, product: dict[str, str]) -> str:
+    amazon_status = "確認済み" if product.get("amazon_url") else "未確認"
+    return f"""## 読者向け補足に変換する情報
+
+- 関連商品候補は {product_hint}
+- Amazonリンクは{amazon_status}
+- 楽天、Yahoo、公式、キャリア販売ページは未確認
+- 価格、在庫、対応バンド、保証、販売モデルは本文で断定せず、購入前確認を促す
+- 上記は本文中で必要な場合のみ、読者向けの自然な表現に変換する
+"""
+
+
 def build_prompt(
     candidate: dict[str, str],
     article: dict[str, str],
@@ -100,13 +115,9 @@ def build_prompt(
     title = "FeliCa対応Androidスマホの選び方と購入前チェック"
     prompt_file = str(PROMPT_DIR / prompt_filename(keyword))
     parent_link = f"/blog/{slug}/" if slug else ""
-    source_title = candidate.get("source_title", "")
     search_intent = candidate.get("search_intent", "")
-
-    product_notes = product.get("notes", "")
-    product_status = product.get("status", "")
-    amazon_url_status = "確認済み" if product.get("amazon_url") else "未確認"
     post_exists = "yes" if slug and (POSTS_DIR / f"{slug}.md").exists() else "no"
+    supplement = product_supplement(product_hint, product)
 
     prompt = f"""# GPTs本文生成プロンプト: {title}
 
@@ -119,22 +130,17 @@ def build_prompt(
 - article_type: problem_solution
 - candidate_title: {title}
 - search_intent: {search_intent}
-- source_title: {source_title}
 
 ## 記事の位置づけ
 
 - 商品名記事ではなく、悩み解決記事として書く
-- 商品を押し売りせず、選択肢の一つとして扱う
+- 記事全体の主役は「FeliCa対応Androidスマホの選び方」にする
+- {product_hint} は記事後半で「候補の一つ」として自然に紹介する
+- 商品を押し売りせず、比較・確認ポイントの文脈で紹介する
 - 商品名を主キーワードにしない
 - 読者の悩み: FeliCa対応のAndroidスマホをどう選べばよいか知りたい
 
-## 関連商品候補
-
-- product_name: {product_hint}
-- product_status: {product_status}
-- amazon_url_status: {amazon_url_status}
-- notes: {product_notes}
-
+{supplement}
 ## 内部リンク候補
 
 - 親記事: {article.get('article_title', '')}
@@ -143,7 +149,6 @@ def build_prompt(
 - 親記事ファイル存在: {post_exists}
 
 本文中では、自然な文脈で親記事へ1回だけ内部リンクする想定にしてください。
-ただし、ProductCard、frontmatter、queue_id、draft、rel= などの内部語は本文に出さないでください。
 
 ## 想定読者
 
@@ -163,7 +168,7 @@ FeliCa対応Androidスマホを選ぶときに、FeliCa/Suica/おサイフケー
 - FeliCa/Suica/おサイフケータイの注意点
 - 対応バンド・販売モデル・保証の確認
 - 画面サイズ・電池持ち・microSDなどの比較ポイント
-- motorola edge 60が候補になる人
+- {product_hint} が候補になる人
 - 他モデルも比較した方がよい人
 - 購入前チェックリスト
 - FAQ
@@ -172,18 +177,41 @@ FeliCa対応Androidスマホを選ぶときに、FeliCa/Suica/おサイフケー
 ## 安全ルール
 
 - FeliCa/Suica対応を未確認で断定しない
+- 価格、在庫、保証、対応バンド、販売モデルは未確認なら断定しない
+- Amazonリンク確認済み、楽天・Yahoo・公式・キャリア販売ページ未確認という情報は、本文では必要な場合のみ「販売ページで最新情報を確認してください」という読者向け表現に変換する
 - 医療・金融・法律系の話に広げない
 - 「最安値」「絶対おすすめ」「今すぐ購入」は使わない
-- 価格・在庫・保証・対応バンドは購入前確認を促す
 - 商品は解決策候補の一つとして紹介し、押し売りしない
 - 実機レビュー、使ってみた、本音レビューとして書かない
 - 未確認スペックを補完しない
 
+## 本文に出してはいけない内部語
+
+以下の語句や管理メモは本文に出さないでください。
+
+- ProductCard
+- frontmatter
+- queue_id
+- draft
+- rel=
+- CTA挿入候補
+- HTMLで挿入
+- URL確認後
+- source_title
+- product_status
+- amazon_url_status
+- notes
+- Not in products.csv
+- RSS source candidate
+
 ## 出力形式
 
-記事本文Markdownのみを出力してください。
-メタディスクリプション案、H2/H3構成、FAQを含めてください。
-内部メモやこのプロンプトの管理語は本文に出さないでください。
+- 記事本文Markdownのみを出力する
+- H1は使わない
+- 見出しはH2/H3のみ
+- Astro側でタイトルを管理する前提のため、本文内に記事タイトルをH1として再出力しない
+- メタディスクリプション案、H2/H3構成、FAQを含める
+- 内部メモやこのプロンプトの管理語は本文に出さない
 """
     return title, prompt_file, prompt
 
@@ -204,11 +232,11 @@ def main() -> None:
     article = find_article_by_product_hint(product_hint)
     product = find_product(product_hint)
     slug = parent_slug(article, product_hint)
-    title, prompt_file, prompt = build_prompt(candidate, article, product, slug)
+    title, prompt_file, _prompt = build_prompt(candidate, article, product, slug)
 
     if args.apply:
         PROMPT_DIR.mkdir(parents=True, exist_ok=True)
-        Path(prompt_file).write_text(prompt, encoding="utf-8")
+        Path(prompt_file).write_text(_prompt, encoding="utf-8")
 
     print(f"mode={'apply' if args.apply else 'dry-run'}")
     print(f"keyword={args.keyword}")
