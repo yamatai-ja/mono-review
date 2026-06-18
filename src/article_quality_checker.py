@@ -99,6 +99,31 @@ def bare_urls(markdown: str) -> list[str]:
     return re.findall(r"https?://[^\s)>'\"]+", markdown)
 
 
+def split_frontmatter(markdown: str) -> tuple[str | None, str]:
+    lines = markdown.splitlines(keepends=True)
+    if not lines or lines[0].strip() != "---":
+        return None, markdown
+
+    for index, line in enumerate(lines[1:], start=1):
+        if line.strip() == "---":
+            return "".join(lines[1:index]), "".join(lines[index + 1 :])
+
+    # Do not hide content from checks when the opening delimiter is malformed.
+    return None, markdown
+
+
+def frontmatter_has_value(frontmatter: str | None, key: str) -> bool:
+    if frontmatter is None:
+        return False
+
+    match = re.search(rf"(?m)^{re.escape(key)}\s*:\s*(.*)$", frontmatter)
+    if not match:
+        return False
+
+    value = match.group(1).strip()
+    return bool(value and value not in {'""', "''"})
+
+
 def check_article(markdown: str, profile: dict[str, Any]) -> tuple[int, str, list[str], list[str], list[str]]:
     failed: list[str] = []
     warnings: list[str] = []
@@ -106,58 +131,62 @@ def check_article(markdown: str, profile: dict[str, Any]) -> tuple[int, str, lis
 
     requirements = profile.get("requirements", {})
     hard_fail_terms = profile.get("hard_fail_terms", {})
+    frontmatter, body = split_frontmatter(markdown)
+    details.append("frontmatter separated" if frontmatter is not None else "frontmatter not present")
 
-    h1_count = count_heading(markdown, 1)
+    h1_count = count_heading(body, 1)
     expected_h1 = int(requirements.get("h1_count", 0))
     if h1_count != expected_h1:
         failed.append(f"h1_count={h1_count}")
     details.append(f"h1_count={h1_count}")
 
-    h2_count = count_heading(markdown, 2)
+    h2_count = count_heading(body, 2)
     min_h2 = int(requirements.get("min_h2_count", 0))
     if h2_count < min_h2:
         warnings.append(f"h2_count={h2_count}")
     details.append(f"h2_count={h2_count}")
 
-    if requirements.get("require_faq") and "## FAQ" not in markdown:
+    if requirements.get("require_faq") and "## FAQ" not in body:
         failed.append("missing_faq")
     else:
         details.append("faq ok")
 
-    internal_terms = find_terms(markdown, list(hard_fail_terms.get("internal", [])))
+    internal_terms = find_terms(body, list(hard_fail_terms.get("internal", [])))
     if internal_terms:
         failed.append("internal_terms:" + "/".join(internal_terms))
     else:
         details.append("internal terms ok")
 
-    strong_cta_terms = find_terms(markdown, list(hard_fail_terms.get("strong_cta", [])))
+    strong_cta_terms = find_terms(body, list(hard_fail_terms.get("strong_cta", [])))
     if strong_cta_terms:
         failed.append("strong_cta_terms:" + "/".join(strong_cta_terms))
     else:
         details.append("strong CTA terms ok")
 
-    experience_terms = find_terms(markdown, list(hard_fail_terms.get("experience", [])))
+    experience_terms = find_terms(body, list(hard_fail_terms.get("experience", [])))
     if experience_terms:
         failed.append("experience_terms:" + "/".join(experience_terms))
     else:
         details.append("experience terms ok")
 
-    if requirements.get("require_meta_description") and "メタディスクリプション案" not in markdown:
+    has_meta_description = frontmatter_has_value(frontmatter, "description") or "メタディスクリプション案" in body
+    if requirements.get("require_meta_description") and not has_meta_description:
         warnings.append("missing_meta_description")
     else:
-        details.append("meta description ok")
+        source = "frontmatter" if frontmatter_has_value(frontmatter, "description") else "body"
+        details.append(f"meta description ok ({source})")
 
-    if requirements.get("require_summary") and "## まとめ" not in markdown:
+    if requirements.get("require_summary") and "## まとめ" not in body:
         warnings.append("missing_summary")
     else:
         details.append("summary ok")
 
-    if requirements.get("require_internal_link") and not re.search(r"\[[^\]]+\]\(/blog/[^)]+\)", markdown):
+    if requirements.get("require_internal_link") and not re.search(r"\[[^\]]+\]\(/blog/[^)]+\)", body):
         warnings.append("missing_internal_link")
     else:
         details.append("internal link ok")
 
-    urls = bare_urls(markdown)
+    urls = bare_urls(body)
     if urls:
         warnings.append("bare_urls:" + "/".join(urls[:5]))
     else:
