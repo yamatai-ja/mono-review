@@ -32,3 +32,45 @@ hard_fail_terms:
     - 実機レビュー
     - 使ってみた
     - 本音レビュー
+publication_risk:
+  high_terms:
+    - FeliCa
+    - おサイフケータイ
+    - Suica
+    - 通信
+    - 通信バンド
+    - 決済
+    - eSIM
+    - SIMフリー
+    - 保証
+    - 契約
+    - 解約
+    - 料金
+    - 価格
+    - 在庫
+    - キャンペーン
+    - 評判
+    - 口コミ
+    - デメリット
+    - 医療
+    - 金融
+    - 法律
+  medium_terms:
+    - 商品
+    - 製品
+    - モデル
+    - 機種
+    - 比較
+    - 候補
+    - おすすめ
+    - ランキング
+  base_tasks:
+    - 品質チェック
+    - markdown監査
+    - npm run check
+    - npm run build
+    - 目視確認
+  medium_extra_tasks:
+    - 商品公式ページ確認
+  high_extra_tasks:
+    - 公式情報確認メモまたはresearch_notes必須
