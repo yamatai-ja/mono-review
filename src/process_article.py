@@ -8,11 +8,21 @@ import sys
 from pathlib import Path
 
 try:
-    from .article_quality_checker import load_simple_yaml
-    from .publication_risk_checker import PublicationRiskResult, classify_publication_risk
+    from .article_quality_checker import check_article, load_simple_yaml
+    from .markdown_post_auditor import audit_post
+    from .publication_risk_checker import (
+        PublicationRiskResult,
+        article_type_from_frontmatter,
+        classify_publication_risk,
+    )
 except ImportError:  # Support direct CLI execution from src/.
-    from article_quality_checker import load_simple_yaml
-    from publication_risk_checker import PublicationRiskResult, classify_publication_risk
+    from article_quality_checker import check_article, load_simple_yaml
+    from markdown_post_auditor import audit_post
+    from publication_risk_checker import (
+        PublicationRiskResult,
+        article_type_from_frontmatter,
+        classify_publication_risk,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,26 +112,93 @@ def print_publication_risk(result: PublicationRiskResult) -> None:
         print(line)
 
 
+def resolve_article_path(article_file: str) -> Path:
+    path = Path(article_file)
+    return path if path.is_absolute() else ROOT / path
+
+
+def check_only_lines(
+    article_file: str,
+    article_type_override: str | None = None,
+    title: str = "",
+) -> list[str]:
+    article_path = resolve_article_path(article_file)
+    if not article_path.exists():
+        raise ValueError(f"article file not found: {article_file}")
+
+    markdown = article_path.read_text(encoding="utf-8")
+    article_type = article_type_override or article_type_from_frontmatter(markdown)
+    if not article_type:
+        raise ValueError("article_type is missing; pass --article-type")
+
+    profile_path = PROFILE_DIR / f"{article_type}.yaml"
+    if not profile_path.exists():
+        raise ValueError(f"article profile not found: {profile_path}")
+    profile = load_simple_yaml(profile_path)
+
+    quality_score, quality_decision, failed, warnings, _ = check_article(markdown, profile)
+    classification_text = f"{title}\n{markdown}" if title else markdown
+    risk_result = classify_publication_risk(classification_text, profile)
+    audit_row = audit_post(article_path, "check-only")
+    draft = audit_row.get("draft", "") or "unknown"
+
+    return [
+        "check_only=true",
+        f"article_file={article_path}",
+        f"article_type={article_type}",
+        f"quality_score={quality_score}",
+        f"quality_decision={quality_decision}",
+        f"quality_failed_checks={';'.join(failed) or 'none'}",
+        f"quality_warnings={';'.join(warnings) or 'none'}",
+        *publication_risk_lines(risk_result),
+        f"markdown_audit_decision={audit_row.get('decision', 'unknown')}",
+        f"markdown_failed_checks={audit_row.get('failed_checks', 'none')}",
+        f"markdown_warnings={audit_row.get('warnings', 'none')}",
+        f"draft={draft}",
+    ]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run quality check, Astro draft generation, npm check, and npm build for one article."
     )
-    parser.add_argument("--article-type", required=True)
-    parser.add_argument("--slug", required=True)
-    parser.add_argument("--title", required=True)
-    parser.add_argument("--draft-file", required=True)
-    parser.add_argument("--category", required=True)
-    parser.add_argument("--tags", required=True)
+    parser.add_argument(
+        "--check-only",
+        metavar="ARTICLE_FILE",
+        help="Check an existing Markdown file without writing files or running npm.",
+    )
+    parser.add_argument("--article-type")
+    parser.add_argument("--slug")
+    parser.add_argument("--title")
+    parser.add_argument("--draft-file")
+    parser.add_argument("--category")
+    parser.add_argument("--tags")
     parser.add_argument(
         "--overwrite",
         action="store_true",
         help="Pass --overwrite to astro_markdown_builder.py when the target Markdown already exists.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not args.check_only:
+        required = ["article_type", "slug", "title", "draft_file", "category", "tags"]
+        missing = [f"--{name.replace('_', '-')}" for name in required if not getattr(args, name)]
+        if missing:
+            parser.error("the following arguments are required: " + ", ".join(missing))
+    return args
 
 
 def main() -> int:
     args = parse_args()
+    if args.check_only:
+        try:
+            lines = check_only_lines(args.check_only, args.article_type, args.title or "")
+        except (OSError, ValueError) as exc:
+            print(f"check_only_error={exc}")
+            return 1
+        for line in lines:
+            print(line)
+        return 0
+
     generated_file = POSTS_DIR / f"{args.slug}.md"
 
     try:
