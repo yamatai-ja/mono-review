@@ -30,6 +30,23 @@ Problem-solution articles should:
 - Avoid internal workflow terms.
 - Avoid strong CTA and review-like experience claims.
 
+## Publication Risk Rules
+
+`quality_score` and `publication_risk` have different purposes. A high quality score does not reduce the required publication review.
+
+- `low`: Run quality and Markdown checks, check/build, and visual review.
+- `medium`: Complete all low-risk checks and verify the product official page.
+- `high`: Complete all medium-risk checks and require an official-information memo or `research_notes`.
+
+For `high` articles:
+
+- Never auto-publish based only on `quality_score`.
+- Do not assert unverified pricing, stock, warranty, supported bands, or campaigns.
+- Keep `draft: true` until official information has been checked.
+- Do not change to `draft: false`, push, or deploy without explicit instruction.
+
+The FeliCa Android selection article is `high` because it involves FeliCa, Osaifu-Keitai, Suica, communications, payments, warranty, and contracts. It requires an official-information memo or `research_notes` before publication review can finish.
+
 ## Standard Decision
 
 - `ready_for_astro_candidate`: article body is suitable for Astro draft conversion.
