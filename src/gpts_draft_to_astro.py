@@ -1,8 +1,9 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import csv
 import re
+import shutil
 import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -12,12 +13,21 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTICLE_QUEUE_CSV = ROOT / "data" / "article_queue.csv"
 OUTPUT_DIR = ROOT / "output"
 ASTRO_ARTICLES_DIR = OUTPUT_DIR / "astro_articles"
+CONTENT_POSTS_DIR = ROOT / "src" / "content" / "posts"
 REPORT_PATH = OUTPUT_DIR / "gpts_draft_to_astro_report.md"
 
 MOJIBAKE_MARKERS = ["�", "ã", "縺", "譁", "繧"]
 DEFAULT_CATEGORY = "others"
 DEFAULT_TAG = "others"
 DEFAULT_AUTHOR = "Admin"
+EDITING_NOTE_MARKERS = [
+    "CTA挿入候補",
+    "リンク候補",
+    "確認後に挿入",
+    "実URLは公開前に確認",
+    "メタディスクリプション案",
+    "sourceQueueId:",
+]
 
 
 class ConversionError(Exception):
@@ -281,6 +291,132 @@ def mojibake_hits(text: str) -> list[str]:
     return [marker for marker in MOJIBAKE_MARKERS if marker in text]
 
 
+
+def split_candidate_frontmatter(markdown: str) -> tuple[str | None, str]:
+    text = markdown.lstrip("\ufeff")
+    if not text.startswith("---\n"):
+        return None, text
+    end = text.find("\n---", 4)
+    if end == -1:
+        return None, text
+    frontmatter = text[4:end].strip("\n")
+    body = text[end + len("\n---") :].lstrip("\n")
+    return frontmatter, body
+
+
+def clean_yaml_value(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+    return value
+
+
+def parse_simple_frontmatter(frontmatter: str) -> dict[str, Any]:
+    data: dict[str, Any] = {}
+    lines = frontmatter.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip() or line.lstrip().startswith("#"):
+            i += 1
+            continue
+        if ":" not in line or line.startswith((" ", "\t")):
+            i += 1
+            continue
+
+        key, raw_value = line.split(":", 1)
+        key = key.strip()
+        value = raw_value.strip()
+        if not value:
+            items: list[str] = []
+            j = i + 1
+            while j < len(lines) and lines[j].startswith((" ", "\t")):
+                item = lines[j].strip()
+                if item.startswith("-"):
+                    items.append(clean_yaml_value(item[1:].strip()))
+                j += 1
+            data[key] = items
+            i = j
+            continue
+
+        data[key] = clean_yaml_value(value)
+        i += 1
+    return data
+
+
+def pre_copy_check(markdown: str) -> dict[str, Any]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    frontmatter, body = split_candidate_frontmatter(markdown)
+    if frontmatter is None:
+        errors.append("frontmatter is missing")
+        data: dict[str, Any] = {}
+    else:
+        data = parse_simple_frontmatter(frontmatter)
+
+    if not str(data.get("title", "")).strip():
+        errors.append("frontmatter title is empty")
+    if not str(data.get("description", "")).strip():
+        errors.append("frontmatter description is empty")
+    if not str(data.get("date", "")).strip():
+        errors.append("frontmatter date is empty")
+
+    categories = data.get("categories")
+    if not isinstance(categories, list) or not [item for item in categories if str(item).strip()]:
+        errors.append("frontmatter categories must be a non-empty array")
+
+    tags = data.get("tags")
+    if not isinstance(tags, list) or not [item for item in tags if str(item).strip()]:
+        errors.append("frontmatter tags must be a non-empty array")
+
+    draft = str(data.get("draft", "")).strip().lower()
+    if draft != "true":
+        errors.append("frontmatter draft must be true")
+    if draft == "false":
+        errors.append("frontmatter draft:false candidates cannot be copied")
+    if "pubDate" in data:
+        errors.append("frontmatter pubDate must not be used")
+    if "category" in data:
+        errors.append("frontmatter category must not be used; use categories")
+
+    if has_h1(body):
+        errors.append("body must not contain H1 headings")
+    if not has_h2(body):
+        errors.append("body must contain at least one H2 heading")
+
+    found_bare_urls = bare_urls(body)
+    if found_bare_urls:
+        errors.append("body has bare URLs: " + ", ".join(found_bare_urls[:5]))
+
+    markers = mojibake_hits(markdown)
+    if markers:
+        errors.append("mojibake markers found: " + ", ".join(markers))
+
+    editing_notes = [marker for marker in EDITING_NOTE_MARKERS if marker in markdown]
+    if editing_notes:
+        errors.append("editing memo markers found: " + ", ".join(editing_notes))
+
+    return {
+        "result": "fail" if errors else ("warning" if warnings else "pass"),
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def copy_candidate_to_posts(candidate_path: Path, slug: str) -> tuple[Path, dict[str, Any]]:
+    destination = CONTENT_POSTS_DIR / f"{slug}.md"
+    if destination.exists():
+        raise ConversionError("copy destination already exists; refusing to overwrite")
+
+    candidate_markdown = read_utf8(candidate_path)
+    check = pre_copy_check(candidate_markdown)
+    if check["result"] == "fail":
+        raise ConversionError("pre-copy check failed: " + "; ".join(check["errors"]))
+
+    CONTENT_POSTS_DIR.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(candidate_path, destination)
+    return destination, check
+
 def write_report(data: dict[str, Any]) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     warnings = data.get("warnings") or []
@@ -297,6 +433,11 @@ def write_report(data: dict[str, Any]) -> None:
         f"description: {data.get('description', '')}",
         f"normalized_escaped_headings: {'yes' if data.get('normalized_escaped_headings') else 'no'}",
         f"normalized_escaped_headings_count: {data.get('normalized_escaped_headings_count', 0)}",
+        f"copy_requested: {'yes' if data.get('copy_requested') else 'no'}",
+        f"copy_performed: {'yes' if data.get('copy_performed') else 'no'}",
+        f"copy_destination: {data.get('copy_destination', '')}",
+        f"copy_skipped_reason: {data.get('copy_skipped_reason', '') or 'none'}",
+        f"pre_copy_check_result: {data.get('pre_copy_check_result', 'not_requested')}",
         "categories:",
     ]
     for category in data.get("categories") or []:
@@ -324,7 +465,13 @@ def write_report(data: dict[str, Any]) -> None:
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
 
 
-def convert(queue_id: str, input_file: Path, slug_arg: str | None, normalize_headings: bool = True) -> int:
+def convert(
+    queue_id: str,
+    input_file: Path,
+    slug_arg: str | None,
+    normalize_headings: bool = True,
+    copy: bool = False,
+) -> int:
     report: dict[str, Any] = {
         "executed_at": now_iso(),
         "status": "error",
@@ -340,6 +487,11 @@ def convert(queue_id: str, input_file: Path, slug_arg: str | None, normalize_hea
         "errors": [],
         "normalized_escaped_headings": False,
         "normalized_escaped_headings_count": 0,
+        "copy_requested": copy,
+        "copy_performed": False,
+        "copy_destination": "",
+        "copy_skipped_reason": "not requested" if not copy else "",
+        "pre_copy_check_result": "not_requested" if not copy else "not_run",
     }
 
     try:
@@ -412,6 +564,20 @@ def convert(queue_id: str, input_file: Path, slug_arg: str | None, normalize_hea
         output = frontmatter + body.rstrip() + "\n"
         output_path.write_text(output, encoding="utf-8")
 
+        if copy:
+            destination = CONTENT_POSTS_DIR / f"{slug}.md"
+            report["copy_destination"] = str(destination.relative_to(ROOT))
+            try:
+                copied_path, copy_check = copy_candidate_to_posts(output_path, slug)
+                report["copy_destination"] = str(copied_path.relative_to(ROOT))
+                report["copy_performed"] = True
+                report["copy_skipped_reason"] = ""
+                report["pre_copy_check_result"] = copy_check["result"]
+            except ConversionError as exc:
+                report["copy_skipped_reason"] = str(exc)
+                report["pre_copy_check_result"] = "fail"
+                raise
+
         report.update(
             {
                 "status": "converted",
@@ -426,6 +592,8 @@ def convert(queue_id: str, input_file: Path, slug_arg: str | None, normalize_hea
         print(f"converted: {output_path.relative_to(ROOT).as_posix()}")
         return 0
     except ConversionError as exc:
+        if report.get("copy_requested") and not report.get("copy_skipped_reason"):
+            report["copy_skipped_reason"] = str(exc)
         report["errors"].append(str(exc))
         write_report(report)
         print(f"error: {exc}", file=sys.stderr)
@@ -440,6 +608,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input-file", required=True, help="UTF-8 Markdown draft file, e.g. input/q000003_draft.md")
     parser.add_argument("--slug", help="Optional output slug. Defaults to queue_id.")
     parser.add_argument(
+        "--copy",
+        action="store_true",
+        help="Copy the generated candidate to src/content/posts/{slug}.md after strict pre-copy checks.",
+    )
+    parser.add_argument(
         "--no-normalize-escaped-headings",
         action="store_true",
         help="Do not convert line-start escaped Markdown headings like \\## into ##.",
@@ -449,7 +622,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return convert(args.queue_id.strip(), Path(args.input_file), args.slug, not args.no_normalize_escaped_headings)
+    return convert(
+        args.queue_id.strip(),
+        Path(args.input_file),
+        args.slug,
+        not args.no_normalize_escaped_headings,
+        args.copy,
+    )
 
 
 if __name__ == "__main__":
