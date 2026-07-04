@@ -15,31 +15,57 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const data = post.data as typeof post.data & {
-  slug?: string;
-  sourceQueueId?: string;
-  updatedDate?: string;
-};
+const data = post.data as typeof post.data & { slug?: string };
 const { Content } = await render(post);
+
+const categories = (data.categories ?? []).map((category) =>
+  typeof category === "string" ? category : category.name,
+);
+const tags = data.tags ?? [];
+const formattedDate = data.date
+  ? new Intl.DateTimeFormat("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(data.date)
+  : undefined;
 ---
 
 <Base title={data.title} description={data.description} noindex={true}>
-  <section class="section">
+  <section class="section pt-8 md:pt-10">
     <div class="container">
-      <div class="mb-8 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
+      <div class="mx-auto mb-6 max-w-3xl rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
         <strong>下書きプレビュー</strong>
         <span class="ml-2">このページはローカル確認用です。公開用ブログルートには表示されません。</span>
       </div>
 
-      <article class="content mx-auto max-w-3xl text-left">
-        <Content />
-      </article>
+      <article class="mx-auto max-w-3xl text-left">
+        <header class="mb-8 border-b border-border pb-6">
+          <h1 class="h1 mb-4 text-left">{data.title}</h1>
 
-      <div class="mx-auto mt-10 max-w-3xl rounded border border-border bg-light px-4 py-3 text-xs text-text">
-        <p>sourceQueueId: {data.sourceQueueId ?? "unknown"}</p>
-        <p>slug: {data.slug ?? Astro.params.slug}</p>
-        <p>draft: true</p>
-      </div>
+          {data.description && (
+            <p class="mb-4 text-lg leading-relaxed text-text">
+              {data.description}
+            </p>
+          )}
+
+          <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-text">
+            {formattedDate && <span>日付: {formattedDate}</span>}
+            {categories.length > 0 && (
+              <span>カテゴリ: {categories.join(", ")}</span>
+            )}
+            {tags.length > 0 && <span>タグ: {tags.join(", ")}</span>}
+          </div>
+        </header>
+
+        <div class="mb-8 rounded border border-border bg-light px-4 py-3 text-sm leading-relaxed text-text">
+          この記事には広告・PRを含む可能性があります。商品・サービスを紹介する場合は、読者の判断を助けるために、メリットだけでなく注意点もあわせて整理しています。
+        </div>
+
+        <div class="content text-left">
+          <Content />
+        </div>
+      </article>
     </div>
   </section>
 </Base>
