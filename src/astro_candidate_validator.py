@@ -13,6 +13,26 @@ MOJIBAKE_MARKERS = ["\ufffd", "\u00e3", "\u7e3a", "\u8b41", "\u7e67"]
 ASSERTIVE_TERMS = ["\u6700\u5b89", "\u5fc5\u305a", "\u7d76\u5bfe", "\u5728\u5eab\u3042\u308a", "\u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u4e2d", "\u30e9\u30f3\u30ad\u30f3\u30b01\u4f4d", "\u304a\u3059\u3059\u30811\u4f4d", "\u672c\u97f3\u30ec\u30d3\u30e5\u30fc", "\u5b9f\u6a5f\u30ec\u30d3\u30e5\u30fc"]
 AFFILIATE_URL_MARKERS = ["tag=", "affiliate", "afl", "rakuten", "amazon", "a8.net", "valuecommerce", "\u3082\u3057\u3082"]
 MIN_BODY_CHARS = 800
+EDITING_NOTE_MARKERS = [
+    "\u0043\u0054\u0041\u633f\u5165\u5019\u88dc",
+    "\u78ba\u8a8d\u5f8c\u306b\u633f\u5165",
+    "\u5b9f\u0055\u0052\u004c\u306f\u516c\u958b\u524d\u306b\u78ba\u8a8d",
+    "\u30e1\u30bf\u30c7\u30a3\u30b9\u30af\u30ea\u30d7\u30b7\u30e7\u30f3\u6848",
+    "sourceQueueId:",
+    "p_test_",
+    "draft: true",
+    "draft: false",
+    "\u3053\u3053\u306bFS040W",
+    "\u3053\u3053\u306b\u30ea\u30f3\u30af",
+    "\u3053\u3053\u306b\u8cfc\u5165",
+    "\u3053\u3053\u306bCTA",
+    "\u3053\u3053\u306b\u633f\u5165",
+]
+BODY_PR_DISCLOSURE_MARKERS = [
+    "\u203b\u3053\u306e\u8a18\u4e8b\u306b\u306f\u5e83\u544a\u30fbPR\u3092\u542b\u307f\u307e\u3059",
+    "\u203b\u3053\u306e\u8a18\u4e8b\u306b\u306f\u5e83\u544a\u30ea\u30f3\u30af\u3092\u542b\u307f\u307e\u3059",
+    "\u3053\u306e\u8a18\u4e8b\u306b\u306f\u5e83\u544a\u30fbPR\u3092\u542b\u3080\u53ef\u80fd\u6027\u304c\u3042\u308a\u307e\u3059",
+]
 
 
 class ValidationReadError(Exception):
@@ -113,6 +133,54 @@ def visible_body_length(body: str) -> int:
     return len(text)
 
 
+def strip_markdown_marks(text: str) -> str:
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"[`*_>#|-]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def comparable_text(text: str) -> str:
+    return strip_markdown_marks(text).casefold()
+
+
+def has_leading_duplicate_title(body: str, title: str, max_lines: int = 8) -> bool:
+    if not title.strip():
+        return False
+    target = comparable_text(title)
+    checked = 0
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        checked += 1
+        if checked > max_lines:
+            return False
+        if stripped.startswith(("#", "```", "~~~")):
+            continue
+        return comparable_text(stripped) == target
+    return False
+
+
+def has_leading_body_pr_disclosure(body: str, max_lines: int = 10) -> bool:
+    checked = 0
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        checked += 1
+        if checked > max_lines or stripped.startswith("#"):
+            return False
+        plain = strip_markdown_marks(stripped)
+        if any(marker in plain for marker in BODY_PR_DISCLOSURE_MARKERS):
+            return True
+    return False
+
+
+def text_hits(text: str, markers: list[str]) -> list[str]:
+    return sorted({marker for marker in markers if marker in text})
+
+
 def has_pr_notice(body: str) -> bool:
     return any(term in body for term in ["PR", "\u5e83\u544a", "\u30a2\u30d5\u30a3\u30ea\u30a8\u30a4\u30c8", "\u5e83\u544a\u30ea\u30f3\u30af"])
 
@@ -162,6 +230,7 @@ def validate_file(path: Path) -> dict[str, Any]:
     markers = mojibake_hits(text)
     assertive_hits = assertive_term_hits(body)
     affiliate_urls = affiliate_bare_urls(urls)
+    editing_notes = text_hits(body, EDITING_NOTE_MARKERS)
 
     frontmatter_summary = {
         "title": data.get("title", ""),
@@ -190,6 +259,8 @@ def validate_file(path: Path) -> dict[str, Any]:
     categories = data.get("categories")
     if not isinstance(categories, list) or not [item for item in categories if str(item).strip()]:
         errors.append("frontmatter categories must be a non-empty array")
+    elif any(str(item).strip().casefold() == "others" for item in categories):
+        warnings.append("frontmatter categories contains others; choose a more specific category before publishing")
 
     tags = data.get("tags")
     if not isinstance(tags, list) or not [item for item in tags if str(item).strip()]:
@@ -209,6 +280,12 @@ def validate_file(path: Path) -> dict[str, Any]:
 
     if h1:
         errors.append(f"body must not contain H1 headings: {len(h1)} found")
+    if has_leading_duplicate_title(body, str(data.get("title", ""))):
+        errors.append("body starts with a duplicate plain title")
+    if has_leading_body_pr_disclosure(body):
+        errors.append("body starts with a duplicate PR disclosure; template disclosure should cover it")
+    if editing_notes:
+        errors.append("editing memo markers found: " + ", ".join(editing_notes))
     if not h2:
         errors.append("body must contain at least one H2 heading")
     if not headings:

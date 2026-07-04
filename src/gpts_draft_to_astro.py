@@ -27,6 +27,19 @@ EDITING_NOTE_MARKERS = [
     "実URLは公開前に確認",
     "メタディスクリプション案",
     "sourceQueueId:",
+    "p_test_",
+    "draft: true",
+    "draft: false",
+    "ここにFS040W",
+    "ここにリンク",
+    "ここに購入",
+    "ここにCTA",
+    "ここに挿入",
+]
+BODY_PR_DISCLOSURE_MARKERS = [
+    "※この記事には広告・PRを含みます",
+    "※この記事には広告リンクを含みます",
+    "この記事には広告・PRを含む可能性があります",
 ]
 
 
@@ -122,6 +135,66 @@ def strip_markdown_marks(text: str) -> str:
     text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
     text = re.sub(r"[`*_>#|-]", " ", text)
     return normalize_space(text)
+
+
+def comparable_text(text: str) -> str:
+    return strip_markdown_marks(text).casefold()
+
+
+def remove_leading_duplicate_title(markdown: str, title: str, max_lines: int = 8) -> tuple[str, bool]:
+    if not title.strip():
+        return markdown, False
+
+    target = comparable_text(title)
+    lines = markdown.splitlines()
+    checked = 0
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        checked += 1
+        if checked > max_lines:
+            break
+        if stripped.startswith(("#", "```", "~~~")):
+            continue
+        if comparable_text(stripped) == target:
+            del lines[index]
+            return "\n".join(lines).lstrip() + ("\n" if markdown.endswith("\n") else ""), True
+        break
+
+    return markdown, False
+
+
+def is_body_pr_disclosure_line(line: str) -> bool:
+    stripped = strip_markdown_marks(line)
+    return any(marker in stripped for marker in BODY_PR_DISCLOSURE_MARKERS)
+
+
+def remove_leading_body_pr_disclosure(markdown: str, max_lines: int = 10) -> tuple[str, bool]:
+    lines = markdown.splitlines()
+    output: list[str] = []
+    removed = False
+    checked_nonempty = 0
+    in_leading_area = True
+
+    for line in lines:
+        stripped = line.strip()
+        if in_leading_area and stripped:
+            checked_nonempty += 1
+            if checked_nonempty > max_lines or stripped.startswith("#"):
+                in_leading_area = False
+
+        if in_leading_area and stripped and is_body_pr_disclosure_line(line):
+            removed = True
+            continue
+
+        output.append(line)
+
+    return "\n".join(output).lstrip() + ("\n" if markdown.endswith("\n") else ""), removed
+
+
+def editing_note_hits(text: str) -> list[str]:
+    return sorted({marker for marker in EDITING_NOTE_MARKERS if marker in text})
 
 
 def extract_meta_description(markdown: str) -> tuple[str, str]:
@@ -392,7 +465,7 @@ def pre_copy_check(markdown: str) -> dict[str, Any]:
     if markers:
         errors.append("mojibake markers found: " + ", ".join(markers))
 
-    editing_notes = [marker for marker in EDITING_NOTE_MARKERS if marker in markdown]
+    editing_notes = editing_note_hits(body)
     if editing_notes:
         errors.append("editing memo markers found: " + ", ".join(editing_notes))
 
@@ -433,13 +506,20 @@ def write_report(data: dict[str, Any]) -> None:
         f"description: {data.get('description', '')}",
         f"normalized_escaped_headings: {'yes' if data.get('normalized_escaped_headings') else 'no'}",
         f"normalized_escaped_headings_count: {data.get('normalized_escaped_headings_count', 0)}",
+        f"removed_duplicate_title: {str(bool(data.get('removed_duplicate_title'))).lower()}",
+        f"removed_body_pr_disclosure: {str(bool(data.get('removed_body_pr_disclosure'))).lower()}",
+        f"blocked_edit_notes_count: {len(data.get('blocked_edit_notes') or [])}",
+        "blocked_edit_notes:",
+    ]
+    lines.extend([f"- {note}" for note in data.get("blocked_edit_notes") or []] or ["- none"])
+    lines.extend([
         f"copy_requested: {'yes' if data.get('copy_requested') else 'no'}",
         f"copy_performed: {'yes' if data.get('copy_performed') else 'no'}",
         f"copy_destination: {data.get('copy_destination', '')}",
         f"copy_skipped_reason: {data.get('copy_skipped_reason', '') or 'none'}",
         f"pre_copy_check_result: {data.get('pre_copy_check_result', 'not_requested')}",
         "categories:",
-    ]
+    ])
     for category in data.get("categories") or []:
         lines.append(f"- {category}")
     lines.append("tags:")
@@ -487,6 +567,9 @@ def convert(
         "errors": [],
         "normalized_escaped_headings": False,
         "normalized_escaped_headings_count": 0,
+        "removed_duplicate_title": False,
+        "removed_body_pr_disclosure": False,
+        "blocked_edit_notes": [],
         "copy_requested": copy,
         "copy_performed": False,
         "copy_destination": "",
@@ -526,6 +609,16 @@ def convert(
         if removed_h1:
             report["warnings"].append("first H1 was removed from body to avoid title duplication")
 
+        body, removed_duplicate_title = remove_leading_duplicate_title(body, title)
+        report["removed_duplicate_title"] = removed_duplicate_title
+        if removed_duplicate_title:
+            report["warnings"].append("leading duplicate plain title was removed from body")
+
+        body, removed_body_pr_disclosure = remove_leading_body_pr_disclosure(body)
+        report["removed_body_pr_disclosure"] = removed_body_pr_disclosure
+        if removed_body_pr_disclosure:
+            report["warnings"].append("leading body PR disclosure was removed from body")
+
         keyword = normalize_space(queue_row.get("keyword") or "")
         description, body = build_description(body, title, keyword)
         if not description:
@@ -559,6 +652,10 @@ def convert(
             report["warnings"].append("categories is empty")
         if not tags:
             report["warnings"].append("tags is empty")
+        blocked_edit_notes = editing_note_hits(body)
+        report["blocked_edit_notes"] = blocked_edit_notes
+        if blocked_edit_notes:
+            report["warnings"].append("editing memo markers remain: " + ", ".join(blocked_edit_notes))
 
         frontmatter = build_frontmatter(title, description, category, tags)
         output = frontmatter + body.rstrip() + "\n"

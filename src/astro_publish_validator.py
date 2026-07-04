@@ -18,10 +18,22 @@ EDITING_NOTE_MARKERS = [
     "メタディスクリプション案",
     "sourceQueueId:",
     "p_test_",
+    "draft: true",
+    "draft: false",
+    "ここにFS040W",
+    "ここにリンク",
+    "ここに購入",
+    "ここにCTA",
+    "ここに挿入",
 ]
 ASSERTIVE_TERMS = ["最安", "絶対", "必ず", "実機レビュー", "本音レビュー"]
 COMMERCE_TERMS = ["価格", "在庫", "キャンペーン", "ランキング", "レビュー"]
 PR_TERMS = ["PR", "広告", "アフィリエイト", "広告リンク"]
+BODY_PR_DISCLOSURE_MARKERS = [
+    "※この記事には広告・PRを含みます",
+    "※この記事には広告リンクを含みます",
+    "この記事には広告・PRを含む可能性があります",
+]
 MIN_BODY_CHARS = 800
 COMMERCE_TERM_WARNING_THRESHOLD = 12
 
@@ -124,6 +136,50 @@ def visible_body_length(body: str) -> int:
     return len(text)
 
 
+def strip_markdown_marks(text: str) -> str:
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"[`*_>#|-]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def comparable_text(text: str) -> str:
+    return strip_markdown_marks(text).casefold()
+
+
+def has_leading_duplicate_title(body: str, title: str, max_lines: int = 8) -> bool:
+    if not title.strip():
+        return False
+    target = comparable_text(title)
+    checked = 0
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        checked += 1
+        if checked > max_lines:
+            return False
+        if stripped.startswith(("#", "```", "~~~")):
+            continue
+        return comparable_text(stripped) == target
+    return False
+
+
+def has_leading_body_pr_disclosure(body: str, max_lines: int = 10) -> bool:
+    checked = 0
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        checked += 1
+        if checked > max_lines or stripped.startswith("#"):
+            return False
+        plain = strip_markdown_marks(stripped)
+        if any(marker in plain for marker in BODY_PR_DISCLOSURE_MARKERS):
+            return True
+    return False
+
+
 def has_pr_notice(body: str) -> bool:
     return any(term in body for term in PR_TERMS)
 
@@ -206,6 +262,8 @@ def validate_file(path: Path) -> dict[str, Any]:
     categories = data.get("categories")
     if not isinstance(categories, list) or not [item for item in categories if str(item).strip()]:
         errors.append("frontmatter categories must be a non-empty array")
+    elif any(str(item).strip().casefold() == "others" for item in categories):
+        warnings.append("frontmatter categories contains others; choose a more specific category before publishing")
 
     tags = data.get("tags")
     if not isinstance(tags, list) or not [item for item in tags if str(item).strip()]:
@@ -235,6 +293,10 @@ def validate_file(path: Path) -> dict[str, Any]:
 
     if h1:
         errors.append(f"body must not contain H1 headings: {len(h1)} found")
+    if has_leading_duplicate_title(body, str(data.get("title", ""))):
+        errors.append("body starts with a duplicate plain title")
+    if has_leading_body_pr_disclosure(body):
+        errors.append("body starts with a duplicate PR disclosure; template disclosure should cover it")
     if not h2:
         errors.append("body must contain at least one H2 heading")
     if empty_headings:
