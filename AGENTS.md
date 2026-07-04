@@ -16,6 +16,14 @@ The goal is not mass auto-publishing, but draft generation, SEO checks, affiliat
 - All generated articles must remain draft/review status.
 - Prioritize CSV/SQLite based MVP over complex frameworks.
 
+## Workspace shortcut
+When the user says "integrate側", use:
+`C:\Users\shiga\OneDrive\ドキュメント\antigravity\astro-management\mono-review-fresh-integrate`
+
+Do not modify:
+`C:\Users\shiga\OneDrive\ドキュメント\antigravity\astro-management\mono-review-fresh`
+unless explicitly requested.
+
 ## Affiliate link placement
 - For product review or buying-guide articles, place affiliate links in three natural locations by default:
   1. the top product card,
