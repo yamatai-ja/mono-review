@@ -23,11 +23,12 @@ const searchList = posts.map((item) => ({
 <Base
   title="サイト内検索"
   description="Mono's Logの記事をキーワード、カテゴリ、タグから検索できます。"
+  noindex={true}
 >
   <section class="section">
     <div class="container">
       <div class="mx-auto max-w-4xl">
-        <SearchBar client:only="react" searchList={searchList} />
+        <SearchBar client:load searchList={searchList} />
       </div>
     </div>
   </section>
