@@ -32,7 +32,7 @@ const rawBodyHtml = microCMSBodyHtml(article);
 
 // 目次の抽出と本文へのID付与
 const headings: { text: string; id: string; level: number }[] = [];
-const bodyHtml = rawBodyHtml.replace(/<h([23])(.*?)>(.*?)<\/h\1>/g, (match, level, attrs, text) => {
+const bodyHtml = rawBodyHtml.replace(/<h([23])(.*?)>(.*?)<\/h\1>/g, (_match, level, attrs, text) => {
   const id = slugify(plainify(text));
   headings.push({ text: plainify(text), id, level: parseInt(level) });
   return `<h${level}${attrs} id="${id}">${text}</h${level}>`;
@@ -113,7 +113,7 @@ const blogPostingSchema = {
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
 
 <section class="section">
   <div class="container">

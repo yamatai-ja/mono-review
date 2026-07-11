@@ -37,8 +37,13 @@ const {
 
 const fontsConfig = Object.entries(fonts.font_family)
   .filter(([key]) => key === "primary" || key === "secondary")
-  .map(([key, name]) => {
-    const weights = [400, 500, 600, 700];
+  .map(([key, configuredName]) => {
+    const [name, variant] = configuredName.split(":");
+    const weights =
+      variant
+        ?.match(/wght@([\d;]+)/)?.[1]
+        .split(";")
+        .map(Number) ?? [400, 500, 600, 700];
     const fallback = key === "primary" ? "sans-serif" : "serif";
     return {
       name,
