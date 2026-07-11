@@ -64,6 +64,9 @@ const postsCollection = defineCollection({
     meta_title: z.string().optional(),
     description: z.string().optional(),
     date: z.coerce.date().optional(),
+    pubDate: z.coerce.date().optional(),
+    updatedDate: z.coerce.date().optional(),
+    slug: z.string().optional(),
     image: z.string().optional(),
     categories: z
       .array(

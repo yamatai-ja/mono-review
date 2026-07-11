@@ -27,7 +27,7 @@ export function collectionEntryToBlogListCard(
     title: data.title,
     excerpt: data.description || plainify(post.body ?? ""),
     image: data.image,
-    date: data.date ?? new Date(),
+    date: data.date ?? data.pubDate ?? new Date(),
     authors: data.authors ?? [],
     categories: categories,
   };

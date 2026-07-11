@@ -39,6 +39,7 @@ class ProblemPromptBuilderTests(unittest.TestCase):
         for term in ("ケーブル", "USBポート", "電力不足", "スリープ設定", "ファイルシステム"):
             self.assertIn(term, prompt)
         self.assertIn("記事本文Markdownのみ", prompt)
+        self.assertNotIn("メタディスクリプション案", prompt)
         self.assert_no_felica_contamination(prompt)
 
     def test_usb_hub_uses_selection_context(self) -> None:

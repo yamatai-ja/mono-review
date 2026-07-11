@@ -44,7 +44,17 @@ const normalize = (src: any): ISocial[] => {
   return [];
 };
 
-const items = normalize(source);
+const placeholderLinks = new Set([
+  "https://www.facebook.com/",
+  "https://x.com/",
+  "https://www.instagram.com/",
+  "https://www.linkedin.com/",
+  "https://www.youtube.com/",
+]);
+const items = normalize(source).filter(({ link }) => {
+  const normalizedLink = link.trim();
+  return normalizedLink.length > 0 && !placeholderLinks.has(normalizedLink);
+});
 ---
 
 <ul class={className}>

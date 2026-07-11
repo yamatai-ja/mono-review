@@ -1,5 +1,5 @@
 ---
-import { humanize, slugify } from "@/lib/utils/textConverter";
+import { humanize } from "@/lib/utils/textConverter";
 
 const { className, items } = Astro.props;
 
@@ -11,7 +11,7 @@ const breadcrumbList = {
     "@type": "ListItem",
     "position": index + 1,
     "name": item.name,
-    "item": item.url ? `${Astro.url.origin}${item.url}` : undefined
+    "item": item.url ? new URL(item.url, Astro.url.origin).toString() : undefined
   }))
 };
 ---
@@ -34,7 +34,7 @@ const breadcrumbList = {
 </nav>
 
 <!-- JSON-LD 構造化データの埋め込み -->
-<script type="application/ld+json" set:html={JSON.stringify(breadcrumbList)} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbList)} />
 
 <style>
   .line-clamp-1 {
