@@ -1,23 +1,34 @@
 ---
-import SearchBar from "@/helpers/SearchBar.tsx";
+import SearchBar from "../components/SearchBar.tsx";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
+import { plainify } from "@/lib/utils/textConverter";
 
 // Retrieve all articles
 const posts = await getSinglePage("posts");
 
 // List of items to search in
 const searchList = posts.map((item) => ({
-  slug: item.id,
-  data: item.data,
-  content: item.body,
+  slug: item.data.slug ?? item.id,
+  title: item.data.title,
+  description: item.data.description ?? plainify(item.body ?? "").slice(0, 160),
+  categories: item.data.categories.map((category) =>
+    typeof category === "string" ? category : category.name,
+  ),
+  tags: item.data.tags,
+  content: plainify(item.body ?? ""),
 }));
 ---
 
-<Base title={`Search`}>
+<Base
+  title="サイト内検索"
+  description="Mono's Logの記事をキーワード、カテゴリ、タグから検索できます。"
+>
   <section class="section">
     <div class="container">
-      <SearchBar client:only="react" searchList={searchList} />
+      <div class="mx-auto max-w-4xl">
+        <SearchBar client:only="react" searchList={searchList} />
+      </div>
     </div>
   </section>
 </Base>
