@@ -7,7 +7,6 @@ import Footer from "@/partials/Footer.astro";
 import Header from "@/partials/Header.astro";
 import MobileFixedMenu from "@/layouts/components/MobileFixedMenu.astro";
 import "@/styles/main.css";
-import { ClientRouter } from "astro:transitions";
 
 // font families - extract font names for Font component (filter out type keys)
 const fontEntries = Object.entries(theme.fonts.font_family).filter(
@@ -119,6 +118,7 @@ const schemas = structuredData
       config.analytics.google_analytics_id && (
         <Fragment>
           <script
+            is:inline
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${config.analytics.google_analytics_id}`}
           />
@@ -137,6 +137,7 @@ const schemas = structuredData
     {
       config.adsense.adsense_id && (
         <script
+          is:inline
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsense.adsense_id}`}
           crossorigin="anonymous"
