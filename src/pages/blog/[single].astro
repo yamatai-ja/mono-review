@@ -16,6 +16,7 @@ import {
   type BlogListCard,
 } from "@/lib/utils/blogListCard";
 import dateFormat from "@/lib/utils/dateFormat";
+import { resolveAuthor } from "@/lib/utils/author";
 import { toTaxonomyTerm } from "@/lib/utils/taxonomy";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
@@ -89,6 +90,7 @@ const data = post.data as typeof post.data & {
   updatedDate?: Date;
 };
 const { Content, headings } = await render(post);
+const authorEntries = await getSinglePage("authors");
 
 const title = data.title;
 const metaTitle = data.meta_title ?? title;
@@ -103,6 +105,10 @@ const publishedAt = data.date ?? data.pubDate;
 const products = data.products ?? [];
 const canonicalUrl = new URL(`/blog/${currentSlug}/`, config.site.base_url).toString();
 const faqItems = extractFaqItems(post.body ?? "");
+const resolvedAuthors = (data.authors ?? ["Admin"]).map((reference) => ({
+  reference,
+  entry: resolveAuthor(reference, authorEntries),
+}));
 const blogPostingSchema = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -112,9 +118,12 @@ const blogPostingSchema = {
   "image": heroSrc ? [new URL(heroSrc, config.site.base_url).toString()] : undefined,
   "datePublished": publishedAt?.toISOString(),
   "dateModified": (data.updatedDate ?? publishedAt)?.toISOString(),
-  "author": (data.authors ?? ["Admin"]).map((author) => ({
+  "author": resolvedAuthors.map(({ reference, entry }) => ({
     "@type": "Person",
-    "name": author,
+    "name": entry?.data.title ?? reference,
+    ...(entry
+      ? { "url": new URL(`/authors/${entry.id}/`, config.site.base_url).toString() }
+      : {}),
   })),
   "publisher": {
     "@type": "Organization",
@@ -193,6 +202,18 @@ const similarCards = allPosts
                   ))}
                 </li>
               )}
+              {resolvedAuthors.map(({ reference, entry }) => (
+                <li class="mb-2 ml-4 flex items-center font-medium">
+                  <span class="mr-1">著者:</span>
+                  {entry ? (
+                    <a href={`/authors/${entry.id}/`} class="hover:text-primary">
+                      {entry.data.title}
+                    </a>
+                  ) : (
+                    <span>{reference}</span>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
 
