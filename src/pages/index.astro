@@ -17,9 +17,18 @@ const totalPages = Math.ceil(posts.length / config.settings.pagination);
 const currentPosts = sortedPosts.slice(0, config.settings.pagination);
 ---
 
-<Base>
+<Base
+  title="Mono's Log（モノズログ）"
+  description="ガジェットや通信サービスを中心に、購入・契約前に確認したいポイントをわかりやすく整理する情報ブログです。"
+>
   <section class="section">
     <div class="container">
+      <header class="mx-auto mb-12 max-w-3xl text-center">
+        <h1 class="h1 mb-4">ガジェット・通信サービスの選び方をわかりやすく</h1>
+        <p class="text-lg text-text">
+          購入や契約の前に比較したい特徴、注意点、選び方を実用的に整理しています。
+        </p>
+      </header>
       <Posts posts={currentPosts} className="mb-16" />
       <Pagination currentPage={1} totalPages={totalPages} />
     </div>

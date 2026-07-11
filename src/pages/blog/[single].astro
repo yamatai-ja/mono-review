@@ -4,6 +4,7 @@ import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import Share from "@/components/Share.astro";
 import SimilarPosts from "@/components/SimilarPosts.astro";
+import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import Sidebar from "@/partials/Sidebar.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
@@ -15,7 +16,8 @@ import {
   type BlogListCard,
 } from "@/lib/utils/blogListCard";
 import dateFormat from "@/lib/utils/dateFormat";
-import { humanize, slugify } from "@/lib/utils/textConverter";
+import { toTaxonomyTerm } from "@/lib/utils/taxonomy";
+import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
 
 type PostEntry = CollectionEntry<"posts">;
@@ -25,11 +27,41 @@ const entrySlug = (post: PostEntry) => {
   return data.slug ?? post.id.replace(/\.(md|mdx)$/i, "");
 };
 
-const categoryNames = (
+const categoryTerms = (
   categories: (string | { id?: string; name: string })[] | undefined,
-) => (categories ?? []).map((category) =>
-  typeof category === "string" ? category : category.name,
-);
+) => (categories ?? []).map(toTaxonomyTerm);
+
+const extractFaqItems = (body: string) => {
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  const faqStart = lines.findIndex((line) =>
+    /^##\s+(?:FAQ|よくある質問)(?:\s|$|（)/i.test(line.trim()),
+  );
+  if (faqStart < 0) return [];
+
+  const items: { question: string; answer: string }[] = [];
+  let question = "";
+  let answerLines: string[] = [];
+  const flush = () => {
+    const answer = plainify(answerLines.join("\n").trim()).trim();
+    if (question && answer) items.push({ question, answer });
+  };
+
+  for (const line of lines.slice(faqStart + 1)) {
+    if (/^##\s+/.test(line)) break;
+    const questionMatch = line.match(/^###\s+(.+)$/);
+    if (questionMatch) {
+      flush();
+      question = plainify(questionMatch[1])
+        .replace(/^Q[.．:：\s]*/i, "")
+        .trim();
+      answerLines = [];
+    } else if (question) {
+      answerLines.push(line);
+    }
+  }
+  flush();
+  return items;
+};
 
 export async function getStaticPaths() {
   const posts = await getSinglePage("posts");
@@ -51,36 +83,85 @@ type Props = {
 };
 
 const { post, allPosts } = Astro.props as Props;
-const data = post.data as typeof post.data & { slug?: string };
-const { Content } = await render(post);
+const data = post.data as typeof post.data & {
+  slug?: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+};
+const { Content, headings } = await render(post);
 
 const title = data.title;
 const metaTitle = data.meta_title ?? title;
 const description = data.description;
 const image = typeof data.image === "string" ? data.image : undefined;
 const heroSrc = resolvePostImageSrc(image);
-const categories = categoryNames(data.categories);
+const categoryList = categoryTerms(data.categories);
+const categories = categoryList.map((category) => category.name);
 const tags = pickTags(data.tags);
 const currentSlug = entrySlug(post);
-const publishedAt = data.date ?? new Date();
+const publishedAt = data.date ?? data.pubDate;
 const products = data.products ?? [];
+const canonicalUrl = new URL(`/blog/${currentSlug}/`, config.site.base_url).toString();
+const faqItems = extractFaqItems(post.body ?? "");
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": canonicalUrl,
+  "headline": title,
+  "description": description,
+  "image": heroSrc ? [new URL(heroSrc, config.site.base_url).toString()] : undefined,
+  "datePublished": publishedAt?.toISOString(),
+  "dateModified": (data.updatedDate ?? publishedAt)?.toISOString(),
+  "author": (data.authors ?? ["Admin"]).map((author) => ({
+    "@type": "Person",
+    "name": author,
+  })),
+  "publisher": {
+    "@type": "Organization",
+    "name": config.site.title,
+    "url": config.site.base_url,
+  },
+  "articleSection": categories[0],
+  "keywords": tags.length > 0 ? tags.join(", ") : undefined,
+};
+const faqSchema = faqItems.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqItems.map(({ question, answer }) => ({
+    "@type": "Question",
+    "name": question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": answer,
+    },
+  })),
+} : undefined;
+const structuredData = faqSchema
+  ? [blogPostingSchema, faqSchema]
+  : [blogPostingSchema];
 
 const similarCards = allPosts
   .filter((item) => item.id !== currentSlug)
   .filter((item) => {
-    const itemCategories = categoryNames(item.categories);
+    const itemCategories = categoryTerms(item.categories);
     return (
-      itemCategories.some((category) => categories.includes(category)) ||
-      item.categories.some((category) => {
-        const id = typeof category === "string" ? slugify(category) : category.id;
-        return categories.map(slugify).includes(id);
-      })
+      itemCategories.some((category) =>
+        categoryList.some((currentCategory) => currentCategory.id === category.id),
+      )
     );
   })
   .slice(0, 3);
 ---
 
-<Base title={title} meta_title={metaTitle} description={description} image={heroSrc}>
+<Base
+  title={title}
+  meta_title={metaTitle}
+  description={description}
+  image={heroSrc}
+  canonical={canonicalUrl}
+  ogType="article"
+  structuredData={structuredData}
+>
   <section class="section">
     <div class="container">
       <div class="row">
@@ -89,7 +170,7 @@ const similarCards = allPosts
             className="mb-6"
             items={[
               { name: "ホーム", url: "/" },
-              { name: categories[0] ?? "ブログ", url: categories[0] ? `/categories/${slugify(categories[0])}` : "/blog" },
+              { name: categoryList[0]?.name ?? "ブログ", url: categoryList[0] ? `/categories/${categoryList[0].id}/` : "/blog/" },
               { name: title },
             ]}
           />
@@ -97,17 +178,17 @@ const similarCards = allPosts
           <div class="text-center md:text-left">
             <h1 class="h2">{title}</h1>
             <ul class="mt-4 flex flex-wrap items-center justify-center text-text md:justify-start">
-              <li class="mr-6 mb-2 flex items-center font-medium">
+              {publishedAt && <li class="mr-6 mb-2 flex items-center font-medium">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path d="m9.08 16.17 1.41 1.41 4.59-4.58-1.41-1.42z"/></svg>
                 {dateFormat(publishedAt)}
-              </li>
+              </li>}
               {categories.length > 0 && (
                 <li class="mb-2 flex items-center font-medium">
                   <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>
-                  {categories.map((category, index) => (
-                    <a href={`${import.meta.env.BASE_URL}categories/${slugify(category)}`} class="mr-2 hover:text-primary">
-                      {humanize(category)}
-                      {index !== categories.length - 1 && ","}
+                  {categoryList.map((category, index) => (
+                    <a href={`${import.meta.env.BASE_URL}categories/${category.id}/`} class="mr-2 hover:text-primary">
+                      {humanize(category.name)}
+                      {index !== categoryList.length - 1 && ","}
                     </a>
                   ))}
                 </li>
@@ -156,7 +237,7 @@ const similarCards = allPosts
         </article>
 
         <aside class="mt-12 lg:col-4 lg:mt-0">
-          <Sidebar headings={[]} latestPosts={allPosts} />
+          <Sidebar headings={headings.filter((heading) => heading.depth === 2 || heading.depth === 3).map((heading) => ({ text: heading.text, id: heading.slug, level: heading.depth }))} latestPosts={allPosts} />
         </aside>
       </div>
     </div>

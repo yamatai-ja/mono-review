@@ -2,25 +2,26 @@
 import Posts from "@/components/Posts.astro";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
-import { getTaxonomy } from "@/lib/taxonomyParser.astro";
+import { getTaxonomyTerms } from "@/lib/taxonomyParser.astro";
 import {
   collectionEntryToBlogListCard,
   sortBlogListCardsByDate,
 } from "@/lib/utils/blogListCard";
 import taxonomyFilter from "@/lib/utils/taxonomyFilter";
-import { humanize } from "@/lib/utils/textConverter";
 
 export async function getStaticPaths() {
-  const categories = await getTaxonomy("posts", "categories");
+  const categories = await getTaxonomyTerms("posts", "categories");
 
   return categories.map((category) => {
     return {
-      params: { category },
+      params: { category: category.id },
+      props: { categoryName: category.name },
     };
   });
 }
 
 const { category } = Astro.params;
+const { categoryName } = Astro.props;
 
 const posts = await getSinglePage("posts");
 const filterByCategory = taxonomyFilter(posts, "categories", category);
@@ -28,7 +29,7 @@ const sortedPosts = sortBlogListCardsByDate(
   filterByCategory.map(collectionEntryToBlogListCard),
 );
 
-const title = humanize(category || "");
+const title = categoryName || category || "";
 ---
 
 <Base title={title || "Category"}>

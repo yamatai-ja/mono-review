@@ -1,6 +1,27 @@
 ---
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { slugify } from "@/lib/utils/textConverter";
+import { toTaxonomyTerm, type TaxonomyTerm } from "@/lib/utils/taxonomy";
+
+export const getTaxonomyTerms = async (
+  collection: any,
+  name: string,
+): Promise<TaxonomyTerm[]> => {
+  const singlePages = await getSinglePage(collection);
+  const terms = new Map<string, TaxonomyTerm>();
+
+  for (const page of singlePages as any[]) {
+    const values = page.data[name];
+    if (!Array.isArray(values)) continue;
+
+    for (const value of values) {
+      const term = toTaxonomyTerm(value);
+      if (term.id && term.name && !terms.has(term.id)) terms.set(term.id, term);
+    }
+  }
+
+  return [...terms.values()];
+};
 
 // get taxonomy from frontmatter
 export const getTaxonomy = async (collection: any, name: string) => {

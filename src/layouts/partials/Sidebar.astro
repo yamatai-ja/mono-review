@@ -120,7 +120,7 @@ const popularPosts = latestPosts.slice(0, 3);
         <a href={`${import.meta.env.BASE_URL}blog/${post.id}`} class="group flex gap-3 items-start">
           <div class="flex-shrink-0 w-20 h-14 overflow-hidden rounded">
             <Image
-              src={resolvePostImageSrc(postImage(post)) || "/images/author.png"}
+              src={resolvePostImageSrc(postImage(post)) || "/images/image-placeholder.png"}
               alt={post.title}
               width={80}
               height={56}

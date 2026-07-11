@@ -22,15 +22,25 @@ export interface Props {
   image?: string;
   noindex?: boolean;
   canonical?: string;
+  ogType?: "website" | "article";
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 // distructure frontmatters
-const { title, meta_title, description, image, noindex, canonical } =
+const { title, meta_title, description, image, noindex, canonical, ogType = "website", structuredData } =
   Astro.props;
+const siteUrl = new URL(config.site.base_url);
+const canonicalUrl = canonical
+  ? new URL(canonical, siteUrl).toString()
+  : new URL(Astro.url.pathname, siteUrl).toString();
+const socialImageUrl = new URL(image || config.metadata.meta_image, siteUrl).toString();
+const schemas = structuredData
+  ? Array.isArray(structuredData) ? structuredData : [structuredData]
+  : [];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <!-- favicon -->
     <link rel="shortcut icon" href={import.meta.env.BASE_URL + config.site.favicon.replace(/^\//, "")} />
@@ -81,7 +91,7 @@ const { title, meta_title, description, image, noindex, canonical } =
     </title>
 
     <!-- canonical url -->
-    {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
+    <link rel="canonical" href={canonicalUrl} item-prop="url" />
 
     <!-- noindex robots -->
     {noindex && <meta name="robots" content="noindex,nofollow" />}
@@ -150,8 +160,8 @@ const { title, meta_title, description, image, noindex, canonical } =
         description ? description : config.metadata.meta_description,
       )}
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
 
     <!-- twitter-meta -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -171,16 +181,16 @@ const { title, meta_title, description, image, noindex, canonical } =
     <!-- og-image -->
     <meta
       property="og:image"
-      content={`${config.site.base_url}${
-        image ? image : config.metadata.meta_image
-      }`}
+      content={socialImageUrl}
     />
     <meta
       name="twitter:image"
-      content={`${config.site.base_url}${
-        image ? image : config.metadata.meta_image
-      }`}
+      content={socialImageUrl}
     />
+
+    {schemas.map((schema) => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
 
   </head>
   <body>
