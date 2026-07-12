@@ -12,6 +12,9 @@ tags:
 authors:
   - "Admin"
 slug: "amazon-echo-dot-5"
+relatedPosts:
+  - "amazon-fire-tv-cube"
+  - "switchbot-hub-2"
 
 products:
   - id: "amazon-echo-dot-5-product-001"

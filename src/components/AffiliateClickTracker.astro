@@ -1,0 +1,65 @@
+<script>
+  type AffiliateEvent = {
+    affiliate_merchant: string;
+    affiliate_product_id: string;
+    article_slug: string;
+    affiliate_position: number;
+    affiliate_slot_id: string;
+    link_url: string;
+  };
+
+  const merchantFromUrl = (url: URL) => {
+    const host = url.hostname.toLowerCase();
+    if (host === "amzn.to" || host.endsWith("amazon.co.jp")) return "amazon";
+    if (host.endsWith("rakuten.co.jp") || host === "a.r10.to") return "rakuten";
+    if (host.endsWith("yahoo.co.jp")) return "yahoo";
+    if (url.origin === window.location.origin && url.pathname.startsWith("/go/")) {
+      return "redirect";
+    }
+    return "";
+  };
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const link = target.closest<HTMLAnchorElement>("a[href]");
+    if (!link) return;
+
+    const url = new URL(link.href, window.location.href);
+    const merchant = link.dataset.affiliateMerchant || merchantFromUrl(url);
+    const isSponsored = link.relList.contains("sponsored");
+    if (!link.hasAttribute("data-affiliate-link") && !isSponsored && !merchant) return;
+
+    const articleSlug =
+      link.dataset.affiliateArticleSlug ||
+      window.location.pathname.match(/^\/blog\/([^/]+)/)?.[1] ||
+      "";
+    const trackedLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(
+        "a[data-affiliate-link], a[rel~='sponsored']",
+      ),
+    );
+    const configuredPosition = Number(link.dataset.affiliatePosition);
+    const position =
+      Number.isFinite(configuredPosition) && configuredPosition > 0
+        ? configuredPosition
+        : Math.max(trackedLinks.indexOf(link) + 1, 1);
+
+    const detail: AffiliateEvent = {
+      affiliate_merchant: merchant || "other",
+      affiliate_product_id: link.dataset.affiliateProductId || "",
+      article_slug: articleSlug,
+      affiliate_position: position,
+      affiliate_slot_id: link.dataset.affiliateSlotId || "inline",
+      link_url: url.toString(),
+    };
+
+    window.dispatchEvent(new CustomEvent("affiliate:click", { detail }));
+
+    const analyticsWindow = window as Window & {
+      gtag?: (...args: unknown[]) => void;
+    };
+    analyticsWindow.gtag?.("event", "affiliate_click", detail);
+  });
+</script>

@@ -56,17 +56,24 @@ collections:
         required: false
         fields:
           - { label: "ID", name: "id", widget: "string", default: "digital-gadget" }
-          - { label: "Name", name: "name", widget: "string", default: "Digital Gadget" }
+          - { label: "Name", name: "name", widget: "string", default: "デジタル・ガジェット" }
       - label: "Tags"
         name: "tags"
         widget: "list"
         required: false
         field: { label: "Tag", name: "tag", widget: "string" }
+      - label: "Related Posts"
+        name: "relatedPosts"
+        widget: "list"
+        required: false
+        hint: "関連記事のslugを入力してください（例: amazon-fire-tv-cube）"
+        field: { label: "Post Slug", name: "slug", widget: "string" }
       - label: "Products"
         name: "products"
         widget: "list"
         required: false
         fields:
+          - { label: "Product ID", name: "id", widget: "string", required: false }
           - { label: "Product Title", name: "title", widget: "string" }
           - label: "Image"
             name: "image"

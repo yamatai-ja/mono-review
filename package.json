@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "format": "prettier -w .",
     "check": "astro check",
+    "audit:links": "node scripts/audit_internal_links.mjs",
     "deploy:cf-workers": "npm run build && wrangler deploy",
     "preview:cf-workers": "npm run build && wrangler dev",
     "cms:local": "npx -y decap-server",

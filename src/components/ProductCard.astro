@@ -6,9 +6,24 @@ interface Props {
   rakutenUrl?: string;
   yahooUrl?: string;
   price?: string;
+  productId?: string;
+  articleSlug?: string;
+  position?: number;
+  slotId?: string;
 }
 
-const { title, image, amazonUrl, rakutenUrl, yahooUrl, price } = Astro.props;
+const {
+  title,
+  image,
+  amazonUrl,
+  rakutenUrl,
+  yahooUrl,
+  price,
+  productId = "",
+  articleSlug = "",
+  position = 1,
+  slotId = "product-card",
+} = Astro.props;
 ---
 
 <div class="my-8 border border-[#ddd] rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col md:flex-row">
@@ -37,19 +52,28 @@ const { title, image, amazonUrl, rakutenUrl, yahooUrl, price } = Astro.props;
 
     <div class="mt-auto flex flex-wrap gap-2">
       {amazonUrl && (
-        <a href={amazonUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
+        <a href={amazonUrl} target="_blank" rel="sponsored nofollow noopener noreferrer"
+           data-affiliate-link data-affiliate-merchant="amazon"
+           data-affiliate-product-id={productId} data-affiliate-article-slug={articleSlug}
+           data-affiliate-position={position} data-affiliate-slot-id={slotId}
            class="bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Amazonで見る
         </a>
       )}
       {rakutenUrl && (
-        <a href={rakutenUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
+        <a href={rakutenUrl} target="_blank" rel="sponsored nofollow noopener noreferrer"
+           data-affiliate-link data-affiliate-merchant="rakuten"
+           data-affiliate-product-id={productId} data-affiliate-article-slug={articleSlug}
+           data-affiliate-position={position} data-affiliate-slot-id={slotId}
            class="bg-[#BF0000] hover:bg-[#990000] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           楽天で見る
         </a>
       )}
       {yahooUrl && (
-        <a href={yahooUrl} target="_blank" rel="sponsored nofollow noopener noreferrer" 
+        <a href={yahooUrl} target="_blank" rel="sponsored nofollow noopener noreferrer"
+           data-affiliate-link data-affiliate-merchant="yahoo"
+           data-affiliate-product-id={productId} data-affiliate-article-slug={articleSlug}
+           data-affiliate-position={position} data-affiliate-slot-id={slotId}
            class="bg-[#FF0033] hover:bg-[#CC0029] text-white font-medium rounded-full px-4 py-2 text-sm text-center min-w-[120px] transition no-underline">
           Yahooで見る
         </a>

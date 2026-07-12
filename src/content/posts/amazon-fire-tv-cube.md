@@ -12,6 +12,9 @@ tags:
 slug: "amazon-fire-tv-cube"
 authors:
   - "Admin"
+relatedPosts:
+  - "anker-nebula-capsule-2"
+  - "amazon-echo-dot-5"
 products:
   - id: "amazon-fire-tv-cube-amazon-001"
     title: "Amazon Fire TV Cube 第3世代"

@@ -23,7 +23,7 @@ export function collectionEntryToBlogListCard(
   const categories = Array.isArray(data.categories) ? data.categories : [];
 
   return {
-    id: post.id,
+    id: data.slug ?? post.id,
     title: data.title,
     excerpt: data.description || plainify(post.body ?? ""),
     image: data.image,

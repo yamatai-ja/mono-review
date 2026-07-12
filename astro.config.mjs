@@ -9,6 +9,7 @@ import gtm from "astro-gtm-lite";
 import { defineConfig, fontProviders, sharpImageService } from "astro/config";
 import config from "./src/config/config.json";
 import theme from "./src/config/theme.json";
+import remarkAffiliateLinks from "./src/lib/remarkAffiliateLinks.mjs";
 
 function parseEnvFile(filePath) {
   if (!existsSync(filePath)) return {};
@@ -98,6 +99,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
+    remarkPlugins: [remarkAffiliateLinks],
     shikiConfig: { theme: "one-dark-pro", wrap: true },
     extendDefaultPlugins: true,
   },
