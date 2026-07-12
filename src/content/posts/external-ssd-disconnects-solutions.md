@@ -5,7 +5,9 @@ draft: false
 article_type: "problem_solution"
 description: "外付けSSDの接続が切れる原因を、ケーブル、USBポート、電力不足、省電力設定、SSDケース、発熱などから順に切り分ける方法を解説します。"
 pubDate: "2026-06-19"
-categories: ["デジタルガジェット"]
+categories:
+  - id: digital-gadget
+    name: デジタル・ガジェット
 tags: ["外付けSSD", "SSD", "トラブル対策"]
 ---
 本記事には広告リンクを含みます。
