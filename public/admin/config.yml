@@ -2,8 +2,11 @@ backend:
   name: github
   repo: yamatai-ja/mono-review
   branch: main
+  squash_merges: true
   base_url: https://decap-oauth.monoslog.com
   auth_endpoint: auth
+
+publish_mode: editorial_workflow
 
 local_backend: true
 
@@ -16,85 +19,154 @@ locale: "ja"
 
 collections:
   - name: "posts"
-    label: "Posts"
-    label_singular: "Post"
+    label: "記事"
+    label_singular: "記事"
+    description: "記事を下書きから確認・承認して公開します。"
     folder: "src/content/posts"
     create: true
     extension: "md"
     format: "frontmatter"
     slug: "{{slug}}"
-    preview_path: "blog/{{slug}}"
+    preview_path: "draft-preview/{{slug}}"
     summary: "{{title}}"
     sortable_fields: ["date", "title", "draft"]
     view_filters:
-      - label: "Drafts"
+      - label: "下書き"
         field: "draft"
         pattern: true
-      - label: "Published"
+      - label: "公開済み"
         field: "draft"
         pattern: false
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "SEO Title", name: "meta_title", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - label: "Date"
+      - { label: "記事タイトル", name: "title", widget: "string" }
+      - {
+          label: "SEOタイトル",
+          name: "meta_title",
+          widget: "string",
+          required: false,
+        }
+      - {
+          label: "概要文",
+          name: "description",
+          widget: "text",
+          required: false,
+        }
+      - label: "公開日"
         name: "date"
         widget: "datetime"
         date_format: "YYYY-MM-DD"
         time_format: false
         format: "YYYY-MM-DD"
-      - { label: "Hero Image", name: "image", widget: "image", required: false }
-      - label: "Authors"
+      - {
+          label: "アイキャッチ画像",
+          name: "image",
+          widget: "image",
+          required: false,
+        }
+      - label: "著者"
         name: "authors"
         widget: "list"
         required: false
         default: ["Admin"]
-        field: { label: "Author", name: "author", widget: "string" }
-      - label: "Categories"
+        field: { label: "著者ID", name: "author", widget: "string" }
+      - label: "カテゴリ"
         name: "categories"
         widget: "list"
         required: false
+        hint: "既存記事の形式に合わせ、IDと表示名をセットで入力してください。"
         fields:
-          - { label: "ID", name: "id", widget: "string", default: "digital-gadget" }
-          - { label: "Name", name: "name", widget: "string", default: "デジタル・ガジェット" }
-      - label: "Tags"
+          - {
+              label: "カテゴリID",
+              name: "id",
+              widget: "string",
+              default: "digital-gadget",
+            }
+          - {
+              label: "カテゴリ名",
+              name: "name",
+              widget: "string",
+              default: "デジタル・ガジェット",
+            }
+      - label: "タグ"
         name: "tags"
         widget: "list"
         required: false
-        field: { label: "Tag", name: "tag", widget: "string" }
-      - label: "Related Posts"
+        field: { label: "タグ", name: "tag", widget: "string" }
+      - label: "関連記事"
         name: "relatedPosts"
         widget: "list"
         required: false
         hint: "関連記事のslugを入力してください（例: amazon-fire-tv-cube）"
-        field: { label: "Post Slug", name: "slug", widget: "string" }
-      - label: "Products"
+        field: { label: "記事slug", name: "slug", widget: "string" }
+      - label: "商品カード"
         name: "products"
         widget: "list"
         required: false
         fields:
-          - { label: "Product ID", name: "id", widget: "string", required: false }
-          - { label: "Product Title", name: "title", widget: "string" }
-          - label: "Image"
+          - { label: "商品ID", name: "id", widget: "string", required: false }
+          - { label: "商品名", name: "title", widget: "string" }
+          - label: "商品画像"
             name: "image"
             widget: "object"
             required: false
             fields:
-              - { label: "Image URL", name: "url", widget: "string", required: false }
-          - { label: "Amazon URL", name: "amazon_url", widget: "string", required: false }
-          - { label: "Rakuten URL", name: "rakuten_url", widget: "string", required: false }
-          - { label: "Yahoo URL", name: "yahoo_url", widget: "string", required: false }
-          - { label: "Price", name: "price", widget: "string", required: false }
-      - { label: "Rating", name: "rating", widget: "number", required: false, default: 0, value_type: "float", min: 0, max: 5, step: 0.1 }
-      - label: "Pros"
+              - {
+                  label: "画像URL",
+                  name: "url",
+                  widget: "string",
+                  required: false,
+                }
+          - {
+              label: "Amazon URL",
+              name: "amazon_url",
+              widget: "string",
+              required: false,
+            }
+          - {
+              label: "楽天URL",
+              name: "rakuten_url",
+              widget: "string",
+              required: false,
+            }
+          - {
+              label: "Yahoo! URL",
+              name: "yahoo_url",
+              widget: "string",
+              required: false,
+            }
+          - {
+              label: "価格メモ",
+              name: "price",
+              widget: "string",
+              required: false,
+            }
+      - {
+          label: "評価",
+          name: "rating",
+          widget: "number",
+          required: false,
+          default: 0,
+          value_type: "float",
+          min: 0,
+          max: 5,
+          step: 0.1,
+        }
+      - label: "メリット"
         name: "review_pros"
         widget: "list"
         required: false
-        field: { label: "Pro", name: "pro", widget: "string" }
-      - label: "Cons"
+        field: { label: "メリット", name: "pro", widget: "string" }
+      - label: "デメリット"
         name: "review_cons"
         widget: "list"
         required: false
-        field: { label: "Con", name: "con", widget: "string" }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+        field: { label: "デメリット", name: "con", widget: "string" }
+      - {
+          label: "下書き",
+          name: "draft",
+          widget: "boolean",
+          default: true,
+          required: false,
+          hint: "公開準備が完了するまでオンのままにしてください。",
+        }
+      - { label: "本文", name: "body", widget: "markdown" }
