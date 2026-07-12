@@ -82,9 +82,11 @@ const postsCollection = defineCollection({
       .default(() => ["others"]),
     authors: z.array(z.string()).default(() => ["Admin"]),
     tags: z.array(z.string()).default(() => ["others"]),
+    relatedPosts: z.array(z.string()).default(() => []),
     products: z
       .array(
         z.object({
+          id: z.string().optional(),
           title: z.string(),
           image: z
             .object({

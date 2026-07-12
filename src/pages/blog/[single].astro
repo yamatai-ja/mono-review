@@ -2,6 +2,8 @@
 import { render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import ProductCard from "../../components/ProductCard.astro";
+import AffiliateClickTracker from "../../components/AffiliateClickTracker.astro";
+import AffiliateDisclosure from "../../components/AffiliateDisclosure.astro";
 import Share from "@/components/Share.astro";
 import SimilarPosts from "@/components/SimilarPosts.astro";
 import config from "@/config/config.json";
@@ -88,6 +90,7 @@ const data = post.data as typeof post.data & {
   slug?: string;
   pubDate?: Date;
   updatedDate?: Date;
+  relatedPosts?: string[];
 };
 const { Content, headings } = await render(post);
 const authorEntries = await getSinglePage("authors");
@@ -103,6 +106,13 @@ const tags = pickTags(data.tags);
 const currentSlug = entrySlug(post);
 const publishedAt = data.date ?? data.pubDate;
 const products = data.products ?? [];
+const bodyText = post.body ?? "";
+const bodyStart = bodyText.slice(0, 1500);
+const bodyHasAffiliateDisclosure =
+  /(?:この記事|本記事)[^\n]{0,80}(?:広告|PR)[^\n]{0,40}含/.test(bodyStart);
+const hasAmazonAffiliateLink =
+  products.some((product) => Boolean(product.amazon_url)) ||
+  /https?:\/\/(?:www\.)?(?:amzn\.to|amazon\.co\.jp)\//i.test(bodyText);
 const canonicalUrl = new URL(`/blog/${currentSlug}/`, config.site.base_url).toString();
 const faqItems = extractFaqItems(post.body ?? "");
 const resolvedAuthors = (data.authors ?? ["Admin"]).map((reference) => ({
@@ -149,8 +159,18 @@ const structuredData = faqSchema
   ? [blogPostingSchema, faqSchema]
   : [blogPostingSchema];
 
-const similarCards = allPosts
+const normalizeRelatedSlug = (value: string) =>
+  value.trim().replace(/^\/?blog\//, "").replace(/\/$/, "");
+const explicitRelatedSlugs = [
+  ...new Set((data.relatedPosts ?? []).map(normalizeRelatedSlug)),
+].filter((slug) => slug && slug !== currentSlug);
+const explicitRelatedCards = explicitRelatedSlugs
+  .map((slug) => allPosts.find((item) => item.id === slug))
+  .filter((item): item is BlogListCard => Boolean(item));
+const explicitRelatedIds = new Set(explicitRelatedCards.map((item) => item.id));
+const automaticRelatedCards = allPosts
   .filter((item) => item.id !== currentSlug)
+  .filter((item) => !explicitRelatedIds.has(item.id))
   .filter((item) => {
     const itemCategories = categoryTerms(item.categories);
     return (
@@ -158,8 +178,8 @@ const similarCards = allPosts
         categoryList.some((currentCategory) => currentCategory.id === category.id),
       )
     );
-  })
-  .slice(0, 3);
+  });
+const similarCards = [...explicitRelatedCards, ...automaticRelatedCards].slice(0, 3);
 ---
 
 <Base
@@ -217,6 +237,11 @@ const similarCards = allPosts
             </ul>
           </div>
 
+          <AffiliateDisclosure
+            showGeneral={!bodyHasAffiliateDisclosure}
+            showAmazonAssociate={hasAmazonAffiliateLink}
+          />
+
           {heroSrc && (
             <div class="mt-8 mb-8">
               <Image src={heroSrc} height={500} width={1000} alt={title} class="w-full rounded-lg" loading="eager" />
@@ -226,7 +251,7 @@ const similarCards = allPosts
           {products.length > 0 && (
             <div class="mb-12">
               <h2 class="h4 mb-6 border-b border-primary pb-2">この記事で紹介している商品</h2>
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <ProductCard
                   title={product.title}
                   image={product.image?.url}
@@ -234,6 +259,10 @@ const similarCards = allPosts
                   rakutenUrl={product.rakuten_url}
                   yahooUrl={product.yahoo_url}
                   price={product.price}
+                  productId={product.id ?? slugify(product.title)}
+                  articleSlug={currentSlug}
+                  position={index + 1}
+                  slotId="post-top"
                 />
               ))}
             </div>
@@ -272,4 +301,5 @@ const similarCards = allPosts
       </div>
     </section>
   )}
+  <AffiliateClickTracker />
 </Base>

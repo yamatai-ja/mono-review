@@ -1,0 +1,30 @@
+---
+interface Props {
+  showGeneral?: boolean;
+  showAmazonAssociate?: boolean;
+}
+
+const {
+  showGeneral = true,
+  showAmazonAssociate = false,
+} = Astro.props;
+const shouldRender = showGeneral || showAmazonAssociate;
+---
+
+{shouldRender && (
+  <aside
+    class="my-6 border-l-4 border-border bg-light px-4 py-3 text-sm leading-relaxed text-text"
+    aria-label="広告・アフィリエイトに関する表記"
+  >
+    {showGeneral && (
+      <p>
+        この記事には広告リンクを含みます。価格・在庫・キャンペーン内容は販売ページでご確認ください。
+      </p>
+    )}
+    {showAmazonAssociate && (
+      <p class:list={{ "mt-2": showGeneral }}>
+        Amazonのアソシエイトとして、Mono&apos;s Logは適格販売により収入を得ています。
+      </p>
+    )}
+  </aside>
+)}

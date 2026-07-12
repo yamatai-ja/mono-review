@@ -12,6 +12,8 @@ tags:
 authors:
   - "Admin"
 slug: "anker-nebula-capsule-2"
+relatedPosts:
+  - "amazon-fire-tv-cube"
 
 products:
   - id: "anker-nebula-capsule-2-product-001"
