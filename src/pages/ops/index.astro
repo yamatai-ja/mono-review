@@ -1,0 +1,477 @@
+---
+import { getCollection } from "astro:content";
+import "@/styles/main.css";
+
+const isLocal = import.meta.env.DEV;
+const posts = isLocal ? await getCollection("posts") : [];
+const slugOf = (post: (typeof posts)[number]) =>
+  (post.data.slug ?? post.id).replace(/\.(md|mdx)$/i, "");
+const dateOf = (post: (typeof posts)[number]) =>
+  post.data.updatedDate ?? post.data.date ?? post.data.pubDate;
+const categoriesOf = (post: (typeof posts)[number]) =>
+  (post.data.categories ?? []).map((item) =>
+    typeof item === "string" ? item : item.name,
+  );
+const needsReview = (post: (typeof posts)[number]) => {
+  const categories = categoriesOf(post);
+  const tags = post.data.tags ?? [];
+  return (
+    !post.data.description ||
+    !post.data.image ||
+    categories.length === 0 ||
+    categories.some((item) => item.toLowerCase() === "others") ||
+    tags.length === 0 ||
+    tags.some((item) => item.toLowerCase() === "others")
+  );
+};
+const published = posts.filter(({ data }) => data.draft !== true);
+const drafts = posts.filter(({ data }) => data.draft === true);
+const reviews = posts.filter(needsReview);
+const recent = [...posts]
+  .sort((a, b) => (dateOf(b)?.getTime() ?? 0) - (dateOf(a)?.getTime() ?? 0))
+  .slice(0, 8);
+const formatDate = (date: Date | undefined) =>
+  date
+    ? new Intl.DateTimeFormat("ja-JP", { dateStyle: "medium" }).format(date)
+    : "日付未設定";
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>運用ダッシュボード | Mono's Log</title>
+  </head>
+  <body>
+    {
+      isLocal ? (
+        <div class="shell">
+          <aside>
+            <a class="brand" href="/ops/">
+              Mono's Log
+            </a>
+            <nav aria-label="管理メニュー">
+              <a aria-current="page" href="/ops/">
+                概要
+              </a>
+              <a href="/admin/">記事編集</a>
+              <a href="/" target="_blank" rel="noopener noreferrer">
+                サイト表示
+              </a>
+            </nav>
+          </aside>
+          <main>
+            <header>
+              <div>
+                <>
+                  <small>LOCAL OPERATIONS</small>
+                  <h1>運用ダッシュボード</h1>
+                </>
+              </div>
+              <a class="primary" href="/admin/">
+                記事を編集
+              </a>
+            </header>
+
+            <section class="metrics" aria-label="記事集計">
+              <div>
+                <>
+                  <span>全記事</span>
+                  <strong>{posts.length}</strong>
+                </>
+              </div>
+              <div>
+                <>
+                  <span>公開済み</span>
+                  <strong>{published.length}</strong>
+                </>
+              </div>
+              <div>
+                <>
+                  <span>下書き</span>
+                  <strong>{drafts.length}</strong>
+                </>
+              </div>
+              <div class:list={[reviews.length > 0 && "warning"]}>
+                <>
+                  <span>要確認</span>
+                  <strong>{reviews.length}</strong>
+                </>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <>
+                  <div>
+                    <>
+                      <small>CONTENT STATUS</small>
+                      <h2>最近の記事</h2>
+                    </>
+                  </div>
+                  <span>{recent.length}件</span>
+                </>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>記事</th>
+                        <th>状態</th>
+                        <th>カテゴリ</th>
+                        <th>日付</th>
+                        <th>操作</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map((post) => {
+                      const draft = post.data.draft === true;
+                      const slug = slugOf(post);
+                      return (
+                        <tr>
+                          <td>
+                            <strong>{post.data.title}</strong>
+                            {needsReview(post) && (
+                              <small class="alert">メタデータ要確認</small>
+                            )}
+                          </td>
+                          <td>
+                            <span
+                              class:list={[
+                                "status",
+                                draft ? "draft" : "public",
+                              ]}
+                            >
+                              {draft ? "下書き" : "公開"}
+                            </span>
+                          </td>
+                          <td>{categoriesOf(post).join("、") || "未設定"}</td>
+                          <td>{formatDate(dateOf(post))}</td>
+                          <td>
+                            <a
+                              href={
+                                draft
+                                  ? `/draft-preview/${slug}/`
+                                  : `/blog/${slug}/`
+                              }
+                            >
+                              確認
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel review-panel">
+              <div class="panel-head">
+                <div>
+                  <>
+                    <small>REVIEW QUEUE</small>
+                    <h2>要確認の記事</h2>
+                  </>
+                </div>
+              </div>
+              {reviews.length ? (
+                <ul>
+                  {reviews.slice(0, 6).map((post) => (
+                    <li>
+                      <span>{post.data.title}</span>
+                      <a
+                        href={
+                          post.data.draft
+                            ? `/draft-preview/${slugOf(post)}/`
+                            : `/blog/${slugOf(post)}/`
+                        }
+                      >
+                        記事を確認
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="empty">メタデータの要確認記事はありません。</p>
+              )}
+            </section>
+          </main>
+        </div>
+      ) : (
+        <main class="locked">
+          <small>MONO'S LOG</small>
+          <h1>このページはローカル運用専用です</h1>
+          <p>運営データは本番環境に出力されていません。</p>
+          <a href="/">サイトへ戻る</a>
+        </main>
+      )
+    }
+  </body>
+</html>
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+  }
+  :global(body) {
+    margin: 0;
+    min-height: 100vh;
+    background: #f6f7f7;
+    color: #1d2327;
+  }
+  .shell {
+    display: grid;
+    min-height: 100vh;
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  aside {
+    padding: 24px 14px;
+    background: #1d2327;
+    color: #fff;
+  }
+  .brand {
+    display: block;
+    padding: 0 12px 24px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  nav {
+    display: grid;
+    gap: 4px;
+  }
+  nav a {
+    padding: 10px 12px;
+    border-radius: 4px;
+    color: #c3c4c7;
+    font-size: 14px;
+  }
+  nav a:hover,
+  nav a[aria-current="page"] {
+    background: #2c3338;
+    color: #fff;
+  }
+  main:not(.locked) {
+    width: 100%;
+    max-width: 1180px;
+    min-width: 0;
+    padding: 32px;
+  }
+  header,
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  header {
+    margin-bottom: 24px;
+  }
+  h1 {
+    margin: 2px 0 0;
+    font-size: 28px;
+  }
+  h2 {
+    margin: 2px 0 0;
+    font-size: 18px;
+  }
+  small {
+    color: #646970;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .primary {
+    padding: 9px 14px;
+    border-radius: 4px;
+    background: #007cba;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 24px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+  }
+  .metrics div {
+    padding: 20px;
+    border-right: 1px solid #dcdcde;
+  }
+  .metrics div:last-child {
+    border: 0;
+  }
+  .metrics span {
+    display: block;
+    color: #646970;
+    font-size: 13px;
+  }
+  .metrics strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .metrics .warning strong,
+  .alert {
+    color: #b32d2e;
+  }
+  .panel {
+    margin-bottom: 24px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+  }
+  .panel-head {
+    padding: 18px 20px;
+    border-bottom: 1px solid #dcdcde;
+  }
+  .panel-head > span {
+    color: #646970;
+    font-size: 12px;
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th,
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #dcdcde;
+    text-align: left;
+    vertical-align: middle;
+  }
+  th {
+    background: #f6f7f7;
+    color: #50575e;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td {
+    border: 0;
+  }
+  td:first-child {
+    min-width: 280px;
+  }
+  td strong,
+  td small {
+    display: block;
+  }
+  td a,
+  li a,
+  .locked a {
+    color: #0073aa;
+    text-decoration: underline;
+  }
+  .status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .status.draft {
+    background: #fcf0c3;
+    color: #6e4d00;
+  }
+  .status.public {
+    background: #d7f0e5;
+    color: #135e3c;
+  }
+  .review-panel {
+    max-width: 760px;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 20px;
+    border-bottom: 1px solid #dcdcde;
+  }
+  li:last-child {
+    border: 0;
+  }
+  .empty {
+    margin: 0;
+    padding: 20px;
+    color: #646970;
+  }
+  .locked {
+    width: min(640px, calc(100% - 32px));
+    margin: 18vh auto;
+    padding: 28px;
+    border-left: 4px solid #007cba;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+  }
+  .locked h1 {
+    font-size: 24px;
+  }
+  .locked p {
+    color: #50575e;
+  }
+  @media (max-width: 800px) {
+    .shell {
+      grid-template-columns: 1fr;
+    }
+    aside {
+      padding: 14px;
+    }
+    .brand {
+      padding-bottom: 12px;
+    }
+    nav {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    main:not(.locked) {
+      padding: 20px 16px;
+    }
+    .metrics {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .metrics div:nth-child(2) {
+      border-right: 0;
+    }
+    .metrics div:nth-child(-n + 2) {
+      border-bottom: 1px solid #dcdcde;
+    }
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+    th,
+    td {
+      padding: 11px 10px;
+    }
+    td:first-child {
+      min-width: 0;
+    }
+  }
+  @media (max-width: 480px) {
+    header,
+    li {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .primary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
