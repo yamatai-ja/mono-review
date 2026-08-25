@@ -1,0 +1,22 @@
+---
+interface Props {
+  summary?: string;
+  articleType?: string;
+  verifiedAt?: Date;
+  mutableFactsVerified?: boolean;
+}
+const { summary, articleType, verifiedAt, mutableFactsVerified } = Astro.props;
+const labels: Record<string, string> = {
+  comparison: "比較の結論", selection: "選び方の結論", troubleshooting: "まず確認すること",
+  new_product: "新商品の要点", review: "レビューの結論", guide: "この記事の結論", other: "先に結論",
+};
+---
+{summary && (
+  <aside class="my-8 rounded-xl border border-border bg-light p-5 md:p-6" aria-label="記事の結論">
+    <p class="mb-2 text-sm font-bold text-primary">{labels[articleType ?? "other"] ?? "先に結論"}</p>
+    <p class="m-0 text-base leading-7 text-dark">{summary}</p>
+    {verifiedAt && mutableFactsVerified && (
+      <p class="mt-3 mb-0 text-xs text-text">価格・仕様などの変動情報を確認済み：{verifiedAt.toLocaleDateString("ja-JP")}</p>
+    )}
+  </aside>
+)}
