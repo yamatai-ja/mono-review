@@ -34,7 +34,8 @@ const postsCollection = defineCollection({
     updatedDate: z.coerce.date().optional(),
     slug: z.string().optional(),
     image: z.string().optional(),
-    article_type: z.enum(["comparison", "selection", "troubleshooting", "new_product", "review", "guide", "other"]).optional(),
+    // Keep legacy article_type values readable. The article-package adapter emits canonical Theme v2 values.
+    article_type: z.string().optional(),
     candidate_id: z.string().optional(),
     monetization: z.enum(["AFFILIATE", "ADSENSE", "HYBRID", "LEAD_GENERATION", "NONE"]).optional(),
     answer_summary: z.string().optional(),
