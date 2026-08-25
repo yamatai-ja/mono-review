@@ -30,7 +30,14 @@ const extractFaqItems = (body: string) => {
   for (const line of lines.slice(faqStart + 1)) { if (/^##\s+/.test(line)) break; const m = line.match(/^###\s+(.+)$/); if (m) { flush(); question = plainify(m[1]).replace(/^Q[.．:：\s]*/i, "").trim(); answerLines = []; } else if (question) answerLines.push(line); }
   flush(); return items;
 };
-export async function getStaticPaths() { const posts = await getSinglePage("posts"); const allPosts = sortBlogListCardsByDate(posts.map(collectionEntryToBlogListCard)); return posts.map((post) => ({ params: { single: entrySlug(post) }, props: { post, allPosts } })); }
+export async function getStaticPaths() {
+  const posts = await getSinglePage("posts");
+  const allPosts = sortBlogListCardsByDate(posts.map(collectionEntryToBlogListCard));
+  return posts.map((post) => ({
+    params: { single: (post.data as typeof post.data & { slug?: string }).slug ?? post.id.replace(/\.(md|mdx)$/i, "") },
+    props: { post, allPosts },
+  }));
+}
 type Props = { post: PostEntry; allPosts: BlogListCard[] };
 const { post, allPosts } = Astro.props as Props;
 const data = post.data;
