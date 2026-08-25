@@ -4,19 +4,14 @@ import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import AffiliateClickTracker from "../../components/AffiliateClickTracker.astro";
 import AffiliateDisclosure from "../../components/AffiliateDisclosure.astro";
+import ArticleDecisionBox from "../../components/ArticleDecisionBox.astro";
 import Share from "@/components/Share.astro";
 import SimilarPosts from "@/components/SimilarPosts.astro";
 import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import Sidebar from "@/partials/Sidebar.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
-import {
-  collectionEntryToBlogListCard,
-  pickTags,
-  resolvePostImageSrc,
-  sortBlogListCardsByDate,
-  type BlogListCard,
-} from "@/lib/utils/blogListCard";
+import { collectionEntryToBlogListCard, pickTags, resolvePostImageSrc, sortBlogListCardsByDate, type BlogListCard } from "@/lib/utils/blogListCard";
 import dateFormat from "@/lib/utils/dateFormat";
 import { resolveAuthor } from "@/lib/utils/author";
 import { toTaxonomyTerm } from "@/lib/utils/taxonomy";
@@ -24,282 +19,52 @@ import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
 
 type PostEntry = CollectionEntry<"posts">;
-
-const entrySlug = (post: PostEntry) => {
-  const data = post.data as typeof post.data & { slug?: string };
-  return data.slug ?? post.id.replace(/\.(md|mdx)$/i, "");
-};
-
-const categoryTerms = (
-  categories: (string | { id?: string; name: string })[] | undefined,
-) => (categories ?? []).map(toTaxonomyTerm);
-
+const entrySlug = (post: PostEntry) => (post.data as typeof post.data & { slug?: string }).slug ?? post.id.replace(/\.(md|mdx)$/i, "");
+const categoryTerms = (categories: (string | { id?: string; name: string })[] | undefined) => (categories ?? []).map(toTaxonomyTerm);
 const extractFaqItems = (body: string) => {
   const lines = body.replace(/\r\n/g, "\n").split("\n");
-  const faqStart = lines.findIndex((line) =>
-    /^##\s+(?:FAQ|よくある質問)(?:\s|$|（)/i.test(line.trim()),
-  );
+  const faqStart = lines.findIndex((line) => /^##\s+(?:FAQ|よくある質問)(?:\s|$|（)/i.test(line.trim()));
   if (faqStart < 0) return [];
-
-  const items: { question: string; answer: string }[] = [];
-  let question = "";
-  let answerLines: string[] = [];
-  const flush = () => {
-    const answer = plainify(answerLines.join("\n").trim()).trim();
-    if (question && answer) items.push({ question, answer });
-  };
-
-  for (const line of lines.slice(faqStart + 1)) {
-    if (/^##\s+/.test(line)) break;
-    const questionMatch = line.match(/^###\s+(.+)$/);
-    if (questionMatch) {
-      flush();
-      question = plainify(questionMatch[1])
-        .replace(/^Q[.．:：\s]*/i, "")
-        .trim();
-      answerLines = [];
-    } else if (question) {
-      answerLines.push(line);
-    }
-  }
-  flush();
-  return items;
+  const items: { question: string; answer: string }[] = []; let question = ""; let answerLines: string[] = [];
+  const flush = () => { const answer = plainify(answerLines.join("\n").trim()).trim(); if (question && answer) items.push({ question, answer }); };
+  for (const line of lines.slice(faqStart + 1)) { if (/^##\s+/.test(line)) break; const m = line.match(/^###\s+(.+)$/); if (m) { flush(); question = plainify(m[1]).replace(/^Q[.．:：\s]*/i, "").trim(); answerLines = []; } else if (question) answerLines.push(line); }
+  flush(); return items;
 };
-
-export async function getStaticPaths() {
-  const posts = await getSinglePage("posts");
-  const allPosts = sortBlogListCardsByDate(posts.map(collectionEntryToBlogListCard));
-
-  return posts.map((post) => ({
-    params: {
-      single:
-        (post.data as typeof post.data & { slug?: string }).slug ??
-        post.id.replace(/\.(md|mdx)$/i, ""),
-    },
-    props: { post, allPosts },
-  }));
-}
-
-type Props = {
-  post: PostEntry;
-  allPosts: BlogListCard[];
-};
-
+export async function getStaticPaths() { const posts = await getSinglePage("posts"); const allPosts = sortBlogListCardsByDate(posts.map(collectionEntryToBlogListCard)); return posts.map((post) => ({ params: { single: entrySlug(post) }, props: { post, allPosts } })); }
+type Props = { post: PostEntry; allPosts: BlogListCard[] };
 const { post, allPosts } = Astro.props as Props;
-const data = post.data as typeof post.data & {
-  slug?: string;
-  pubDate?: Date;
-  updatedDate?: Date;
-  relatedPosts?: string[];
-};
+const data = post.data;
 const { Content, headings } = await render(post);
 const authorEntries = await getSinglePage("authors");
-
-const title = data.title;
-const metaTitle = data.meta_title ?? title;
-const description = data.description;
-const image = typeof data.image === "string" ? data.image : undefined;
-const heroSrc = resolvePostImageSrc(image);
-const categoryList = categoryTerms(data.categories);
-const categories = categoryList.map((category) => category.name);
-const tags = pickTags(data.tags);
-const currentSlug = entrySlug(post);
-const publishedAt = data.date ?? data.pubDate;
-const products = data.products ?? [];
-const bodyText = post.body ?? "";
-const bodyStart = bodyText.slice(0, 1500);
-const bodyHasAffiliateDisclosure =
-  /(?:この記事|本記事)[^\n]{0,80}(?:広告|PR)[^\n]{0,40}含/.test(bodyStart);
-const hasAmazonAffiliateLink =
-  products.some((product) => Boolean(product.amazon_url)) ||
-  /https?:\/\/(?:www\.)?(?:amzn\.to|amazon\.co\.jp)\//i.test(bodyText);
-const canonicalUrl = new URL(`/blog/${currentSlug}/`, config.site.base_url).toString();
-const faqItems = extractFaqItems(post.body ?? "");
-const resolvedAuthors = (data.authors ?? ["Admin"]).map((reference) => ({
-  reference,
-  entry: resolveAuthor(reference, authorEntries),
-}));
-const blogPostingSchema = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "mainEntityOfPage": canonicalUrl,
-  "headline": title,
-  "description": description,
-  "image": heroSrc ? [new URL(heroSrc, config.site.base_url).toString()] : undefined,
-  "datePublished": publishedAt?.toISOString(),
-  "dateModified": (data.updatedDate ?? publishedAt)?.toISOString(),
-  "author": resolvedAuthors.map(({ reference, entry }) => ({
-    "@type": "Person",
-    "name": entry?.data.title ?? reference,
-    ...(entry
-      ? { "url": new URL(`/authors/${entry.id}/`, config.site.base_url).toString() }
-      : {}),
-  })),
-  "publisher": {
-    "@type": "Organization",
-    "name": config.site.title,
-    "url": config.site.base_url,
-  },
-  "articleSection": categories[0],
-  "keywords": tags.length > 0 ? tags.join(", ") : undefined,
-};
-const faqSchema = faqItems.length > 0 ? {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": faqItems.map(({ question, answer }) => ({
-    "@type": "Question",
-    "name": question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": answer,
-    },
-  })),
-} : undefined;
-const structuredData = faqSchema
-  ? [blogPostingSchema, faqSchema]
-  : [blogPostingSchema];
-
-const normalizeRelatedSlug = (value: string) =>
-  value.trim().replace(/^\/?blog\//, "").replace(/\/$/, "");
-const explicitRelatedSlugs = [
-  ...new Set((data.relatedPosts ?? []).map(normalizeRelatedSlug)),
-].filter((slug) => slug && slug !== currentSlug);
-const explicitRelatedCards = explicitRelatedSlugs
-  .map((slug) => allPosts.find((item) => item.id === slug))
-  .filter((item): item is BlogListCard => Boolean(item));
-const explicitRelatedIds = new Set(explicitRelatedCards.map((item) => item.id));
-const automaticRelatedCards = allPosts
-  .filter((item) => item.id !== currentSlug)
-  .filter((item) => !explicitRelatedIds.has(item.id))
-  .filter((item) => {
-    const itemCategories = categoryTerms(item.categories);
-    return (
-      itemCategories.some((category) =>
-        categoryList.some((currentCategory) => currentCategory.id === category.id),
-      )
-    );
-  });
-const similarCards = [...explicitRelatedCards, ...automaticRelatedCards].slice(0, 3);
+const title = data.title; const metaTitle = data.meta_title ?? title; const description = data.description;
+const image = typeof data.image === "string" ? data.image : undefined; const heroSrc = resolvePostImageSrc(image);
+const categoryList = categoryTerms(data.categories); const categories = categoryList.map((c) => c.name); const tags = pickTags(data.tags);
+const currentSlug = entrySlug(post); const publishedAt = data.date ?? data.pubDate; const products = data.products ?? []; const bodyText = post.body ?? ""; const bodyStart = bodyText.slice(0,1500);
+const bodyHasAffiliateDisclosure = /(?:この記事|本記事)[^\n]{0,80}(?:広告|PR)[^\n]{0,40}含/.test(bodyStart);
+const hasAmazonAffiliateLink = products.some((p) => Boolean(p.amazon_url)) || /https?:\/\/(?:www\.)?(?:amzn\.to|amazon\.co\.jp)\//i.test(bodyText);
+const canonicalUrl = new URL(`/blog/${currentSlug}/`, config.site.base_url).toString(); const faqItems = extractFaqItems(bodyText);
+const resolvedAuthors = (data.authors ?? ["Admin"]).map((reference) => ({ reference, entry: resolveAuthor(reference, authorEntries) }));
+const blogPostingSchema = { "@context":"https://schema.org", "@type":"BlogPosting", mainEntityOfPage:canonicalUrl, headline:title, description, image:heroSrc?[new URL(heroSrc,config.site.base_url).toString()]:undefined, datePublished:publishedAt?.toISOString(), dateModified:(data.updatedDate??publishedAt)?.toISOString(), author:resolvedAuthors.map(({reference,entry})=>({"@type":"Person",name:entry?.data.title??reference,...(entry?{url:new URL(`/authors/${entry.id}/`,config.site.base_url).toString()}: {})})), publisher:{"@type":"Organization",name:config.site.title,url:config.site.base_url}, articleSection:categories[0], keywords:tags.length?tags.join(", "):undefined };
+const faqSchema = faqItems.length ? {"@context":"https://schema.org","@type":"FAQPage",mainEntity:faqItems.map(({question,answer})=>({"@type":"Question",name:question,acceptedAnswer:{"@type":"Answer",text:answer}}))}:undefined;
+const structuredData = faqSchema ? [blogPostingSchema,faqSchema] : [blogPostingSchema];
+const normalizeRelatedSlug=(v:string)=>v.trim().replace(/^\/?blog\//,"").replace(/\/$/,""); const explicitRelatedSlugs=[...new Set((data.relatedPosts??[]).map(normalizeRelatedSlug))].filter((s)=>s&&s!==currentSlug);
+const explicitRelatedCards=explicitRelatedSlugs.map((s)=>allPosts.find((i)=>i.id===s)).filter((i):i is BlogListCard=>Boolean(i)); const explicitRelatedIds=new Set(explicitRelatedCards.map((i)=>i.id));
+const automaticRelatedCards=allPosts.filter((i)=>i.id!==currentSlug&&!explicitRelatedIds.has(i.id)).filter((i)=>categoryTerms(i.categories).some((c)=>categoryList.some((cc)=>cc.id===c.id))); const similarCards=[...explicitRelatedCards,...automaticRelatedCards].slice(0,3);
 ---
-
-<Base
-  title={title}
-  meta_title={metaTitle}
-  description={description}
-  image={heroSrc}
-  canonical={canonicalUrl}
-  ogType="article"
-  structuredData={structuredData}
->
-  <section class="section">
-    <div class="container">
-      <div class="row">
-        <article class="lg:col-8">
-          <Breadcrumbs
-            className="mb-6"
-            items={[
-              { name: "ホーム", url: "/" },
-              { name: categoryList[0]?.name ?? "ブログ", url: categoryList[0] ? `/categories/${categoryList[0].id}/` : "/blog/" },
-              { name: title },
-            ]}
-          />
-
-          <div class="text-center md:text-left">
-            <h1 class="h2">{title}</h1>
-            <ul class="mt-4 flex flex-wrap items-center justify-center text-text md:justify-start">
-              {publishedAt && <li class="mr-6 mb-2 flex items-center font-medium">
-                <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path d="m9.08 16.17 1.41 1.41 4.59-4.58-1.41-1.42z"/></svg>
-                {dateFormat(publishedAt)}
-              </li>}
-              {categories.length > 0 && (
-                <li class="mb-2 flex items-center font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm13 0h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>
-                  {categoryList.map((category, index) => (
-                    <a href={`${import.meta.env.BASE_URL}categories/${category.id}/`} class="mr-2 hover:text-primary">
-                      {humanize(category.name)}
-                      {index !== categoryList.length - 1 && ","}
-                    </a>
-                  ))}
-                </li>
-              )}
-              {resolvedAuthors.map(({ reference, entry }) => (
-                <li class="mb-2 ml-4 flex items-center font-medium">
-                  <span class="mr-1">著者:</span>
-                  {entry ? (
-                    <a href={`/authors/${entry.id}/`} class="hover:text-primary">
-                      {entry.data.title}
-                    </a>
-                  ) : (
-                    <span>{reference}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <AffiliateDisclosure
-            showGeneral={!bodyHasAffiliateDisclosure}
-            showAmazonAssociate={hasAmazonAffiliateLink}
-          />
-
-          {heroSrc && (
-            <div class="mt-8 mb-8">
-              <Image src={heroSrc} height={500} width={1000} alt={title} class="w-full rounded-lg" loading="eager" />
-            </div>
-          )}
-
-          {products.length > 0 && (
-            <div class="mb-12">
-              <h2 class="h4 mb-6 border-b border-primary pb-2">この記事で紹介している商品</h2>
-              {products.map((product, index) => (
-                <ProductCard
-                  title={product.title}
-                  image={product.image?.url}
-                  amazonUrl={product.amazon_url}
-                  rakutenUrl={product.rakuten_url}
-                  yahooUrl={product.yahoo_url}
-                  price={product.price}
-                  productId={product.id ?? slugify(product.title)}
-                  articleSlug={currentSlug}
-                  position={index + 1}
-                  slotId="post-top"
-                />
-              ))}
-            </div>
-          )}
-
-          <div class="content mb-16 text-left">
-            <Content />
-          </div>
-
-          <div class="mt-12 flex flex-wrap items-center justify-between">
-            <ul class="mr-4 mb-4 space-x-3">
-              {tags.map((tag) => (
-                <li class="inline-block">
-                  <a href={`${import.meta.env.BASE_URL}tags/${slugify(tag)}`} class="block rounded-lg bg-light px-4 py-2 text-sm font-semibold text-dark transition hover:text-primary">
-                    #{humanize(tag)}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <Share className="social-share mb-4" title={title} description={description} slug={`blog/${currentSlug}`} />
-          </div>
-        </article>
-
-        <aside class="mt-12 lg:col-4 lg:mt-0">
-          <Sidebar headings={headings.filter((heading) => heading.depth === 2 || heading.depth === 3).map((heading) => ({ text: heading.text, id: heading.slug, level: heading.depth }))} latestPosts={allPosts} />
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  {similarCards.length > 0 && (
-    <section class="section pt-0">
-      <div class="container border-t border-border pt-12">
-        <h2 class="h3 mb-8">あわせて読みたい</h2>
-        <SimilarPosts posts={similarCards} />
-      </div>
-    </section>
-  )}
-  <AffiliateClickTracker />
+<Base title={title} meta_title={metaTitle} description={description} image={heroSrc} canonical={canonicalUrl} ogType="article" structuredData={structuredData}>
+<section class="section"><div class="container"><div class="row"><article class="lg:col-8">
+<Breadcrumbs className="mb-6" items={[{name:"ホーム",url:"/"},{name:categoryList[0]?.name??"ブログ",url:categoryList[0]?`/categories/${categoryList[0].id}/`:"/blog/"},{name:title}]} />
+<div class="text-center md:text-left"><h1 class="h2">{title}</h1><ul class="mt-4 flex flex-wrap items-center justify-center text-text md:justify-start">
+{publishedAt&&<li class="mr-6 mb-2 font-medium">{dateFormat(publishedAt)}</li>}{categoryList.map((category)=><li class="mr-3 mb-2"><a href={`${import.meta.env.BASE_URL}categories/${category.id}/`} class="font-medium hover:text-primary">{humanize(category.name)}</a></li>)}
+{resolvedAuthors.map(({reference,entry})=><li class="mb-2 ml-2 font-medium"><span class="mr-1">著者:</span>{entry?<a href={`/authors/${entry.id}/`} class="hover:text-primary">{entry.data.title}</a>:<span>{reference}</span>}</li>)}
+</ul></div>
+<AffiliateDisclosure showGeneral={!bodyHasAffiliateDisclosure} showAmazonAssociate={hasAmazonAffiliateLink} />
+{heroSrc&&<div class="mt-8 mb-8"><Image src={heroSrc} height={500} width={1000} alt={title} class="w-full rounded-lg" loading="eager" /></div>}
+<ArticleDecisionBox summary={data.answer_summary} articleType={data.article_type} verifiedAt={data.evidence_verified_at} mutableFactsVerified={data.mutable_facts_verified} />
+{products.length>0&&<div class="mb-12"><h2 class="h4 mb-6 border-b border-primary pb-2">この記事で紹介している商品</h2>{products.map((product,index)=><ProductCard title={product.title} image={product.image?.url} amazonUrl={product.amazon_url} rakutenUrl={product.rakuten_url} yahooUrl={product.yahoo_url} price={product.price} productId={product.id??slugify(product.title)} articleSlug={currentSlug} position={index+1} slotId="post-top" />)}</div>}
+<div class="content mb-16 text-left"><Content /></div>
+<div class="mt-12 flex flex-wrap items-center justify-between"><ul class="mr-4 mb-4 space-x-3">{tags.map((tag)=><li class="inline-block"><a href={`${import.meta.env.BASE_URL}tags/${slugify(tag)}`} class="block rounded-lg bg-light px-4 py-2 text-sm font-semibold text-dark transition hover:text-primary">#{humanize(tag)}</a></li>)}</ul><Share className="social-share mb-4" title={title} description={description} slug={`blog/${currentSlug}`} /></div>
+</article><aside class="mt-12 lg:col-4 lg:mt-0"><Sidebar headings={headings.filter((h)=>h.depth===2||h.depth===3).map((h)=>({text:h.text,id:h.slug,level:h.depth}))} latestPosts={allPosts} /></aside></div></div></section>
+{similarCards.length>0&&<section class="section pt-0"><div class="container border-t border-border pt-12"><h2 class="h3 mb-8">あわせて読みたい</h2><SimilarPosts posts={similarCards} /></div></section>}
+<AffiliateClickTracker />
 </Base>
