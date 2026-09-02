@@ -1,30 +1,62 @@
 ---
-title: "Privacy"
-meta_title: ""
-description: "this is meta description"
+title: "プライバシーポリシー"
+meta_title: "プライバシーポリシー | Mono's Log"
+description: "Mono's Logにおける個人情報およびCookie等の取扱いについて説明します。"
 draft: false
 ---
 
-#### Responsibility of Contributors
+Mono's Log（以下「当サイト」）は、利用者の個人情報および閲覧に関する情報を適切に取り扱うため、以下のとおりプライバシーポリシーを定めます。
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus, donec nunc eros, ullamcorper id feugiat quisque aliquam sagittis. Sem turpis sed viverra massa gravida pharetra. Non dui dolor potenti eu dignissim fusce. Ultrices amet, in curabitur a arcu a lectus morbi id. Iaculis erat sagittis in tortor cursus. Molestie urna eu tortor, erat scelerisque eget. Nunc hendrerit sed interdum lacus. Lorem quis viverra sed
+## 取得する情報
 
-pretium, aliquam sit. Praesent elementum magna amet, tincidunt eros, nibh in leo. Malesuada purus, lacus, at aliquam suspendisse tempus. Quis tempus amet, velit nascetur sollicitudin. At sollicitudin eget amet in. Eu velit nascetur sollicitudin erhdfvssfvrgss eget viverra nec elementum. Lacus, facilisis tristique lectus in.
+当サイトでは、お問い合わせをいただく際に、氏名、メールアドレス、お問い合わせ内容などの情報をご提供いただく場合があります。また、当サイトの利用状況を把握するため、Cookie等を通じて、閲覧したページ、利用端末・ブラウザに関する情報、アクセス日時、概ねの地域情報などを収集することがあります。
 
-#### Gathering of Personal Information
+## 利用目的
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus, donec nunc eros, ullamcorper id feugiat quisque aliquam sagittis. Sem turpis sed viverra massa gravida pharetra. Non dui dolor potenti eu dignissim fusce. Ultrices amet, in curabitur a arcu a lectus morbi id. Iaculis erat sagittis in tortor cursus. Molestie urna eu tortor, erat scelerisque eget. Nunc hendrerit sed interdum lacus. Lorem quis viverra sed
+取得した情報は、次の目的のために利用します。
 
-#### Protection of Personal- Information
+- お問い合わせへの対応および必要なご連絡のため
+- 当サイトのコンテンツ、機能および表示を改善するため
+- 不正利用の防止、安全な運営および障害対応のため
+- 利用状況を統計的に分析し、運営の参考にするため
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus, donec nunc eros, ullamcorper id feugiat quisque aliquam sagittis. Sem turpis sed viverra massa gravida pharetra. Non dui dolor potenti eu dignissim fusce. Ultrices amet, in curabitur a arcu a lectus morbi id. Iaculis erat sagittis in tortor cursus.
+法令で認められる場合を除き、ご本人の同意なく、上記の目的を超えて個人情報を利用しません。
 
-Molestie urna eu tortor, erat scelerisque eget. Nunc hendrerit sed interdum lacus. Lorem quis viverra sed
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus, donec nunc eros, ullamcorper id feugiat
+## アクセス解析ツールとCookie
 
-#### Privacy Policy Changes
+当サイトでは、Googleが提供するGoogle アナリティクスを利用しています。Google アナリティクスはCookieを利用して、利用者のアクセス状況を収集します。収集される情報は個人を特定するものではなく、Googleのプライバシーポリシーに基づいて管理されます。
 
-1. Sll the Themefisher items are designed to be with the latest , We check all
-2. comments that threaten or harm the reputation of any person or organization
-3. personal information including, but limited to, email addresses, telephone numbers
-4. Any Update come in The technology Customer will get automatic Notification.
+Cookieの受け入れは、ブラウザの設定で拒否または削除できます。ただし、設定によっては当サイトの一部機能が正しく動作しない場合があります。Google アナリティクスによる情報収集の詳細は、Googleの各種ポリシーをご確認ください。
+
+## 広告・アフィリエイトプログラムについて
+
+当サイトでは、商品やサービスを紹介する際にアフィリエイトプログラムを利用することがあります。利用者が当サイトのリンクから外部サイトへ移動し、購入や申込みを行った場合、当サイトが紹介料を受け取ることがあります。
+
+リンク先の事業者は、それぞれのプライバシーポリシーに基づき、Cookie等を使用して情報を取得する場合があります。外部サイトでの情報の取扱いについて、当サイトは責任を負いません。購入・契約にあたっては、リンク先の利用規約およびプライバシーポリシーをご確認ください。
+
+## 個人情報の第三者提供
+
+当サイトは、次の場合を除き、取得した個人情報を第三者に提供しません。
+
+- ご本人の同意がある場合
+- 法令に基づく場合
+- 人の生命、身体または財産の保護のために必要であり、ご本人の同意を得ることが困難な場合
+- 業務委託先に、利用目的の達成に必要な範囲で取扱いを委託する場合
+
+## 安全管理
+
+当サイトは、個人情報への不正アクセス、漏えい、滅失または毀損を防ぐため、必要かつ適切な安全管理措置を講じます。
+
+## 開示・訂正・削除等のご請求
+
+ご本人から、保有する個人情報の開示、訂正、追加、削除、利用停止または消去をご希望される場合は、ご本人確認を行ったうえで、法令に従い適切に対応します。ご希望の際は、[お問い合わせページ](/contact)からご連絡ください。
+
+## 本ポリシーの変更
+
+当サイトは、法令の改正や運営内容の変更に応じて、本ポリシーを変更することがあります。変更後の内容は、このページに掲載した時点から効力を生じます。
+
+## お問い合わせ窓口
+
+本ポリシーに関するお問い合わせは、[お問い合わせページ](/contact)からお願いいたします。
+
+制定日：2026年9月2日
