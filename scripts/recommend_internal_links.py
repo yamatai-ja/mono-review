@@ -22,13 +22,13 @@ from pathlib import Path
 from typing import Iterable
 
 BLOG_LINK_RE = re.compile(
-    r"(?:https?://(?:www\\.)?monoslog\\.com)?/blog/([^\\s\\)\\\"'#?<>]+)",
+    r"(?:https?://(?:www\.)?monoslog\.com)?/blog/([^\s)\\\"'#?<>]+)",
     re.I,
 )
-HEADING_RE = re.compile(r"^#{2,3}\\s+(.+?)\\s*$", re.M)
-MARKDOWN_LINK_RE = re.compile(r"\\[([^\\]]+)\\]\\([^)]*\\)")
+HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.M)
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
 HTML_TAG_RE = re.compile(r"<[^>]+>")
-SPACE_RE = re.compile(r"\\s+")
+SPACE_RE = re.compile(r"\s+")
 CSV_FIELDS = (
     "source_slug",
     "source_title",
@@ -115,20 +115,20 @@ def _split_frontmatter(text: str) -> tuple[dict[str, object], str]:
         else:
             metadata[key] = _strip_quotes(value)
 
-    body = "\\n".join(lines[end + 1 :])
+    body = "\n".join(lines[end + 1 :])
     return metadata, body
 
 
 def _normalize_slug(value: object) -> str:
     text = str(value or "").strip()
-    text = re.sub(r"^https?://(?:www\\.)?monoslog\\.com", "", text, flags=re.I)
+    text = re.sub(r"^https?://(?:www\.)?monoslog\.com", "", text, flags=re.I)
     text = re.sub(r"^/?blog/", "", text)
     text = re.sub(r"[?#].*$", "", text).strip("/")
     return text
 
 
 def _visible_text(markdown: str) -> str:
-    text = MARKDOWN_LINK_RE.sub(r"\\1", markdown)
+    text = MARKDOWN_LINK_RE.sub(r"\1", markdown)
     text = HTML_TAG_RE.sub(" ", text)
     text = re.sub(r"[#*_>\x60~|=-]+", " ", text)
     return html.unescape(SPACE_RE.sub(" ", text)).strip()
@@ -136,7 +136,13 @@ def _visible_text(markdown: str) -> str:
 
 def _normalize(value: str) -> str:
     value = unicodedata.normalize("NFKC", value).casefold()
-    return "".join(ch for ch in value if ch.isalnum() or "\\u3040" <= ch <= "\\u30ff" or "\\u3400" <= ch <= "\\u9fff")
+    return "".join(
+        ch
+        for ch in value
+        if ch.isalnum()
+        or 0x3040 <= ord(ch) <= 0x30FF
+        or 0x3400 <= ord(ch) <= 0x9FFF
+    )
 
 
 def _grams(value: str) -> set[str]:
@@ -303,7 +309,7 @@ def write_outputs(report: dict[str, object], *, csv_path: Path, md_path: Path) -
                 "",
             ]
         )
-    md_path.write_text("\\n".join(lines), encoding="utf-8")
+    md_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def main() -> None:
