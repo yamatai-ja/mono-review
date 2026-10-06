@@ -186,6 +186,15 @@ def check_article(markdown: str, profile: dict[str, Any]) -> tuple[int, str, lis
     else:
         details.append("internal link ok")
 
+    required_sections = requirements.get("required_sections", {})
+    if isinstance(required_sections, dict):
+        for section_name, terms in required_sections.items():
+            candidates = list(terms) if isinstance(terms, list) else [str(terms)]
+            if not any(term and term in body for term in candidates):
+                failed.append(f"missing_required_section:{section_name}")
+            else:
+                details.append(f"required section ok: {section_name}")
+
     urls = bare_urls(body)
     if urls:
         warnings.append("bare_urls:" + "/".join(urls[:5]))
