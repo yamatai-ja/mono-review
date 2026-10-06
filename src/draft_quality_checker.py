@@ -133,6 +133,23 @@ def url_bare_pastes(text: str) -> list[str]:
     return re.findall(r"https?://[^\s)>'\"]+", text)
 
 
+_AFFILIATE_LINK_RE = re.compile(
+    r"https?://[^\s)>'\"]*(?:hb\.afl\.rakuten\.co\.jp|amazon\.[^\s)>'\"]*[?&]tag=|[?&](?:aff|affiliate|ref)=)",
+    re.I,
+)
+_DISCLOSURE_TERMS = ("PR", "広告", "アフィリエイト")
+
+
+def first_affiliate_link_index(text: str) -> int | None:
+    match = _AFFILIATE_LINK_RE.search(text)
+    return match.start() if match else None
+
+
+def first_disclosure_index(text: str) -> int | None:
+    positions = [text.find(term) for term in _DISCLOSURE_TERMS if text.find(term) >= 0]
+    return min(positions) if positions else None
+
+
 def check_quality(text: str, target_keyword: str) -> tuple[int, str, list[str], list[str], list[str]]:
     failed: list[str] = []
     warnings: list[str] = []
@@ -175,6 +192,19 @@ def check_quality(text: str, target_keyword: str) -> tuple[int, str, list[str], 
     else:
         failed.append("missing_pr_ad_disclosure")
         details.append("PR/ad disclosure missing")
+
+    affiliate_index = first_affiliate_link_index(text)
+    disclosure_index = first_disclosure_index(text)
+    if affiliate_index is not None:
+        details.append("affiliate link detected")
+        if disclosure_index is None:
+            # The missing-disclosure hard fail above already captures this case.
+            details.append("affiliate disclosure placement unavailable")
+        elif disclosure_index > affiliate_index:
+            failed.append("late_pr_ad_disclosure")
+            details.append("PR/ad disclosure appears after the first affiliate link")
+        else:
+            details.append("PR/ad disclosure placement ok")
 
     banned = find_banned_terms(text)
     if banned:
