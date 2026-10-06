@@ -235,6 +235,7 @@ def check_quality(text: str, target_keyword: str) -> tuple[int, str, list[str], 
     hard_fail = any(
         item.startswith("h1_count")
         or item.startswith("missing_pr_ad_disclosure")
+        or item.startswith("late_pr_ad_disclosure")
         or item.startswith("banned_terms")
         or item.startswith("internal_memo_terms")
         or item.startswith("bare_urls")
