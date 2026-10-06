@@ -12,6 +12,8 @@
     "format": "prettier -w .",
     "check": "astro check",
     "audit:links": "node scripts/audit_internal_links.mjs",
+    "audit:links:recommend": "python scripts/recommend_internal_links.py",
+    "audit:seo": "python scripts/run_seo_audit.py --site https://monoslog.com --crawl --max-pages 50",
     "deploy:cf-workers": "npm run build && wrangler deploy",
     "preview:cf-workers": "npm run build && wrangler dev",
     "cms:local": "npx -y decap-server",

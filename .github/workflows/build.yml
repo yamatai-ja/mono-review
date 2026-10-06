@@ -44,6 +44,13 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Run blog quality unit tests
+        run: |
+          python tests/test_article_quality_checker.py
+          python tests/test_draft_quality_checker.py
+          python tests/test_internal_link_recommendations.py
+          python tests/test_run_seo_audit.py
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
