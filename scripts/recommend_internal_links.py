@@ -175,7 +175,15 @@ def _post_similarity(source: Post, target: Post) -> float:
 def _placement_heading(source: Post, target: Post) -> str:
     if not source.headings:
         return "本文中の関連トピック段落（手動確認）"
-    target_text = " ".join((target.title, *target.categories, *target.tags))
+    target_text = " ".join(
+        (
+            target.title,
+            *target.categories,
+            *target.tags,
+            *target.headings,
+            _visible_text(target.body)[:1200],
+        )
+    )
     scored = [(_similarity(heading, target_text), heading) for heading in source.headings]
     scored.sort(key=lambda item: (-item[0], item[1]))
     best_score, best_heading = scored[0]
