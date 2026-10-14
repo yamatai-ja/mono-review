@@ -12,8 +12,8 @@ The goal is not mass auto-publishing, but draft generation, SEO checks, affiliat
 - Keep changes minimal.
 - Do not rename existing CSV columns unless requested.
 - Do not add new dependencies without confirmation.
-- Do not auto-publish articles.
-- All generated articles must remain draft/review status.
+- Do not auto-publish articles or programmatically change a draft to a live post without a separate human action.
+- All generated articles must remain draft/review status. A production promotion is human-initiated after preflight and documented approval.
 - Prioritize CSV/SQLite based MVP over complex frameworks.
 
 ## Workspace shortcut
@@ -25,13 +25,11 @@ Do not modify:
 unless explicitly requested.
 
 ## Affiliate link placement
-- For product review or buying-guide articles, place affiliate links in three natural locations by default:
-  1. the top product card,
-  2. a purchase-decision section in the body,
-  3. near the final summary.
+- Do not force three affiliate placements. Add a link only where a verified offer helps the reader make a decision; zero, one, or several contextual links may be appropriate.
+- Affiliate placements must follow the article's intent and approved offer evidence. Never invent a product, sale, price, stock status, ranking, spec, review score, or campaign.
 - Do not paste bare affiliate URLs into article body text.
-- Prefer existing ProductCard or CTA/button UI so links can include `rel="sponsored nofollow noopener noreferrer"`.
-- Do not invent prices, stock status, campaign details, rankings, specs, or review scores.
+- Prefer existing ProductCard or CTA/button UI so links can include `rel="sponsored nofollow noopener noreferrer"` and a visible affiliate disclosure.
+- The canonical KRS decision/Article Package rules govern KRS-generated drafts; this repository must not introduce a second score or bypass the human publication gate.
 - Run the relevant validator, `npm run check`, and `npm run build` before creating a PR.
 
 ## Current MVP
